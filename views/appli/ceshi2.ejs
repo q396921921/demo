@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>筛选统计页面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/appliceshi2.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/appliceshi2.js"></script>
+    <script src="/js/public.js"></script>
+    <script src="/js/powers.js"></script>
+    <script src="/js/splitPage.js"></script>
+    <script>
+        
+        var username = "<%=username%>";
+        var menu = "<%=menu%>";
+        $(function () {
+            bindEvents()
+            getEmp();
+            getAllEmpName();
+            if (menu == '2') {
+                $("#li2").children().css("background", "#97C65E");
+                $("#b span").attr('style', "display:none")
+            }
+
+            getScreen();
+            // 将默认时间进行赋值
+            var timestamp = Date.parse(new Date());
+            var time1 = getTime(timestamp - 604800000);
+            $("#time1").val(time1);
+            $("#time2").val(getNowTime())
+
+            // 显示隐藏选择的对钩的，并将值进行改变
+            $("img").parent().click(function () {
+                var ts = $(this).children();
+                if (ts.css('display') == "none") {
+                    ts.show()
+                } else {
+                    ts.css('display', 'none')
+                }
+            })
+            // 点击四个按钮，触发的为隐藏时间框赋值事件
+            $("[type='radio']").click(function () {
+                var t = $(this).val();
+                var timestamp = Date.parse(new Date());
+                var time2 = getNowTime();
+                if (t == 0) {
+                    let t1 = $(this).parent().next().next().children();
+                    $("#time1").val(t1.val())
+                    $("#time2").val(t1.parent().next().next().children().val())
+                } else if (t == 1) {
+                    var time1 = getTime(timestamp - 604800000)
+                    $("#time1").val(time1)
+                    $("#time2").val(time2)
+                } else if (t == 2) {
+                    var time1 = getTime(timestamp - 2592000000)
+                    $("#time1").val(time1)
+                    $("#time2").val(time2)
+                } else if (t == 3) {
+                    var time1 = getTime(timestamp - 7776000000)
+                    $("#time1").val(time1)
+                    $("#time2").val(time2)
+                }
+            })
+            $(".class1").click(function () {
+                var data = $(this).parent().parent();
+                data.children().children().each(function () {
+                    var name = $(this).attr('name')
+
+                })
+            })
+        })
+    </script>
+
+<body>
+    <!-- 储存所有用户的名字 -->
+    <input type="hidden" id="allName">
+    <input type="hidden" id="time1">
+    <input type="hidden" id="time2">
+    <input type="hidden" id="data">
+    <div id="a">
+        <ul>
+            <li id="li1">
+                <input type="button" value="申请订单" class="canButton" name="head1" onclick="jump(1)">
+            </li>
+            <li id="li2">
+                <input type="button" value="筛选/统计" class="canButton" name="head2" onclick="jump(2)">
+            </li>
+            <li id="li3">
+                <input type="button" value="询值订单" class="canButton" name="head3" onclick="jump(3)">
+            </li>
+            <!-- <li id="li4">
+                        <input type="button" value="创建" class="canButton" name="head4" onclick="jump(4)">
+                    </li> -->
+            <li id="li5">
+                <input type="button" value="推荐订单" class="canButton" name="head5" onclick="jump(5)">
+            </li>
+        </ul>
+        <input id="orderSelect" type="button" onclick="deleteTb()" class="canButton" value="订单ID查询">
+        <input id="aid" type="text">
+    </div>
+    <table id="c" cellpadding="0" cellspacing="0"></table>
+    <table id="d" cellpadding="0" cellspacing="0"></table>
+    <div id="middle">
+        <input class="canButton" type="button" value="导出" onclick="output(this)">
+        <input class="canButton" type="button" value="统计" onclick="getScreenOrders()">
+    </div>
+    <div>
+        <span>放贷总金额:</span>
+        <input id="totalMoney" disabled type="text">
+        <span>订单数:</span>
+        <input id="totalOrder" disabled type="text">
+    </div>
+    <!-- 统计之后输出出来的表格 -->
+    <table id='table' cellpadding="0" cellspacing="0" style="position: relative;top: 90px;"></table>
+    <div id="bottom">
+        <!-- 分页 -->
+        <table id="split" width="100%" border="0" cellpadding="0" cellspacing="0" style="width: 943px; font-size: 15px">
+            <tr>
+                <td width="31%">&nbsp;
+                    <input type="hidden" id="totalPage" />
+                    <input type="hidden" id="cpageNo" />
+                    <input type="hidden" id="pageNo" value="1" />
+                </td>
+                <td width="13%">共
+                    <input readonly style="width: 30%" type="text" id="totalNum">条记录</td>
+                <td width="6%">
+                    <input id="fir" type="button" value="首页" onclick="firClick()" />
+                </td>
+                <td width="6%">
+                    <input id="pre" type="button" value="上一页" onclick="preClick()" />
+                </td>
+                <td width="6%">
+                    <input id="next" type="button" value="下一页" onclick="nextClick()" />
+                </td>
+                <td width="6%">
+                    <input id="last" type="button" value="末页" onclick="lastClick()" />
+                </td>
+                <td width="3%">
+                    <input type="text" id="pages" size="1" value="" />
+                </td>
+                <td width="6%">
+                    <input type="button" id="tpageNo" value="跳转" onclick="tpageNoClick()">
+                </td>
+                <td id="lstd" style="margin-right: 100px">当前第
+                    <span style="color: red;"></span>/
+                    <span></span>页
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>
+<script>
+</script>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>创建页面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/otherceshi2.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-form.js"></script>
+    <script src="/js/otherceshi2.js"></script>
+    <script>
+        
+        var username = "<%=username%>";
+        var menu = "<%=menu%>";
+        $(function () {
+            bindEvents()
+            if (menu == "2") {
+                $("#li2").children().css("background", "#97C65E");
+                $("#c").attr('style', "display:none")
+            }
+        })
+
+    </script>
+
+    <body>
+        <div id="a">
+            <ul>
+                <li id="li1">
+                    <input type="button" value="管理" class="canButton" name="head1" onclick="jump(1)">
+                </li>
+                <li id="li2">
+                    <input type="button" value="公告" class="canButton" name="head2" onclick="jump(2)">
+                </li>
+            </ul>
+        </div>
+        <div id="message">
+            <span style="font-weight: bold;font-size: 25px;">公告标题</span>
+            <br>
+            <input type="text" id='title' name="title" placeholder="请在此输入公告的标题" style="width: 50%">
+            <br>
+            <span style="font-weight: bold;font-size: 25px;">公告内容</span>
+            <br>
+            <textarea name='text' id="text" cols="32" rows="20" style="margin-top: 23px;height: 38%;width: 95%;resize: none;resize: none;"
+                placeholder="请在此输入公告的内容"></textarea>
+            <br>
+            <input type="button" class="canButton" onclick="getAllUsers()" value="发送" style="position: absolute;bottom: 30%;">
+        </div>
+        <div id="person" hidden style="text-align:center;width: 100%;height: 100%">
+            <table cellpadding="0" cellspacing="0" style="width:20%;margin: auto;">
+                <tr>
+                    <td>
+                        <input type="button" class="canButton" value="全选" onclick="checkAll(this)">
+                    </td>
+                    <td>用户名</td>
+                </tr>
+            </table>
+            <input type="button" class="canButton" onclick="reSend()" value="发送" style="position: absolute;bottom: 50%;right: 20%;">
+        </div>
+    </body>
+
+</html>

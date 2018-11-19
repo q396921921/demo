@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>借贷后台</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<script src="/js/jquery.min.js"></script>
+<script>
+    $(function () {
+        $(document).keypress(function (e) {
+            var eCode = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
+            if (eCode == 13) {
+                $("#submit").trigger('click');
+            }
+        });
+        if (window != top) {
+            parent.window.location.href = "/users/login";
+            return;
+        }
+    })
+</script>
+
+<body>
+    <div id=a>
+        <h1 style="color: white">借贷后台</h1>
+    </div>
+    <div id=b>
+        <h2 style="margin-left: 150px;margin-top: 20px;">账户登录</h2>
+        <div id="c">
+            <form action="log" method="post">
+                <h4 style="color:red"><%=mes %></h4>
+                用户名:
+                <input id="username" type="text" name="username">
+                <br> 密&nbsp;&nbsp;码:
+                <input id="password" type="password" name="password">
+                <br>
+                <input id="submit" type="submit" value="登录" style="margin-left: 120px">
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

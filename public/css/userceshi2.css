@@ -1,0 +1,126 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body {
+    height: 690px;
+}
+
+/* ✔ */
+#a {
+    width: 100%;
+    height: 38px;
+    margin-top: 1px;
+    background: #CCE8CF;
+}
+#bigger {
+    width: 100%;
+    height: 100%;
+}
+/* ✔ */
+#b {
+    position: relative;
+    top: 10px;
+    width: 100%;
+    height: 100%;
+}
+/* ✔ */
+#c{
+    top: 38px;
+    width: 100%;
+    height: 40px;
+    padding-top: 0px;
+    font-size: 20px;
+    text-align: center
+}
+/* ✔ */
+#c select {
+    height: 30px;
+}
+table {
+    position: relative;
+    top: 33px;
+    text-align: center;
+    margin-left: 150px;
+    border:0;
+    margin: auto;
+}
+/* ✔ */
+ul li {
+    position: relative;
+    bottom: 0px;
+    list-style-type: none;
+    float: left;
+    width: 100px;
+    height: 100%;
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
+    margin-right: 20px;
+}
+/* ✔ */
+li input {
+    height: 100%;
+    width: 100px;
+    font-size: 18px;
+    font-weight: bold;
+    color: black;
+}
+
+/* ✔ */
+ul {
+    height: 100%;
+    padding-left: 0px;
+    margin-left: 10px
+}
+
+/* ✔ */
+tr td {
+    border: 1px solid black;
+    height: 35px;
+    font-size: 15px;
+    font-weight:bold;
+    font-family: '黑体'"
+}
+/* ✔ */
+td input {
+    height: 100%;
+    width: 98%;
+    text-align: center;
+    
+}
+/* ✔ 确认按钮 */
+#c select+input{
+    width: 60px;
+    height: 35px;
+    text-align: center;
+    font-size: 20px;
+    margin-left: 20px;
+    font-weight: bold;
+    color: black;
+}
+.canButton{
+    position: absolute;
+    width: 85px;
+    height: 30px;
+    text-align: center;
+    font-size: 20px;
+    bottom: 0;
+    margin-left: 20px;
+}
+
+.gun {
+    width: 33%;
+    height: 550px;
+    float: left;
+    text-align: center;
+}
+
+.gun table {
+    width: 50%;
+    height: 30px;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: '黑体';
+    border: none;
+}

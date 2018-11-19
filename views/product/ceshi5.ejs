@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>筛选统计页面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/productceshi5.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-form.js"></script>
+    <script src="/js/productceshi5.js"></script>
+    <script src="/js/public.js"></script>
+    <script src="/js/splitPage.js"></script>
+    <script>
+        
+        var username = "<%=username%>";
+        var menu = "<%=menu%>";
+        $(function () {
+            bindEvents()
+            getAllEmpName();
+            getAllDeps();
+            if (menu == '5') {
+                $("#li5").children().css("background", "#97C65E");
+            }
+            getTypes();
+        })
+
+    </script>
+
+<body>
+    <input type="hidden" id="allName">
+    <input type="hidden" id="allDep">
+    <input type="hidden" id="product_id">
+    <div id="a">
+        <ul>
+            <li id="li1">
+                <input type="button" value="筛选/统计" class="canButton" name="head1" onclick="jump(1)">
+            </li>
+            <li id="li2">
+                <input type="button" value="创建商品" class="canButton" name="head2" onclick="jump(2)">
+            </li>
+            <li id="li3">
+                <input type="button" value="流程" class="canButton" name="head3" onclick="jump(3)">
+            </li>
+            <li id="li4">
+                <input type="button" value="申请材料" class="canButton" name="head4" onclick="jump(4)">
+            </li>
+            <li id="li5">
+                <input type="button" value="分配产品" class="canButton" name="head5" onclick="jump(5)">
+            </li>
+        </ul>
+    </div>
+    <div id="b">
+        <!-- 筛选条件表 -->
+        <table id="c" cellpadding="0" cellspacing="0" style="width: 50%">
+            <tr>
+                <td width="10%">产品类型</td>
+                <td width="30%">
+                    <select id="types"></select>
+                </td>
+                <td width="20%">
+                    <input class="canButton" type="button" value="筛选" onclick="getScreenProduct()" style="width: 90%">
+                </td>
+            </tr>
+        </table>
+        <!-- 统计之后输出出来的表格 -->
+        <div id="divd">
+            <a href="" id="head"></a>
+            <table id='table' cellpadding="0" cellspacing="0" style="top: 0;">
+                <thead>
+                    <tr>
+                        <th width="10%">商品id</th>
+                        <th width="20%">商品名</th>
+                        <th width="55%">商品详情</th>
+                        <th width="15%">操作</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <!-- 分页 -->
+        <table id="split" width="100%" border="0" cellpadding="0" cellspacing="0" style="width: 943px;font-size: 15px">
+            <tr>
+                <td width="31%">&nbsp;
+                    <input type="hidden" id="totalPage" />
+                    <input type="hidden" id="cpageNo" />
+                    <input type="hidden" id="pageNo" value="1" />
+                </td>
+                <td width="13%">共
+                    <input readonly style="width: 30%" type="text" id="totalNum">条记录</td>
+                <td width="6%">
+                    <input id="fir" type="button" value="首页" onclick="firClick()" />
+                </td>
+                <td width="6%">
+                    <input id="pre" type="button" value="上一页" onclick="preClick()" />
+                </td>
+                <td width="6%">
+                    <input id="next" type="button" value="下一页" onclick="nextClick()" />
+                </td>
+                <td width="6%">
+                    <input id="last" type="button" value="末页" onclick="lastClick()" />
+                </td>
+                <td width="3%">
+                    <input type="text" id="pages" size="1" value="" />
+                </td>
+                <td width="6%">
+                    <input type="button" id="tpageNo" value="跳转" onclick="tpageNoClick()">
+                </td>
+                <td id="lstd" style="margin-right: 100px">当前第
+                    <span style="color: red;"></span>/
+                    <span></span>页
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="update" style="text-align: center" hidden>
+        <select id="t2" style="width: 50%;margin-bottom:5px;text-align: center;" onchange="showT1(this)"></select>
+        <br>
+        <select id="t1" style="width: 50%;margin-bottom:5px;text-align: center;" disabled></select>
+        <br>
+        <table id="t4" style="width: 50%;margin-bottom:5px;text-align: center;" cellpadding="0" cellspacing="0"></table>
+        <input type="button" value="确认分配" class="canButton" onclick="reUpdate()" style="margin-top: 10px">
+        <table id="t3" cellpadding="0" cellspacing="0" style="width: 50%">
+            <tr>
+                <td>部门</td>
+                <td>内勤</td>
+                <td>业务</td>
+            </tr>
+        </table>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+  <title>Mobiscroll_2.17.1</title>
+</head>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/powers.js"></script>
+<script src="/js/iscroll.js"></script>
+
+<script>
+  var path = 'http://192.168.1.188:1238/users/';
+  var i = 1; //设置当前页数 
+  $(function () {
+    getOr();
+    $("body").attr('style', 'width:' + window.screen.availWidth);
+
+    var winH = $(window).height(); //页面可视区域高度 
+    $(window).scroll(function () {
+      var pageH = $(document).height();
+      var scrollT = $(window).scrollTop(); //滚动条top 
+      var aa = (pageH - winH - scrollT) / winH;
+      if (aa <= 0) {
+        getOr();
+      }
+    });
+  })
+</script>
+
+<body>
+
+  <table id='table' width="95%" height="100%" cellpadding="0" cellspacing="0" style="top: 1%;">
+    <thead>
+      <!-- <th width="8%">订单编号</th>
+          <th width="6%">渠道编号</th>
+          <th width="6%">业务编号</th>
+          <th width="6%">内勤编号</th> -->
+      <th width="6%">客户姓名</th>
+      <!-- <th width="6%">产品类型</th> -->
+      <th width="8%">申请金额
+        <span style="font-size: 15px;">/万</span>
+      </th>
+      <!-- <th width="8%">放款金额
+            <span style="font-size: 15px;">/万</span>
+          </th>
+          <th width="6%">申请流程</th>
+          <th width="6%">申请状态</th>
+          <th width="9%">申请时间</th>
+          <th width="9%">放款时间</th>
+          <th width="6%">订单状态</th>
+          <th width="8%">操作</th> -->
+    </thead>
+  </table>
+  <div id="text" hidden style="text-align: center">已加载全部数据</div>
+
+  <!-- 循环次数:
+  <input type="text" disabled id="num">
+  <input type="text" onblur="setNum(this)">
+  <input type="button" value="开始循环" onclick="start()"> -->
+</body>
+
+</html>
+
+<script>
+  function getOr() {
+    $.ajax({
+      url: path + "getOrders",
+      type: "post",
+      data: {
+        order_type: 1,
+        role_type: role_type,
+        userdep_id: userdep_id,
+        busoff_id: busoff_id,
+        limit: i
+      },
+      async: false,
+      dataType: "text",
+      success: function (result) {
+        let data = JSON.parse(result).result
+        if (data.length == 0) {
+          $("#text").show();
+          setTimeout(function () {
+            $("#text").hide();
+          }, 1000)
+          return false;
+        } else {
+          printTable(result, $("#table"))
+          i++;
+          return false;
+        }
+      }
+    })
+  }
+  // 通过查询数据库返回的结果，把数据打印到对应的表格     ✔
+  function printTable(result, tableId) {
+    result = JSON.parse(result);
+    result = result.result;
+    let managerCount = 0;
+    for (let i = 0; i < result.length; i++) {
+      let data = result[i];
+      let appli_id = getAny(data.appli_id)
+      let channel_id = getAny(data.channel_id)
+      let business_id = getAny(data.business_id)
+      let office_id = getAny(data.office_id)
+      if (i == 0) {
+        types = getTypes()
+      }
+      let type = data.type;
+      let appliTime = timestampToTime(data.appliTime);    // 申请时间
+      let seeTime = timestampToTime(data.seeTime);        // 下户，见面时间
+      let loanTime = timestampToTime(data.loanTime);      // 放贷时间
+      let flowState = data.flowState;
+      let flow = getFlow(flowState);
+      if (data.order_state == 1) {
+        managerCount++;
+      }
+      let order_state = getOrderState(data.order_state);
+      let userComment = getAny(data.userComment);
+      let empComment = getAny(data.empComment);
+      let product_id = getProduct(data.product_id);
+      let orderFile = getAny(data.orderFile)
+      let relation_state_id = data.relation_state_id;
+      let state = getStates(relation_state_id);
+      let money = getAny(data.money)
+      let failReason = getAny(data.failReason);
+      let clientName = getAny(data.clientName);
+      let inmoney = getAny(data.inmoney);
+
+      let bank_name = getAny(data.bank_name);
+      let bank_id = getAny(data.bank_id);
+      let card_name = getAny(data.card_name);
+      let refund = getRefund(data.refund);
+
+      let trtd = $('<tr height="6%"><td hidden><input type="text" name="order_id" value="' + data.order_id + '" style="width: 95%"></td>'
+        + '<td hidden><input type="text" name="failReason" value="' + failReason + '" style="width: 95%"></td>'
+        + '<td hidden><input type="text" name="appli_id" readonly="readonly" value="' + appli_id + '" style="width: 95%"></td>'
+        + '<td hidden><input type="text" name="channel_id" value="' + channel_id + '" readonly="readonly"></td>'
+        + '<td hidden><input type="text" name="business_id" value="' + business_id + '" readonly="readonly" style="width: 94%"></td>'
+        + '<td hidden><input type="text" name="office_id" value="' + office_id + '" readonly="readonly"></td>'
+        + '<td ><input type="text" name="clientName" value="' + clientName + '" readonly="readonly"></td>'
+        + '<td hidden><input type="text" name="type" value="' + type + '" readonly="readonly"></td>'
+        + '<td hidden><input type="text" name="inmoney" value="' + inmoney + '" readonly="readonly"></td>'
+        + '<td ><input type="text" name="money" value="' + money + '" readonly="readonly"></td>'
+        + '<td hidden><input type="text" name="flowState" value="' + flow + '" readonly="readonly"></td>'
+        + '<td hidden><input type="text" name="relation_state_id" value="' + state + '" readonly="readonly"></td>'
+        + '<td hidden><input type="text" name="appliTime" value="' + appliTime + '" readonly="readonly" style="width: 94%"></td>'
+        + '<td hidden><input type="text" name="userComment" value="' + userComment + '" readonly="readonly"></td>'
+        + '<td hidden><input type="text" name="empComment" value="' + empComment + '" readonly="readonly"></td>'
+        + '<td hidden><input type="text" name="product_id" value="' + product_id + '" readonly="readonly"></td>'
+        + '<td hidden><input type="text" name="seeTime" value="' + seeTime + '" readonly="readonly"></td>'
+
+        + '<td hidden><input type="text" name="bank_name" value="' + bank_name + '" readonly="readonly"></td>'
+        + '<td hidden><input type="text" name="bank_id" value="' + bank_id + '" readonly="readonly"></td>'
+        + '<td hidden><input type="text" name="card_name" value="' + card_name + '" readonly="readonly"></td>'
+        + '<td hidden><input type="text" name="refund" value="' + refund + '" readonly="readonly"></td>'
+
+        + '<td hidden><input type="text" name="loanTime" value="' + loanTime + '" readonly="readonly"></td>'
+        + '<td hidden><input type="text" name="orderFile" value="' + orderFile + '"></td>'
+        + '<td hidden><input type="text" name="order_state" value="' + order_state + '" style="width: 97%"><input type="text" value="' + 1 + '" hidden></td>'
+        + '<td hidden><input onclick="getOneOrders(this)" type="button" name="handle" value="详情" style="width: 50px"></tr>');
+      trtd.appendTo(tableId)
+    }
+    $("#managerOrder").next().html(managerCount);
+  }
+
+
+  function getAny(data) {
+    if (!data) {
+      data = "";
+    }
+    return data;
+  }
+  function getTypes() {
+    var text = "";
+    $.ajax({
+      url: path + "getType",
+      type: "get",
+      async: false,
+      dataType: "text",
+      success: function (result) {
+        text = JSON.parse(result)
+      }
+    })
+    return text;
+  }
+  function timestampToTime(timestamp) {
+    let text;
+    if (timestamp) {
+      var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+      Y = date.getFullYear() + '-';
+      M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+      D = date.getDate();
+      if (D < 10) {
+        D = '0' + D + ' '
+      } else {
+        D = D + ' '
+      }
+      h = date.getHours();
+      if (h < 10) {
+        h = '0' + h + ':'
+      } else {
+        h = h + ':'
+      }
+      m = date.getMinutes();
+      if (m < 10) {
+        m = '0' + m;
+      }
+      text = Y + M + D + h + m;
+    } else {
+      text = '';
+    }
+    return text;
+  }
+  function getFlow(flow_detail_id) {
+    let text = "";
+    if (flow_detail_id && flow_detail_id != "") {
+      $.ajax({
+        url: path + "getFlowByFlow_detail_id",
+        type: "post",
+        data: {
+          flow_detail_id: flow_detail_id
+        },
+        async: false,
+        dataType: "text",
+        success: function (result) {
+          result = JSON.parse(result).data[0];
+          text = result.flow_name;
+        }
+      })
+    }
+    return text;
+  }
+  function getOrderState(num) {
+    let text = '';
+    if (num == 1) {
+      text = '申请中';
+    } else if (num == 2) {
+      text = '待审核';
+    } else if (num == 3) {
+      text = '通过';
+    } else if (num == 4) {
+      text = '失败';
+    } else if (num == 5) {
+      text = '撤销';
+    }
+    return text;
+  }
+  function getProduct(product_id) {
+    let text = "";
+    $.ajax({
+      url: path + "getProductById",
+      type: "post",
+      data: {
+        product_id: product_id
+      },
+      async: false,
+      dataType: "text",
+      success: function (result) {
+        result = JSON.parse(result).data[0];
+        text = result.name;
+      }
+    })
+    return text;
+  }
+  function getStates(state_id) {
+    var text = "";
+    if (state_id) {
+      $.ajax({
+        url: path + "getStates",
+        type: "post",
+        data: {
+          state_id: state_id,
+        },
+        async: false,
+        dataType: "text",
+        success: function (result) {
+          text = result
+        }
+      })
+    } else {
+      text = ""
+    }
+    return text
+  }
+  function getRefund(num) {
+    let text = "";
+    if (num == 0) {
+      text = '未还款';
+    } else if (num == 1) {
+      text = '已还款'
+    }
+    return text;
+  }
+
+</script>

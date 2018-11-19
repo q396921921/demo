@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>筛选统计页面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/productceshi2.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-form.js"></script>
+    <script src="/js/productceshi2.js"></script>
+    <script src="/js/public.js"></script>
+    <script>
+        
+        var username = "<%=username%>";
+        var menu = "<%=menu%>";
+        $(function () {
+            bindEvents()
+            if (menu == '2') {
+                $("#li2").children().css("background", "#97C65E");
+            }
+            getTypes();
+            getFlows();
+            getFile_type();
+        })
+    </script>
+
+<body>
+    <div id="a">
+        <ul>
+            <li id="li1">
+                <input type="button" value="筛选/统计" class="canButton" name="head1" onclick="jump(1)">
+            </li>
+            <li id="li2">
+                <input type="button" value="创建商品" class="canButton" name="head2" onclick="jump(2)">
+            </li>
+            <li id="li3">
+                <input type="button" value="流程" class="canButton" name="head3" onclick="jump(3)">
+            </li>
+            <li id="li4">
+                <input type="button" value="申请材料" class="canButton" name="head4" onclick="jump(4)">
+            </li>
+            <li id="li5">
+                <input type="button" value="分配产品" class="canButton" name="head5" onclick="jump(5)">
+            </li>
+        </ul>
+    </div>
+    <div id="b">
+        <form action="./../insertProductType" method="POST" style="text-align:center">
+            创建类型:
+            <input type="text" name="product_type_name" id="product_type_name">
+            <input type="button" class="canButton" onclick="submitForm2()" value="创建类型">
+        </form>
+        <form action="./../insertProduct" method="POST" enctype="multipart/form-data" style="margin-top: 10px;">
+            <table id="c" cellpadding="0" cellspacing="0" style="width: 50%">
+                <tr>
+                    <td width="10%">产品类型</td>
+                    <td width="30%">
+                        <input type="text" name='product_type_id' hidden>
+                        <select id="types" onchange="changeSetNum(this)"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>商品名字</td>
+                    <td>
+                        <input type="text" name='name' id="product_name">
+                    </td>
+                </tr>
+                <tr>
+                    <td>商品特色</td>
+                    <td>
+                        <input type="text" name='threeText' id="threeText">
+                    </td>
+                </tr>
+                <tr>
+                    <td>是否询值产品</td>
+                    <td>
+                        <select name="isNum" id="isNum">
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                        <!-- <input type="text" name='isNum' id="isNum"> -->
+                    </td>
+                </tr>
+                <tr>
+                    <td>是否交易所</td>
+                    <td>
+                        <select name="isBourse" id="isBourse">
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                        <!-- <input type="text" name='isBourse' id="isBourse"> -->
+                    </td>
+                </tr>
+                <tr>
+                    <td>是否直接上架</td>
+                    <td>
+                        <select name="putaway" id="putaway">
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                        <!-- <input type="text" name='putaway' id="putaway"> -->
+                    </td>
+                </tr>
+                <tr>
+                    <td>商品利率</td>
+                    <td>
+                        <input type="text" name='product_intro' id="product_intro" hidden>
+                        <textarea cols="30" rows="5" style="font-size: 15px;width: 99%;resize:none" onblur="setProduct_detail(this)"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>商品详情</td>
+                    <td>
+                        <input type="text" name='product_detail' hidden>
+                        <textarea cols="30" rows="10" style="font-size: 15px;width: 99%;resize:none" onblur="setProduct_detail(this)"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>商品流程</td>
+                    <td>
+                        <input type="text" name="flow_id" hidden>
+                        <select id="flow_id" onchange="changeSetNum(this)"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>申请材料</td>
+                    <td>
+                        <input type="text" name="file_type_id" hidden>
+                        <select id="file_type_id" onchange="changeSetNum(this)"></select>
+                    </td>
+                </tr>
+                <tr style="text-align: center;vertical-align: middle;">
+                    <td>商品简图</td>
+                    <td>
+                        <input type="hidden" name="exist" value="0">
+                        <input type="file" onchange="change(this)" name='file' hidden>
+                        <img src="#" alt="点此上传图片" width="200px" height="200px;" onclick="uploadImg(this)">
+                    </td>
+                </tr>
+                <tr style="text-align: center;vertical-align: middle;">
+                    <td>商品详图</td>
+                    <td>
+                        <input type="hidden" name="exist" value="0">
+                        <input type="file" onchange="change(this)" name='file' hidden>
+                        <img src="#" alt="点此上传图片" width="200px" height="200px;" onclick="uploadImg(this)">
+                    </td>
+                </tr>
+                <!-- <tr style="text-align: center;vertical-align: middle;">
+                        <td>商品详图2</td>
+                        <td>
+                            <input type="hidden" name="exist" value="0">
+                            <input type="file" onchange="change(this)" name='file' hidden>
+                            <img src="#" alt="点此上传图片" width="200px" height="200px;" onclick="uploadImg(this)">
+                        </td>
+                    </tr> -->
+            </table>
+        </form>
+        <input type="submit" value="确认创建" class="canButton" id="reUpdate" onclick="submitForm()">
+    </div>
+</body>
+
+</html>

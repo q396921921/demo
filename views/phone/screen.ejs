@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>中转页面</title>
+    <link rel="stylesheet" href="/css/fit.css">
+</head>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/phonescreen.js"></script>
+<script src="/js/phonescreen2.js"></script>
+<script src="/js/powers.js"></script>
+<script>
+    var limit = 1;
+    
+    var username = "<%=username%>";
+    var menu = "<%=menu%>";
+    $(function () {
+        getEmp();
+        getAllProducts();
+        getFlows();
+        $("#footer").attr('style', 'width:' + window.screen.availWidth);
+        if (menu == 'allOrders') {
+            $("#li1").css('background', 'red');
+            $("#li1").css('z-index', '2')
+        } else if (menu == 'screen') {
+            $("#li2").css('background', 'red');
+            $("#li2").css('z-index', '2')
+        }
+        getScreen();
+        var winH = $(window).height(); //页面可视区域高度 
+        $(window).scroll(function () {
+            var pageH = $(document).height();
+            var scrollT = $(window).scrollTop(); //滚动条top 
+            var aa = (pageH - winH - scrollT) / winH;
+            if (aa <= 0) {
+                getSplitScreenOrders();
+            }
+        });
+        // 将默认时间进行赋值
+        var timestamp = Date.parse(new Date());
+        var time1 = getTime(timestamp - 604800000)
+        $("#time1").val(time1);
+        $("#time2").val(getNowTime())
+        // 点击四个按钮，触发的为隐藏时间框赋值事件
+        $("[type='radio']").click(function () {
+            var t = $(this).val();
+            var timestamp = Date.parse(new Date());
+            var time2 = getNowTime();
+            if (t == 0) {
+                let t1 = $(this).parent().parent().next().children().children('input[name="time1"]')
+                $("#time1").val(t1.val())
+                $("#time2").val(t1.parent().parent().next().children().children('input[name="time2"]').val())
+            } else if (t == 1) {
+                var time1 = getTime(timestamp - 604800000)
+                $("#time1").val(time1)
+                $("#time2").val(time2)
+            } else if (t == 2) {
+                var time1 = getTime(timestamp - 2592000000)
+                $("#time1").val(time1)
+                $("#time2").val(time2)
+            } else if (t == 3) {
+                var time1 = getTime(timestamp - 7776000000)
+                $("#time1").val(time1)
+                $("#time2").val(time2)
+            }
+        })
+    })
+    function jump(num) {
+        if (num == 1) {
+            window.location.href = path + 'phone/allOrders';
+        } else {
+            window.location.href = path + 'phone/screen';
+        }
+    }
+
+</script>
+<style>
+    .d {
+        position: absolute;
+        width: 25%;
+        height: 30px;
+        border: 1px solid black;
+        text-align: center;
+        font-weight: bold;
+        color: white;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        margin-top: 8px;
+        padding-top: 5px;
+        background: #3392FF;
+    }
+
+    .line {
+        background: gray;
+        height: 20%;
+        width: 110%;
+        margin: 0;
+        float: left;
+    }
+
+    .circle {
+        background: gray;
+        border-radius: 50%;
+        height: 50%;
+        width: 110%;
+        float: left;
+    }
+</style>
+
+<body>
+    <!-- 储存所有的流程名字 -->
+    <input type="hidden" id="allFlow">
+    <!-- 储存所有商品的名字 -->
+    <input type="hidden" id="allPName">
+    <input type="hidden" id="order_id">
+    <input type="hidden" id="time1">
+    <input type="hidden" id="time2">
+    <input type="hidden" id="data">
+    <!-- 用来得到当前订单的失败原因 -->
+    <input type="text" id="failReason" hidden>
+    <!-- 用来控制可读可写的，1只读，2可写 -->
+    <input type="hidden" id="read" value="1">
+    <div id="footer">
+        <div style="width: 100%;height:45px;background: #3392FF;">
+            <div id='li1' class="d" style="margin-left: 8%;" onclick="jump(1)">全部</div>
+            <div id="li2" class="d" style="margin-left: 30%;" onclick="jump(2)">筛选统计</div>
+        </div>
+        <div class="tb" id="table" style="background: chocolate;width: 100%;text-align: center">
+            <input type="text" style="width:60%" id="aid">&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" class="canButton"
+                value="id查询" onclick="getOrderById()">
+            <table id="c" cellpadding="0" cellspacing="0" style="width: 100%;"></table>
+            <table id="d" cellpadding="0" cellspacing="0" style="width: 100%;"></table>
+            <input class="canButton" type="button" value="统计" onclick="getScreenOrders()">
+        </div>
+        <div id="total">
+            <span>放贷总金额/万:</span>
+            <input id="totalMoney" disabled type="text">
+            <br>
+            <span>订&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;数:</span>
+            <input id="totalOrder" disabled type="text">
+        </div>
+        <div class="tb" style="width: 99%;background: chartreuse;text-align: center">
+            <table id='table1' cellpadding="0" cellspacing="0" style="width: 100%;margin-top: 10px;">
+                <tr>
+                    <td width="33%">姓名</td>
+                    <td width="33%">金额</td>
+                    <td width="33%">放贷时间</td>
+                </tr>
+            </table>
+            <div id="text" hidden style="text-align: center">已加载全部数据</div>
+        </div>
+        <div id="table2" hidden>
+            <table id="table3">
+                <tr>
+                    <td width="20%">订单编号</td>
+                    <td width="80%">
+                        <input type="text" name="appli_id">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="20%">渠道编号</td>
+                    <td width="80%">
+                        <input type="text" name="channel_id">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="20%">业务编号</td>
+                    <td width="80%">
+                        <input type="text" name="business_id">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="20%">内勤编号</td>
+                    <td width="80%">
+                        <input type="text" name="office_id">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="20%">商品</td>
+                    <td width="80%">
+                        <input type="text" name="product_id">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="20%">产品类型</td>
+                    <td width="80%">
+                        <input type="text" name="type">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="20%">申请金额</td>
+                    <td width="80%">
+                        <input type="text" name="inmoney">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="20%">放款金额</td>
+                    <td width="80%">
+                        <input type="text" name="money">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="20%">申请时间</td>
+                    <td width="80%">
+                        <input type="text" name="appliTime">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="20%">下户时间</td>
+                    <td width="80%">
+                        <input type="text" name="seeTime">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="20%">放款时间</td>
+                    <td width="80%">
+                        <input type="text" name="loanTime">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="20%">订单状态</td>
+                    <td width="80%">
+                        <input type="text" name="order_state">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="20%">订单文件</td>
+                    <td width="80%">
+                        <input type="text" name="orderFile">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="20%">员工备注</td>
+                    <td width="80%">
+                        <input hidden type="text" name="empComment">
+                        <textarea cols="30" rows="10"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="20%">用户备注</td>
+                    <td width="80%">
+                        <input hidden type="text" name="userComment">
+                        <textarea cols="30" rows="10"></textarea>
+                    </td>
+                </tr>
+            </table>
+            <table id="table4"></table>
+            <table id="table5"></table>
+            <table id="table6"></table>
+        </div>
+
+    </div>
+</body>
+
+</html>
