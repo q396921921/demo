@@ -18,6 +18,7 @@ var mdData = require('./methodData');
 
 // 创建一个订单
 router.post('/createOrder', function (req, res, next) {
+    console.log(123456);
     let body = req.body
     mdOrder.createOrder(body, (ret) => {
         res.send(ret)

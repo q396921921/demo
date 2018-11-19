@@ -12,6 +12,7 @@ let momoent = require("moment");
 let xlsx = require("node-xlsx");
 let path = require("path");
 let timer = require("./timer");
+let promise = require('bluebird');
 var debug = require("debug")("app:server");
 let public = require("./../public/public");
 const uploadFile = public.uploadFolde; // 后台修改上传图片文件的文件夹名字
@@ -54,7 +55,6 @@ module.exports = {
       let obj = {
         tName: 'relation_product_dep',
         condi: 'and',
-        limit: '',
         product_id: product_id
       }
       await get.delete(obj);
@@ -73,7 +73,6 @@ module.exports = {
       let obj = {
         tName: 'relation_product_dep',
         condi: 'and',
-        limit: '',
         product_id: product_id
       }
       let office = await get.myData(obj);
@@ -88,10 +87,14 @@ module.exports = {
    */
   getProEmp: async function (body, cb) {
     try {
-      let product_id = body.product_id;
-      let off_id = body.off_id;
-      let dep_id = body.dep_id;
-      let business = await queryOrder.getOffByProduct_id({ product_id: product_id, off_id: off_id, dep_id: dep_id }, [product_id, off_id, dep_id]);
+      let obj = {
+        tName: 'relation_product_dep',
+        condi: 'and',
+        product_id: body.product_id,
+        off_id: body.off_id,
+        dep_id: body.dep_id
+      }
+      let business = await get.myData(obj);
       cb(JSON.stringify({ data: business }));
     } catch (err) {
       debug("在通过商品id，内勤id，部门id查询内勤负责此部门的业务时错误");
@@ -103,15 +106,20 @@ module.exports = {
    */
   allotProduct: async function (body, cb) {
     try {
-      let product_id = body.product_id;
-      let dep_id = body.dep_id;
-      let off_id = body.off_id;
-      let emp_id_arr = body.emp_id_arr;
+      let obj = {
+        tName: 'relation_product_dep',
+        condi: 'and',
+        product_id: body.product_id,
+        off_id: body.off_id,
+        dep_id: body.dep_id,
+      }
       // 查询之前与此商品相关联的内勤,然后删掉
-      await otherOrder.deleteOffBus([product_id, dep_id, off_id]);
+      await get.delete(obj);
+      let emp_id_arr = body.emp_id_arr;
       for (let i = 0; i < emp_id_arr.length; i++) {
         let dep_emp_id = emp_id_arr[i];
-        await otherOrder.insertOffProduct([product_id, dep_id, off_id, dep_emp_id]);
+        obj[dep_emp_id] = dep_emp_id;
+        await get.insert(obj);
       }
       cb('success')
     } catch (err) {
@@ -120,30 +128,43 @@ module.exports = {
     }
 
   },
+  // not do
   /**
    * 传入商品id以及订单id，创建这个商品的所有状态
    */
   createOrderFlow: async function (body, cb) {
     try {
-      let obj = {};
-      let product_id = body.product_id;
-      let order_id = parseInt(body.order_id);
-      obj.data = { product_id: product_id };
-      obj.arr = [product_id];
-      let product = await queryOrder.getProduct(obj);
-      let flow_id = product[0].flow_id;
-      let sortFlow = await queryOrder.getSortFlows([flow_id]);
+      let obj2 = {
+        tName: 'product',
+        condi: 'and',
+        product_id: body.product_id,
+        order_id: Number(body.order_id),
+      };
+      let product = await get.myData(obj2);
+      let flow_id = product[0].data.flow_id;
+      let sortFlow = await getsortFlow(flow_id);
+      let obj = {
+        tName: 'relation_state_flow',
+        condi: 'and',
+      }
       for (let i = 0; i < sortFlow.length; i++) {
-        let rt2 = sortFlow[i];
-        let flow_detail_id = rt2.flow_detail_id;
-        let sortStates = await queryOrder.getSortStates([flow_detail_id]);
-        for (let j = 0; j < sortStates.length; j++) {
-          const rt3 = sortStates[j];
-          let state_detail_id = rt3.state_detail_id;
-          let data = await otherOrder.getBigRealtionOrder_id();
-          let keys = Object.keys(data[0]);
-          let relation_state_id = data[0][keys[0]];
-          await otherOrder.isnertOrderState([++relation_state_id, order_id, state_detail_id]);
+        obj.tName = 'relation_state_flow'
+        obj.flow_detail_id = sortFlow[i].data.flow_detail_id;
+        let state_detail_id_arr = await get.myData(obj);
+        delete obj['flow_detail_id'];
+        for (let j = 0; j < state_detail_id_arr.length; j++) {
+          let maxId = await get.tbMaxId({ tName: 'relation_order_state', condi: 'and' }, 'relation_state_id');
+          let obj3 = {
+            tName: 'relation_order_state',
+            condi: 'and',
+            relation_state_id: maxId,
+            order_id: Number(body.order_id),
+            state_detail_id: state_detail_id_arr[j].data.state_detail_id,
+          }
+          // let data = await otherOrder.getBigRealtionOrder_id();
+          // let keys = Object.keys(data[0]);
+          // let relation_state_id = data[0][keys[0]];
+          await get.insert(obj);
         }
       }
       cb('success');
@@ -152,6 +173,7 @@ module.exports = {
       cb('error');
     }
   },
+  // not update
   /**
    * 传入订单id，修改订单信息
    */
@@ -168,27 +190,37 @@ module.exports = {
       let orderFile = body.orderFile;
       let clientName = body.clientName;
       let userComment = body.userComment; // 用户备注
-      let obj = {};
-      obj.data = { emp_id: channel_id };
-      obj.arr = [channel_id];
-      let emps = await queryEmp.getEmp(obj);
+      let obj = {
+        tName: 'emp',
+        condi: 'and',
+        emp_id: channel_id
+      };
+
+      let emps = await get.myData(obj);
       let count = 0;
       while (count < 2) {
         if (count == 1) {
-          await otherEmp.updateSumbitTime([new Date().toLocaleString(), channel_id]);
+          await get.update(obj, { 'submitTime': new Date().toLocaleString() });
         } else if (count == 2) {
-          let iiuv = emps[0].iiuv;
+          let iiuv = emps[0].data.iiuv;
           if (iiuv) {
-            let dep_emp = await queryEmp.getEmpId([iiuv]);
-            let dep_emp_id
+            let dep_emp = await get.myDataAndOrNot(obj, null, { 'type': 6 });
+            let dep_emp_id;
             if (emps.length != 0) {
-              dep_emp_id = dep_emp[0].emp_id;
+              dep_emp_id = dep_emp[0].data.emp_id;
             }
-            let office = await queryOrder.getOffByProduct_id({ "product_id": product_id, "dep_emp_id": dep_emp_id }, [product_id, dep_emp_id]);
+            let obj2 = {
+              tName: 'relation_product_dep',
+              condi: 'and',
+              "product_id": product_id,
+              "dep_emp_id": dep_emp_id
+            }
+            let office = await get.myData(obj2);
             let office_id;
             if (ret3.length != 0) {
-              office_id = office[0].off_id;
+              office_id = office[0].data.off_id;
             }
+
             await otherOrder.updateOrder(
               {
                 type: type, business_id: dep_emp_id, office_id: office_id, product_id: product_id,
@@ -218,6 +250,7 @@ module.exports = {
       cb('error');
     }
   },
+  // not update
   /**
    * 后台通过订单id直接删除订单功能
    */
@@ -230,6 +263,7 @@ module.exports = {
       cb('error');
     }
   },
+  // not update
   // 此删除也无需完善，中间代码是用来验证是否需要删除的
   /**
    * 传入订单id删除此订单
@@ -283,6 +317,7 @@ module.exports = {
       cb('error');
     }
   },
+  // not update
   /**
    * 传入该角色id，部门id，以及内勤id来获得他权限下的所有未处理订单
    */
@@ -310,10 +345,16 @@ module.exports = {
       if (typeof (detail_file_type_id_arr) != "object") {
         detail_file_type_id_arr = [detail_file_type_id_arr];
       }
-      let files = await otherOrder.deleteRelationFileType([file_type_id]);
+      let obj = {
+        tName: 'relation_file_type_detail',
+        condi: 'and',
+        file_type_id: file_type_id,
+      }
+      await get.delete(obj);
       for (let i = 0; i < detail_file_type_id_arr.length; i++) {
         const detail_file_type_id = detail_file_type_id_arr[i];
-        await otherOrder.insertRelationType([file_type_id, detail_file_type_id]);
+        obj.detail_file_type_id = detail_file_type_id;
+        await get.insert(obj);
       }
       cb('success');
     } catch (err) {
@@ -326,11 +367,17 @@ module.exports = {
   deleteDetailFileType: async function (body, cb) {
     try {
       let detail_file_type_id = body.detail_file_type_id;
-      let files = await queryOrder.getRelationFile_types([detail_file_type_id]);
+      let obj = {
+        tName: 'relation_file_type_detail',
+        condi: 'and',
+        detail_file_type_id: detail_file_type_id,
+      }
+      let files = await get.myData(obj);
       if (files.length != 0) {
         cb("fileFail");
       } else {
-        await otherOrder.deleteDetailFileType([detail_file_type_id]);
+        obj.tName = 'detail_file_type';
+        await get.delete(obj);
         cb('success');
       }
     } catch (err) {
@@ -343,15 +390,18 @@ module.exports = {
    */
   deleteFileType: async function (body, cb) {
     try {
-      let obj = {};
-      let file_type_id = body.file_type_id;
-      obj.data = { file_type_id: file_type_id };
-      obj.arr = [file_type_id];
-      let product = await queryOrder.getProduct(obj);
+      let obj = {
+        tName: 'product',
+        condi: 'and',
+        file_type_id: body.file_type_id,
+      };
+
+      let product = await get.myData(obj);
       if (product.length != 0) {
         cb("productFail");
       } else {
-        await otherOrder.deleteFileType([file_type_id]);
+        obj.tName = 'file_types_num';
+        await get.delete(obj);
         cb('success')
       }
     } catch (err) {
@@ -364,7 +414,13 @@ module.exports = {
   insertFileType: async function (body, cb) {
     try {
       let bus_name = body.bus_name;
-      await otherOrder.insertType([bus_name]);
+      let maxId = await get.tbMaxId({ tName: 'file_types_num', condi: 'and' }, 'file_type_id');
+      let obj = {
+        tName: 'file_types_num',
+        file_type_id: maxId,
+        name: bus_name,
+      }
+      await get.insert(obj);
       cb('success')
     } catch (err) {
       cb('error');
@@ -384,9 +440,15 @@ module.exports = {
         text_arr = [text_arr];
       }
       let count = 0;
+      let obj = {
+        tName: 'detail_file_type',
+      }
       for (let i = 0; i < name_arr.length; i++) {
         const name = name_arr[i];
-        await otherOrder.insertDetailType([name, text_arr[count++]]);
+        obj.detail_file_type_id = await get.tbMaxId({'tName':'detail_file_type',condi:'or'},'detail_file_type_id')
+        obj.name = name;
+        obj.text = text_arr[count++];
+        await get.insert(obj);
       }
       cb('success');
     } catch (err) {
@@ -535,38 +597,20 @@ module.exports = {
   getSortFlowState: async function (body, cb) {
     try {
       let obj = {
-        tName: 'flow',
+        tName: 'relation_state_flow',
         condi: 'and',
-        limit: null,
-        flow_id: body.flow_id
       };
-      // 通过flow_id获得获得流程的信息（流程表）
-      let flows = await get.myData(obj);
-      obj.tName = 'relation_flow_detail';
-      // 通过flow_id获得流程对应的多个具体流程（中间表）
-      let rFlow_details = await get.myData(obj);
-      obj.tName = 'flow_detail';
-      let flow_details_arr = [];
-      delete obj['flow_id'];
-      // 获得具体流程的信息，并与流程信息拼接在一起
-      for (let i = 0; i < rFlow_details.length; i++) {
-        obj.flow_detail_id = rFlow_details[i].data.flow_detail_id;
-        let data = await get.myData(obj)
-        flow_details_arr.push(data[0].data);
-      }
-      // 排序
-      let sortFlows = sortArrAsc(flow_details_arr, 'leavl', flows[0].data);
-
+      let sortFlows = await getsortFlow(body.flow_id);
       let state_details_arr = [];
       // 遍历多个具体的流程信息，获得每个具体流程下对应的多个具体状态信息
       for (let i = 0; i < sortFlows.length; i++) {
         obj.tName = 'relation_state_flow'
         let state_details = [];   // 一个具体流程，对应的多个具体状态
-        obj.flow_detail_id = sortFlows[i].flow_detail_id;
+        obj.flow_detail_id = sortFlows[i].data.flow_detail_id;
         let state_detail_id_arr = await get.myData(obj);
         delete obj['flow_detail_id'];
         for (let j = 0; j < state_detail_id_arr.length; j++) {
-          obj.state_detail_id = state_detail_id_arr[j].state_detail_id;
+          obj.state_detail_id = state_detail_id_arr[j].data.state_detail_id;
           obj.tName = 'state_detail';
           let state_detail = await get.myData(obj);
           state_details.push(state_detail[0].data);
@@ -1934,3 +1978,35 @@ function concat(jsonbject1, jsonbject2) {
   }
   return resultJsonObject;
 }
+/**
+ * 传入flow_id，flow_detail与relation_flow_detail多表排序查询
+ */
+let getsortFlow = promise.promisify(async function (flow_id, cb) {
+  try {
+    let obj = {
+      tName: 'flow',
+      condi: 'and',
+      limit: null,
+      flow_id: flow_id
+    };
+    // 通过flow_id获得获得流程的信息（流程表）
+    let flows = await get.myData(obj);
+    obj.tName = 'relation_flow_detail';
+    // 通过flow_id获得流程对应的多个具体流程（中间表）
+    let rFlow_details = await get.myData(obj);
+    obj.tName = 'flow_detail';
+    let flow_details_arr = [];
+    delete obj['flow_id'];
+    // 获得具体流程的信息，并与流程信息拼接在一起
+    for (let i = 0; i < rFlow_details.length; i++) {
+      obj.flow_detail_id = rFlow_details[i].data.flow_detail_id;
+      let data = await get.myData(obj)
+      flow_details_arr.push(data[0]);
+    }
+    // 排序
+    let sortFlows = sortArrAsc(flow_details_arr, 'leavl', flows[0].data);
+    cb(null, sortFlows);
+  } catch (err) {
+    cb('error');
+  }
+})

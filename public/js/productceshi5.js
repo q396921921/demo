@@ -122,7 +122,6 @@ function detailPt(t) {
             let trtd = "";
             for (let i = 0; i < result.length; i++) {
                 let ret = result[i].data;
-                console.log(ret);
                 let dep_id = ret.dep_id;
                 let off_id = ret.off_id;
                 let dep_emp_id = ret.dep_emp_id;
@@ -296,7 +295,8 @@ function getDepEmps(t) {
                 }
                 let checked = ''
                 for (let j = 0; j < empCheck.length; j++) {
-                    let emp_id = empCheck[j].dep_emp_id;
+                    let emp = empCheck[j].data;
+                    let emp_id = emp.dep_emp_id;
                     if (dep_emp_id == emp_id) {
                         checked = 'checked="checked"';
                     }
@@ -329,7 +329,6 @@ function getProEmps(product_id, dep_id, off_id) {
         dataType: "text",
         success: function (result) {
             text = JSON.parse(result).data;
-
         }
     })
     return text;

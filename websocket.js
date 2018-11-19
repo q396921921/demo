@@ -73,30 +73,30 @@ websocket.getSocketio = function (port) {
                                         console.log(err);
                                     } else {
                                         // 如果返回success的话证明这个订单的状态创建好了
-                                        request({ url: 'https://oh2.daotongkeji.com/management/creatChatroom', method: "post", body: { order_id: order_id }, json: true }, (err, res, body) => {
-                                            if (err) {
-                                                console.log(err);
-                                            } else {
-                                                // 如果返回success的话证明这个订单的状态创建好了
-                                                if (body == 'success') {
-                                                    console.log('创建聊天房间成功');
-                                                }
-                                            }
-                                        })
+                                        // request({ url: 'https://oh2.daotongkeji.com/management/creatChatroom', method: "post", body: { order_id: order_id }, json: true }, (err, res, body) => {
+                                        //     if (err) {
+                                        //         console.log(err);
+                                        //     } else {
+                                        //         // 如果返回success的话证明这个订单的状态创建好了
+                                        //         if (body == 'success') {
+                                        //             console.log('创建聊天房间成功');
+                                        //         }
+                                        //     }
+                                        // })
                                         ws.send(JSON.stringify({ 'event': 'orderOver' }));
                                     }
                                 })
                             } else if (order_type == 2) {
-                                request({ url: 'https://oh2.daotongkeji.com/management/creatChatroom', method: "post", body: { order_id: order_id }, json: true }, (err, res, body) => {
-                                    if (err) {
-                                        console.log(err);
-                                    } else {
-                                        // 如果返回success的话证明这个订单的状态创建好了
-                                        if (body == 'success') {
-                                            console.log('创建聊天房间成功');
-                                        }
-                                    }
-                                })
+                                // request({ url: 'https://oh2.daotongkeji.com/management/creatChatroom', method: "post", body: { order_id: order_id }, json: true }, (err, res, body) => {
+                                //     if (err) {
+                                //         console.log(err);
+                                //     } else {
+                                //         // 如果返回success的话证明这个订单的状态创建好了
+                                //         if (body == 'success') {
+                                //             console.log('创建聊天房间成功');
+                                //         }
+                                //     }
+                                // })
                                 ws.send(JSON.stringify({ 'event': 'orderOver' }));
                             } else {
                                 ws.send(JSON.stringify({ 'event': 'orderOver' }));
