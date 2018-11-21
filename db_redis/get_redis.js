@@ -21,7 +21,7 @@ var product = [];
 var product_type = [];
 var relation_emp_resource = [];
 var relation_emp_role = [];
-var getrelation_file_type_detail = [];
+var relation_file_type_detail = [];
 var relation_flow_detail = [];
 var relation_order_state = [];
 var relation_product_dep = [];
@@ -34,11 +34,11 @@ var state_detail = [];
 let getAllDate = promise.promisify(async function getDate(obj, cb) {
     try {
         let tName = obj.tName;
-        let ret = await client.lrange(tName, 0, -1);
         let arr = getVar(tName);
         if (arr.length != 0) {
             cb(null, arr);
         } else {
+            let ret = await client.lrange(tName, 0, -1);
             for (let i = 0; i < ret.length; i++) {
                 const data = JSON.parse(ret[i]);
                 arr.push(data);
@@ -63,6 +63,7 @@ get.myData = promise.promisify(async function (condis, cb) {
     try {
         let condi = condis.condi;
         let limit = condis.limit;
+        let sort = condis.sort;
         let nums = 10;
         let data = await getAllDate(condis);
         let arr = [];
@@ -70,6 +71,10 @@ get.myData = promise.promisify(async function (condis, cb) {
             arr = getOrDate(condis, data);
         } else if (condi == 'and') {
             arr = getAndDate(condis, data);
+        }
+        if (sort) {
+            arr = sortArr(arr, sort);
+            console.log(arr);
         }
         if (limit) {
             if (tName == 'order1' || tName == 'order3') {
@@ -98,7 +103,82 @@ get.myData = promise.promisify(async function (condis, cb) {
         cb('error');
     }
 })
-
+// 查询语句and和or和not都有,默认是and
+get.myDataAndOrNot = promise.promisify(async function (condiAnd, condiOr, condiNot, cb) {
+    try {
+        let condi = condiAnd.condi;
+        let data = await getAllDate(condis);
+        let arr = [];
+        if (condi == 'or') {
+            arr = getOrDate(condis, data);
+        } else if (condi == 'and') {
+            arr = getAndDate(condis, data);
+        } else if (condi == 'not') {
+            arr = getNotData(condis, data);
+        }
+        let tName = condiAnd.tName;
+        if (condiOr) {
+            let keys = Object.keys(condiOr);
+            for (let i = 0; i < arr.length; i++) {
+                const val = arr[i]
+                // 默认有与此条件相等的
+                let flag = false;
+                for (let j = 0; j < keys.length; j++) {
+                    const k = keys[j];
+                    if (val.data[k] == condi[k]) {
+                        flag = true;
+                        break;
+                    }
+                }
+                if (flag) {
+                    arr.splice(i, 1);
+                }
+            }
+        } else if (condiNot) {
+            let keys = Object.keys(condiNot);
+            for (let i = 0; i < arr.length; i++) {
+                const val = arr[i]
+                // 默认有与此条件相等的
+                let flag = true;
+                for (let j = 0; j < keys.length; j++) {
+                    const k = keys[j];
+                    if (val.data[k] == condi[k]) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
+                    arr.splice(i, 1);
+                }
+            }
+        }
+        if (limit) {
+            if (tName == 'order1' || tName == 'order3') {
+                nums = 20;
+            } else if (tName == 'order2') {
+                nums = 10;
+            } else if (tName == 'emp' || tName == 'product') {
+                nums = 15;
+            }
+            let arr2 = [];
+            for (let i = (limit * nums); i < arr.length; i++) {
+                if (i == nums * (limit + 1)) {
+                    break;
+                } else if (i == arr.length - 1) {
+                    arr2.push(arr[i]);
+                    break
+                }
+                arr2.push(arr[i]);
+            }
+            cb(null, arr2);
+        } else {
+            cb(null, arr);
+        }
+    } catch (err) {
+        console.log(err);
+        cb('error');
+    }
+})
 /**
  * 修改redis数据库数据
  * @param {Object} condis   查询条件
@@ -160,7 +240,70 @@ get.delete = promise.promisify(async function (condis, cb) {
     } catch (err) {
         cb(err);
     }
+});
+get.insert = promise.promisify(async function (condis, cb) {
+    try {
+        let tName = condis.tName;
+        let obj = {};
+        for (const key in condis) {
+            if (key != 'tName' && key != 'condi' && key != 'limit') {
+                obj[key] = condis[key]
+            }
+        }
+        let arr = getVar(tName);
+        arr.push(obj);
+        obj = JSON.stringify(obj);
+        await client.rpush(tName, obj);
+        cb(null, 'success');
+    } catch (err) {
+        cb(err);
+    }
 })
+get.tbMaxId = promise.promisify(async function (condis, key, cb) {
+    try {
+        let result = await getAllDate(condis);
+        let maxId = 0;
+        for (let i = 0; i < result.length; i++) {
+            const val = result[i];
+            if (val[key] > maxId) {
+                maxId = val[key];
+            }
+        }
+        cb(null, ++maxId);
+    } catch (err) {
+        cb('error')
+    }
+})
+/**
+ * 返回 不等于！=条件的数据
+ * @param {*} condi 
+ * @param {*} data 
+ */
+function getNotData(condi, data) {
+    let keys = Object.keys(condi);
+    let arr = [];
+    for (let i = 0; i < data.length; i++) {
+        const val = data[i];
+        // 默认有与此条件相等的
+        let flag = true;
+        for (let j = 0; j < keys.length; j++) {
+            const k = keys[j];
+            if (k != 'tName' && k != 'condi' && k != 'limit' && k != 'sort') {
+                if (val[k] == condi[k]) {
+                    flag = false;
+                    break;
+                }
+            }
+        }
+        if (flag) {
+            let obj = {};
+            obj.data = val;
+            obj.row = i;
+            arr.push(obj);
+        }
+    }
+    return arr;
+}
 /**
  * 返回 与&& 条件的数据，即完全符合
  * @param {JSON} condi 
@@ -176,7 +319,7 @@ function getAndDate(condi, data) {
         let flag = true;
         for (let j = 0; j < keys.length; j++) {
             const k = keys[j];
-            if (k != 'tName' && k != 'condi' && k != 'limit') {
+            if (k != 'tName' && k != 'condi' && k != 'limit' && k != 'sort') {
                 if (val[k] != condi[k]) {
                     flag = false;
                     break;
@@ -206,9 +349,9 @@ function getOrDate(condi, data) {
         const val = data[i];
         // 默认有与此条件相等的
         let flag = false;
-        for (let j = 3; j < keys.length; j++) {
+        for (let j = 0; j < keys.length; j++) {
             const k = keys[j];
-            if (k != 'tName' && k != 'condi' && k != 'limit') {
+            if (k != 'tName' && k != 'condi' && k != 'limit' && k != 'sort') {
                 if (val[k] == condi[k]) {
                     flag = true;
                     break;
@@ -216,10 +359,48 @@ function getOrDate(condi, data) {
             }
         }
         if (flag) {
-            arr.push(val);
+            let obj = {};
+            obj.data = val;
+            obj.row = i;
+            arr.push(obj);
         }
     }
     return arr;
+}
+// 根据穿过来的sort规则进行排序
+function sortArr(arr, sort) {
+    let rule = sort[0]; // asc或desc
+    let key = sort[1];  // 排序字段
+    if (sort == 'asc') { // 从小到大
+        var i = arr.length, j;
+        var tempExchangVal;
+        while (i > 0) {
+            for (j = 0; j < i - 1; j++) {
+                if (arr[j].data[key] > arr[j + 1].data[key]) {
+                    tempExchangVal = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = tempExchangVal;
+                }
+            }
+            i--;
+        }
+        console.log(arry);
+        return arr;
+    } else if (sort == 'desc') {   //从大到小
+        var i = arr.length, j;
+        var tempExchangVal;
+        while (i > 0) {
+            for (j = 0; j < i - 1; j++) {
+                if (arr[j].data[key] < arr[j + 1].data[key]) {
+                    tempExchangVal = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = tempExchangVal;
+                }
+            }
+            i--;
+        }
+        return arr;
+    }
 }
 function getVar(tName) {
     switch (tName) {
@@ -313,9 +494,9 @@ function getVar(tName) {
                 return relation_emp_role;
             }
             break;
-        case 'getrelation_file_type_detail':
-            if (getrelation_file_type_detail) {
-                return getrelation_file_type_detail;
+        case 'relation_file_type_detail':
+            if (relation_file_type_detail) {
+                return relation_file_type_detail;
             }
             break;
         case 'relation_flow_detail':

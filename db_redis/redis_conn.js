@@ -18,7 +18,7 @@ db_client.on('error', function (err) {
     console.log('连接出现错误');
     console.log(err);
     if (err) {
-        cb('error');
+        console.log('error');
     }
 })
 db_client.on('connect', function () {

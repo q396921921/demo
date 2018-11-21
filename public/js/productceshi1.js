@@ -226,7 +226,7 @@ function getFlows(t) {
             result = JSON.parse(result).data
             let select = "";
             for (let i = 0; i < result.length; i++) {
-                select += '<option value="' + result[i].flow_id + '">' + result[i].flow_name + '</option>'
+                select += '<option value="' + result[i].data.flow_id + '">' + result[i].data.flow_name + '</option>'
             }
             $(select).appendTo($(t).next());
         }
@@ -243,7 +243,7 @@ function getFile_type(t) {
             result = JSON.parse(result).data
             let select = "";
             for (let i = 0; i < result.length; i++) {
-                select += '<option value="' + result[i].file_type_id + '">' + result[i].name + '</option>'
+                select += '<option value="' + result[i].data.file_type_id + '">' + result[i].name + '</option>'
             }
             $(select).appendTo($(t).next());
         }

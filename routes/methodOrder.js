@@ -445,7 +445,7 @@ module.exports = {
       }
       for (let i = 0; i < name_arr.length; i++) {
         const name = name_arr[i];
-        obj.detail_file_type_id = await get.tbMaxId({'tName':'detail_file_type',condi:'or'},'detail_file_type_id')
+        obj.detail_file_type_id = await get.tbMaxId({ 'tName': 'detail_file_type', condi: 'or' }, 'detail_file_type_id')
         obj.name = name;
         obj.text = text_arr[count++];
         await get.insert(obj);
@@ -459,22 +459,37 @@ module.exports = {
   insertProduct: async function (req, cb) {
     try {
       let body = req.body;
-      let name = body.name;
-      let product_type_id = parseInt(body.product_type_id);
-      let product = await otherOrder.insertProduct([name, product_type_id]);
-      let product_id = product.insertId;
-      req.body.product_id = product_id;
+      let obj = {
+        tName: 'product',
+        condi: 'and',
+      }
+      let maxId = await get.tbMaxId(obj, 'product_id');
+
+      obj.product_id = maxId;
+      obj.product_type_id = Number(body.product_type_id);
+      obj.name = body.name;
+      obj.isNum = 0;
+      obj.isBourse = 0;
+      obj.putaway = 0;
+      await get.insert(obj);
+      req.body.product_id = maxId;
       this.updateProductInfo(req, cb);
     } catch (err) {
       cb('error');
     }
   },
-  // 创建一个商品
+  // 创建一个商品类别
   insertProductType: async function (req, cb) {
     try {
       let body = req.body;
-      let product_type_name = body.product_type_name;
-      await otherOrder.insertProductType([product_type_name]);
+      let obj = {
+        tName: 'product_type',
+        condi: 'and'
+      }
+      let maxId = await get.tbMaxId(obj, 'product_type_id');
+      obj.product_type_id = maxId;
+      obj.product_type_name = body.product_type_name;
+      await get.insert(obj);
       cb('success');
     } catch (err) {
       cb('error');
@@ -509,35 +524,40 @@ module.exports = {
           count++;
           continue;
         } else if (exist == 1) {
-          let obj = {};
-          obj.data = { product_id: product_id };
-          obj.arr = [product_id];
-          let product = queryOrder.getProduct(obj);
+          let obj = {
+            tName: 'product',
+            condi: 'and',
+            product_id: product_id
+          };
+          let product = await get.myData(obj);
           imgPath = req.files[count2].path;
           count2++;
           let imgAgoPath = "";
           if (count == 0) {
-            imgAgoPath = product[0].imgPathSmall;
+            imgAgoPath = product[0].data.imgPathSmall;
             imgPathSmall = imgPath.split(uploadFile + symbol)[1]; // 实际传入数据库的图片路径
           } else if (count == 1) {
-            imgAgoPath = product[0].imgPath;
+            imgAgoPath = product[0].data.imgPath;
             imgPathDetail = imgPath.split(uploadFile + symbol)[1]; // 实际传入数据库的图片路径
           } else if (count == 2) {
-            imgAgoPath = product[0].imgPath2;
+            imgAgoPath = product[0].data.imgPath2;
             imgPathDetail2 = imgPath.split(uploadFile + symbol)[1]; // 实际传入数据库的图片路径
           }
           count++;
           continue;
         }
       }
-      let jsObj = {
+      let obj2 = {
+        tName: 'product',
+        condi: 'and',
+        product_id: product_id
+      }
+      let obj3 = {
         name: name, isNum: isNum, isBourse: isBourse, putaway: putaway, threeText: threeText,
         product_detail: product_detail, imgPath: imgPathDetail, imgPath2: imgPathDetail2, imgPathSmall: imgPathSmall,
         flow_id: flow_id, file_type_id: file_type_id, product_intro: product_intro
-      };
-      let arr = [name, isNum, isBourse, putaway, threeText, product_detail, imgPathDetail,
-        imgPathDetail2, imgPathSmall, flow_id, file_type_id, product_intro, product_id];
-      await otherOrder.updateProductInfo(jsObj, arr);
+      }
+      await get.update(obj2, obj3);
       cb('success');
     } catch (err) {
       cb('error');
@@ -548,7 +568,11 @@ module.exports = {
    */
   getFile_typeNameId: async function (body, cb) {
     try {
-      let file_types = await queryOrder.getFile_typeNameId({}, []);
+      let obj = {
+        tName: 'file_types_num',
+        condi: 'and'
+      }
+      let file_types = await get.myData(obj);
       cb(JSON.stringify({ data: file_types }));
     } catch (err) {
       cb('error');
@@ -560,7 +584,11 @@ module.exports = {
    */
   getFlowNameId: async function (body, cb) {
     try {
-      let flows = await queryOrder.getFlowNameId({}, []);
+      let obj = {
+        tName: 'flow',
+        condi: 'and'
+      }
+      let flows = await get.myData(obj);
       cb(JSON.stringify({ data: flows }));
     } catch (err) {
       cb('error');
@@ -572,9 +600,24 @@ module.exports = {
    */
   getDetailFile_types: async function (body, cb) {
     try {
-      let file_type_id = body.file_type_id;
-      let data = await queryOrder.getDetailFile_types([file_type_id]);
-      cb(JSON.stringify({ data: data }));
+      let obj = {
+        tName: 'relation_file_type_detail',
+        condi: 'and',
+        file_type_id: body.file_type_id
+      }
+      let data = await get.myData(obj);
+      let obj2 = {
+        tName: 'detail_file_type',
+        condi: 'and',
+      }
+      let data2 = [];
+      for (let i = 0; i < data.length; i++) {
+        const val = data[i].data;
+        obj2.detail_file_type_id = val.detail_file_type_id;
+        let val2 = await get.myData(obj2);
+        data2.push(val2[0].data);
+      }
+      cb(JSON.stringify({ data: data2 }));
     } catch (err) {
       cb('error');
     }
@@ -584,7 +627,11 @@ module.exports = {
    */
   getDetailFileType: async function (body, cb) {
     try {
-      let data = await queryOrder.getDetailFileType();
+      let obj = {
+        tName: 'detail_file_type',
+        condi: 'and'
+      }
+      let data = await get.myData(obj);
       cb(JSON.stringify({ data: data }));
     } catch (err) {
       cb('error');
@@ -606,7 +653,7 @@ module.exports = {
       for (let i = 0; i < sortFlows.length; i++) {
         obj.tName = 'relation_state_flow'
         let state_details = [];   // 一个具体流程，对应的多个具体状态
-        obj.flow_detail_id = sortFlows[i].data.flow_detail_id;
+        obj.flow_detail_id = sortFlows[i].flow_detail_id;
         let state_detail_id_arr = await get.myData(obj);
         delete obj['flow_detail_id'];
         for (let j = 0; j < state_detail_id_arr.length; j++) {
@@ -625,8 +672,16 @@ module.exports = {
   },
   getFlowByFlow_detail_id: async function (body, cb) {
     try {
-      let flow_detail_id = body.flow_detail_id;
-      let flows = await queryOrder.getFlow({ flow_detail_id: flow_detail_id }, [flow_detail_id]);
+      let obj = {
+        tName: 'flow_detail',
+        condi: 'and',
+      };
+      let flow_detail_id = body.flow_detail_id
+      if (flow_detail_id) {
+        obj.flow_detail_id = flow_detail_id;
+      }
+      let flows = await get.myData(obj);
+      flows = getData(flows);
       cb(JSON.stringify({ data: flows }));
     } catch (err) {
       cb('error');
@@ -661,6 +716,37 @@ module.exports = {
         office_id: office_id,
         order_type: order_type
       };
+
+
+      // 通过order_type判断去查询哪种类型的订单表
+      let tName = "";
+      if (order_type == 1) {
+        tName = 'order1';
+      } else if (order_type == 2) {
+        tName = 'order2';
+      } else if (order_type == 3) {
+        tName = 'order3';
+      }
+      let data;
+      if (role_type == 1 || role_type == 2 || role_type == 6) {    // 管理员 与 董事长
+        let obj = {
+          tName: tName,
+          condi: 'and',
+        }
+        data = await get.myData(obj);
+      } else if (role_type == 3) {  // 经理
+        let userdep_id = otjs.userdep_id;
+        arr.unshift(userdep_id);
+        sql = 'select * from emp t1,order2 t where t1.dep_id=? and t1.emp_id=t.business_id '
+      } else if (role_type == 4) {  // 内勤
+        let off_id = otjs.busoff_id;
+        arr.unshift(off_id);
+        sql = 'select * from order2 t where t.office_id=? ';
+      } else if (role_type == 5) {  // 业务
+        let bus_id = otjs.busoff_id;
+        arr.unshift(bus_id);
+        sql = 'select * from order2 t where t.business_id=? ';
+      }
       let arr = [
         order_id,
         appli_id,
@@ -676,6 +762,8 @@ module.exports = {
         userdep_id: userdep_id,
         busoff_id: busoff_id
       };
+
+
       let splits = await queryOrder.getOrderSplitPage(otjs, jsonObj, arr);
       cb(JSON.stringify({ result: splits }));
     } catch (err) {
@@ -1941,12 +2029,11 @@ function addZero(num) {
 
 /**
  * 根据传入的key，来相对应的对数组中的所有json对象排序
- * 并将传入的jsStr拼接到每一个json对象中
  * @param {Array} arr 
  * @param {string} key
  * @param {Json} jsStr
  */
-function sortArrAsc(arr, key, jsStr) {
+function sortArrAsc(arr, key) {
   var i = arr.length, j;
   var tempExchangVal;
   while (i > 0) {
@@ -1958,10 +2045,6 @@ function sortArrAsc(arr, key, jsStr) {
       }
     }
     i--;
-  }
-  for (let i = 0; i < arr.length; i++) {
-    const jsStr2 = arr[i];
-    arr[i] = concat(jsStr2, jsStr);
   }
   return arr;
 }
@@ -1984,29 +2067,36 @@ function concat(jsonbject1, jsonbject2) {
 let getsortFlow = promise.promisify(async function (flow_id, cb) {
   try {
     let obj = {
-      tName: 'flow',
+      tName: 'relation_flow_detail',
       condi: 'and',
-      limit: null,
       flow_id: flow_id
     };
-    // 通过flow_id获得获得流程的信息（流程表）
-    let flows = await get.myData(obj);
-    obj.tName = 'relation_flow_detail';
     // 通过flow_id获得流程对应的多个具体流程（中间表）
     let rFlow_details = await get.myData(obj);
-    obj.tName = 'flow_detail';
+    let obj2 = {
+      tName: 'flow_detail',
+      condi: 'and',
+    };
     let flow_details_arr = [];
-    delete obj['flow_id'];
     // 获得具体流程的信息，并与流程信息拼接在一起
     for (let i = 0; i < rFlow_details.length; i++) {
-      obj.flow_detail_id = rFlow_details[i].data.flow_detail_id;
-      let data = await get.myData(obj)
-      flow_details_arr.push(data[0]);
+      obj2.flow_detail_id = rFlow_details[i].data.flow_detail_id;
+      let val = await get.myData(obj2);
+      flow_details_arr.push(val[0].data);
     }
     // 排序
-    let sortFlows = sortArrAsc(flow_details_arr, 'leavl', flows[0].data);
+    let sortFlows = sortArrAsc(flow_details_arr, 'leavl');
     cb(null, sortFlows);
   } catch (err) {
     cb('error');
   }
 })
+
+function getData(data) {
+  let arr = [];
+  for (let i = 0; i < data.length; i++) {
+    const val = data[i];
+    arr.push(val.data);
+  }
+  return arr;
+}
