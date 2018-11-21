@@ -61,27 +61,13 @@ router.post('/getEmpByUsername', function (req, res, next) {
 
 
 
-// 通过商品id获得商品
-router.post('/getProductById', function (req, res, next) {
+// getProductByOther与此路由合并为一个
+router.post('/getProduct', function (req, res, next) {
     let body = req.body;
     body = JSON.parse(Object.keys(body));
-    mdOrder.getProductById(body, (ret) => {
+    mdOrder.getProduct(body, (ret) => {
         res.send(ret)
     })
-})
-// 获得是否询值的产品，以及什么类型（房贷or车贷）的以及房贷或评估所产品
-router.post('/getProductByOther', function (req, res, next) {
-    let body = req.body;
-    body = JSON.parse(Object.keys(body));
-    mdOrder.getProductByOther(body, (ret) => {
-        res.send(ret)
-    })
-    // // 电脑端数据接收
-    // getPostData(req, res, (body) => {
-    //     mdOrder.getProductByOther(body, (ret) => {
-    //         res.send(ret)
-    //     })
-    // })1`
 })
 // 前端给客户所有订单信息
 router.post('/getOrders', function (req, res, next) {
@@ -112,7 +98,7 @@ router.post('/getProductTypes', function (req, res, next) {
 router.post('/getProductTypeByProduct_id', function (req, res, next) {
     let body = req.body;
     body = JSON.parse(Object.keys(body));
-    mdOrder.getProductById(body, (ret) => {
+    mdOrder.getProduct(body, (ret) => {
         res.send(ret)
     })
 });

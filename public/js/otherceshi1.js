@@ -124,7 +124,7 @@ function types(t) {
         async: false,
         dataType: "text",
         success: function (result) {
-            text = JSON.parse(result)
+            text = JSON.parse(result).data
             let opt = '<option value="">----请选择类别----</option>';
             for (let i = 0; i < text.length; i++) {
                 opt += '<option onclick="getProducts(this)" value="' + text[i].product_type_id + '">' + text[i].name + '</option>';
@@ -140,7 +140,7 @@ function getProducts(t) {
     s.empty()
     let product_type_id = $(t).val();
     $.ajax({
-        url: "/users/getProductsByTypeId",
+        url: "/users/getProduct",
         type: "post",
         data: {
             product_type_id: product_type_id

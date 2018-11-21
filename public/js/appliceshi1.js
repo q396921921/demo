@@ -88,65 +88,65 @@ function setOffSelt(off_slt) {
     $(slt2).appendTo($("#office_name"));
 }
 
-function notify() {
-    let num = getNoHandleOrder();
-    noOrder = parseInt(num);
-    consoleText(num, 1)
-    setInterval(function () {
-        let num = getNoHandleOrder();
-        if (parseInt(num) > noOrder) {
-            num = num - noOrder;
-            noOrder = noOrder + num;
-            consoleText(num, 2)
-        }
-    }, 60000)
-    function consoleText(num, data) {
-        let body;
-        if (data == 1) {
-            body = '您有' + num + '个待处理的订单!';
-        } else if (data == 2) {
-            body = '您有' + num + '个新订单';
-        }
-        if (!('Notification' in window)) {
-            alert('你的浏览器不支持Notification')
-        }
-        //检查是否拥有通知权限；有就通知，没有请求；
-        else if (Notification.permission == 'granted') {
-            var options = {
-                icon: 'http://www.itechat.cn/ya8526/html/images/img10.jpg',
-                body: body
-            }
-            var notification = new Notification('消息提醒!', options);
-        } else if (Notification.permission !== 'denied') {
-            Notification.requestPermission(
-                function (permission) {
-                    if (permission == 'granted') {
-                        var notification = new Notification('您有待处理的订单!');
-                    }
-                }
-            );
-        }
-    }
-}
-function getNoHandleOrder() {
-    let num = "";
-    $.ajax({
-        url: "/users/getNoHandleOrders",
-        type: "post",
-        data: {
-            order_type: 1,
-            role_type: role_type,
-            userdep_id: userdep_id,
-            busoff_id: busoff_id
-        },
-        async: false,
-        dataType: "text",
-        success: function (result) {
-            num = result;
-        }
-    })
-    return num;
-}
+// function notify() {
+//     let num = getNoHandleOrder();
+//     noOrder = parseInt(num);
+//     consoleText(num, 1)
+//     setInterval(function () {
+//         let num = getNoHandleOrder();
+//         if (parseInt(num) > noOrder) {
+//             num = num - noOrder;
+//             noOrder = noOrder + num;
+//             consoleText(num, 2)
+//         }
+//     }, 60000)
+//     function consoleText(num, data) {
+//         let body;
+//         if (data == 1) {
+//             body = '您有' + num + '个待处理的订单!';
+//         } else if (data == 2) {
+//             body = '您有' + num + '个新订单';
+//         }
+//         if (!('Notification' in window)) {
+//             alert('你的浏览器不支持Notification')
+//         }
+//         //检查是否拥有通知权限；有就通知，没有请求；
+//         else if (Notification.permission == 'granted') {
+//             var options = {
+//                 icon: 'http://www.itechat.cn/ya8526/html/images/img10.jpg',
+//                 body: body
+//             }
+//             var notification = new Notification('消息提醒!', options);
+//         } else if (Notification.permission !== 'denied') {
+//             Notification.requestPermission(
+//                 function (permission) {
+//                     if (permission == 'granted') {
+//                         var notification = new Notification('您有待处理的订单!');
+//                     }
+//                 }
+//             );
+//         }
+//     }
+// }
+// function getNoHandleOrder() {
+//     let num = "";
+//     $.ajax({
+//         url: "/users/getNoHandleOrders",
+//         type: "post",
+//         data: {
+//             order_type: 1,
+//             role_type: role_type,
+//             userdep_id: userdep_id,
+//             busoff_id: busoff_id
+//         },
+//         async: false,
+//         dataType: "text",
+//         success: function (result) {
+//             num = result;
+//         }
+//     })
+//     return num;
+// }
 
 // 修改流程对应的时间   ✔
 function setFlow(t) {
@@ -579,29 +579,29 @@ function deleteTb() {
     $("#table tr:gt(0)").empty();
     getSplitPageOrders(val, $("#table"))
 }
-// 获得所有订单     ✔
-function getOrders(num) {
-    $.ajax({
-        url: "/users/getOrders",
-        type: "post",
-        data: {
-            appli_id: num,
-            order_type: 1,
-            role_type: role_type,
-            userdep_id: userdep_id,
-            busoff_id: busoff_id
-        },
-        async: false,
-        dataType: "text",
-        success: function (result) {
-            let data = JSON.parse(result).result
-            $("#totalPage").val(Math.ceil(data.length / 20));
-            $("#totalNum").val(data.length)
-            data = JSON.stringify(data)
-            $("#allOrder").val(data)
-        }
-    })
-}
+// // 获得所有订单     ✔
+// function getOrders(num) {
+//     $.ajax({
+//         url: "/users/getOrders",
+//         type: "post",
+//         data: {
+//             appli_id: num,
+//             order_type: 1,
+//             role_type: role_type,
+//             userdep_id: userdep_id,
+//             busoff_id: busoff_id
+//         },
+//         async: false,
+//         dataType: "text",
+//         success: function (result) {
+//             let data = JSON.parse(result).result
+//             $("#totalPage").val(Math.ceil(data.length / 20));
+//             $("#totalNum").val(data.length)
+//             data = JSON.stringify(data)
+//             $("#allOrder").val(data)
+//         }
+//     })
+// }
 // 获得所有订单     ✔
 function getSplitPage(num, tableId) {
     $("#table tr:gt(0)").empty();
@@ -620,10 +620,16 @@ function getSplitPage(num, tableId) {
         async: false,
         dataType: "text",
         success: function (result) {
-            let data = JSON.parse(result).result
-            data = JSON.stringify(data)
-            $("#allOrder").val(data)
-            printTable(result, tableId);
+            let data = JSON.parse(result).data
+            let ret = data[0];
+            let totalPage = data[1];
+            let totalNum = data[2];
+            $("#totalPage").val(totalPage);
+            $("#totalNum").val(totalNum);
+            dataStr = JSON.stringify(ret)
+            $("#allOrder").val(dataStr);
+
+            printTable(ret, tableId);
 
             $("#pages").val(limit);
             $("#lstd span:first").html(limit);
@@ -658,7 +664,7 @@ function getAllEmpName(emp_id, dep_id, type) {
 function getAllProducts() {
     let text;
     $.ajax({
-        url: "/users/getProductById",
+        url: "/users/getProduct",
         type: "post",
         data: {
             product_id: "",
@@ -727,8 +733,6 @@ function getEmpName(emp_id) {
 }
 // 通过查询数据库返回的结果，把数据打印到对应的表格     ✔
 function printTable(result, tableId) {
-    result = JSON.parse(result);
-    result = result.result;
     let managerCount = 0;
     let trtd = '';
     let deleteKey = '';
@@ -1059,7 +1063,7 @@ function writeTime(t) {
 function getProduct(product_id) {
     let text = "";
     $.ajax({
-        url: "/users/getProductById",
+        url: "/users/getProduct",
         type: "post",
         data: {
             product_id: product_id
@@ -1123,7 +1127,7 @@ function getTypes() {
         async: false,
         dataType: "text",
         success: function (result) {
-            text = JSON.parse(result)
+            text = JSON.parse(result).data
         }
     })
     return text;
@@ -1232,12 +1236,13 @@ function getThisOrderInfo(order_id) {
         data: {
             order_id: order_id,
             role_type: role_type,
-            userdep_id: userdep_id
+            userdep_id: userdep_id,
+            order_type: 1
         },
         async: false,
         dataType: "text",
         success: function (result) {
-            result = JSON.parse(result).result;
+            result = JSON.parse(result).data[0];
             result = JSON.stringify(result);
             $("#allOrder").val(result);
         }

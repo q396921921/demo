@@ -26,7 +26,7 @@ function getEmpName(emp_id) {
 function getAllProducts() {
     let text;
     $.ajax({
-        url: "/users/getProductById",
+        url: "/users/getProduct",
         type: "post",
         data: {
             product_id: "",
@@ -203,7 +203,7 @@ function getOrderState(num) {
 // function getProduct(product_id) {
 //     let text = "";
 //     $.ajax({
-//         url: "/users/getProductsByTypeId",
+//         url: "/users/getProduct",
 //         type: "post",
 //         data: {
 //             product_id: product_id

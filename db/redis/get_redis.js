@@ -57,14 +57,12 @@ let getAllDate = promise.promisify(async function getDate(obj, cb) {
 /**
  * 通过传入相应的条件，得到相应的数据
  * @param  {Object} condis
- * 包括tName：要查询的表名；  condi：or/and与还是或；  limit：第几页；  数据库字段名：实际值
+ * 包括tName：要查询的表名；  condi：or/and与还是或；  数据库字段名：实际值
  */
 get.myData = promise.promisify(async function (condis, cb) {
     try {
         let condi = condis.condi;
-        let limit = condis.limit;
         let sort = condis.sort;
-        let nums = 10;
         let data = await getAllDate(condis);
         let arr = [];
         if (condi == 'or') {
@@ -76,28 +74,7 @@ get.myData = promise.promisify(async function (condis, cb) {
             arr = sortArr(arr, sort);
             console.log(arr);
         }
-        if (limit) {
-            if (tName == 'order1' || tName == 'order3') {
-                nums = 20;
-            } else if (tName == 'order2') {
-                nums = 10;
-            } else if (tName == 'emp' || tName == 'product') {
-                nums = 15;
-            }
-            let arr2 = [];
-            for (let i = (limit * nums); i < arr.length; i++) {
-                if (i == nums * (limit + 1)) {
-                    break;
-                } else if (i == arr.length - 1) {
-                    arr2.push(arr[i]);
-                    break
-                }
-                arr2.push(arr[i]);
-            }
-            cb(null, arr2);
-        } else {
-            cb(null, arr);
-        }
+        cb(null, arr);
     } catch (err) {
         console.log(err);
         cb('error');
@@ -152,28 +129,7 @@ get.myDataAndOrNot = promise.promisify(async function (condiAnd, condiOr, condiN
                 }
             }
         }
-        if (limit) {
-            if (tName == 'order1' || tName == 'order3') {
-                nums = 20;
-            } else if (tName == 'order2') {
-                nums = 10;
-            } else if (tName == 'emp' || tName == 'product') {
-                nums = 15;
-            }
-            let arr2 = [];
-            for (let i = (limit * nums); i < arr.length; i++) {
-                if (i == nums * (limit + 1)) {
-                    break;
-                } else if (i == arr.length - 1) {
-                    arr2.push(arr[i]);
-                    break
-                }
-                arr2.push(arr[i]);
-            }
-            cb(null, arr2);
-        } else {
-            cb(null, arr);
-        }
+        cb(null, arr);
     } catch (err) {
         console.log(err);
         cb('error');
@@ -246,7 +202,7 @@ get.insert = promise.promisify(async function (condis, cb) {
         let tName = condis.tName;
         let obj = {};
         for (const key in condis) {
-            if (key != 'tName' && key != 'condi' && key != 'limit') {
+            if (key != 'tName' && key != 'condi') {
                 obj[key] = condis[key]
             }
         }
@@ -288,7 +244,7 @@ function getNotData(condi, data) {
         let flag = true;
         for (let j = 0; j < keys.length; j++) {
             const k = keys[j];
-            if (k != 'tName' && k != 'condi' && k != 'limit' && k != 'sort') {
+            if (k != 'tName' && k != 'condi' && k != 'sort') {
                 if (val[k] == condi[k]) {
                     flag = false;
                     break;
@@ -319,7 +275,7 @@ function getAndDate(condi, data) {
         let flag = true;
         for (let j = 0; j < keys.length; j++) {
             const k = keys[j];
-            if (k != 'tName' && k != 'condi' && k != 'limit' && k != 'sort') {
+            if (k != 'tName' && k != 'condi' && k != 'sort') {
                 if (val[k] != condi[k]) {
                     flag = false;
                     break;
@@ -351,7 +307,7 @@ function getOrDate(condi, data) {
         let flag = false;
         for (let j = 0; j < keys.length; j++) {
             const k = keys[j];
-            if (k != 'tName' && k != 'condi' && k != 'limit' && k != 'sort') {
+            if (k != 'tName' && k != 'condi' && k != 'sort') {
                 if (val[k] == condi[k]) {
                     flag = true;
                     break;

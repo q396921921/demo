@@ -66,7 +66,7 @@ function getTypes() {
         async: false,
         dataType: "text",
         success: function (result) {
-            text = JSON.parse(result)
+            text = JSON.parse(result).data
         }
     })
     return text;

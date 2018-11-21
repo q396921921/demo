@@ -110,7 +110,7 @@
         if (product_type_id && product_id) {
             $("#submit").show();
             $.ajax({
-                url: "/users/getProductsByTypeId",
+                url: "/users/getProduct",
                 type: "post",
                 data: {
                     product_id: product_id
@@ -201,7 +201,7 @@
             async: false,
             dataType: "text",
             success: function (result) {
-                text = JSON.parse(result)
+                text = JSON.parse(result).data
                 let opt = '<option value="" onclick="getProducts(this)">----请选择类别----</option>';
                 for (let i = 0; i < text.length; i++) {
                     opt += '<option onclick="getProducts(this)" value="' + text[i].product_type_id + '">' + text[i].name + '</option>';
@@ -219,7 +219,7 @@
         let product_type_id = $(t).val();
         setProduct_type_id(product_type_id);
         $.ajax({
-            url: "/users/getProductsByTypeId",
+            url: "/users/getProduct",
             type: "post",
             data: {
                 product_type_id: product_type_id

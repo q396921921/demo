@@ -62,7 +62,6 @@ function setChaSelt(cha_slt) {
 var types = "";
 // 通过查询数据库返回的结果，把数据打印到对应的表格     ✔
 function printTable(result, tableId) {
-    result = JSON.parse(result).result;
     let trtd = '';
     let deleteKey = '';
     if (r31) {
@@ -173,7 +172,7 @@ function getProduct(product_id) {
     let text = "";
     if (product_id) {
         $.ajax({
-            url: "/users/getProductById",
+            url: "/users/getProduct",
             type: "post",
             data: {
                 product_id: product_id
@@ -194,7 +193,7 @@ function getTypeProduct(product_type_id) {
     let text = "";
     if (product_type_id) {
         $.ajax({
-            url: "/users/getProductsByTypeId",
+            url: "/users/getProduct",
             type: "post",
             data: {
                 product_type_id: product_type_id,
@@ -258,7 +257,7 @@ function getTypes() {
         async: false,
         dataType: "text",
         success: function (result) {
-            text = JSON.parse(result)
+            text = JSON.parse(result).data
         }
     })
     return text;
@@ -626,29 +625,6 @@ function submit(t) {
     }
 }
 // 获得所有订单     ✔
-function getOrders(num) {
-    $.ajax({
-        url: "/users/getOrders",
-        type: "post",
-        data: {
-            order_type: 3,
-            appli_id: num,
-            role_type: role_type,
-            userdep_id: userdep_id,
-            busoff_id: busoff_id,
-        },
-        async: false,
-        dataType: "text",
-        success: function (result) {
-            let data = JSON.parse(result).result
-            $("#totalPage").val(Math.ceil(data.length / 20));
-            $("#totalNum").val(data.length)
-            data = JSON.stringify(data)
-            $("#allOrder").val(data)
-        }
-    })
-}
-// 获得所有订单     ✔
 function getSplitPage(num, tableId) {
     $("#table tr:gt(0)").empty();
     let limit = $("#pageNo").val();
@@ -666,10 +642,16 @@ function getSplitPage(num, tableId) {
         async: false,
         dataType: "text",
         success: function (result) {
-            let data = JSON.parse(result).result
-            data = JSON.stringify(data)
-            $("#allOrder").val(data)
-            printTable(result, tableId);
+            let data = JSON.parse(result).data
+            let ret = data[0];
+            let totalPage = data[1];
+            let totalNum = data[2];
+            $("#totalPage").val(totalPage);
+            $("#totalNum").val(totalNum);
+            dataStr = JSON.stringify(ret)
+            $("#allOrder").val(dataStr);
+
+            printTable(ret, tableId);
 
             $("#pages").val(limit);
             $("#lstd span:first").html(limit);
@@ -702,7 +684,7 @@ function output() {
 function getAllProducts() {
     let text;
     $.ajax({
-        url: "/users/getProductById",
+        url: "/users/getProduct",
         type: "post",
         data: {
             product_id: "",

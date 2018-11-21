@@ -29,7 +29,6 @@
             }
             // 设置总利润值
             getProfit();
-            getOrders("");
             $("#pageNo").val(1);
             getSplitPage("", $("#table"))
             if (r24) {
@@ -231,40 +230,7 @@
         <input class="canButton" type="button" value="编辑" style="right: 50px" onclick="text2()">
     </div>
     <!-- 分页 -->
-    <table id="split" width="100%" border="0" cellpadding="0" cellspacing="0" style="width: 943px;">
-        <tr>
-            <td width="31%">&nbsp;
-                <input type="hidden" id="totalPage" />
-                <input type="hidden" id="cpageNo" />
-                <input type="hidden" id="pageNo" value="1" />
-            </td>
-            <td width="13%">共
-                <input readonly style="width: 30%" type="text" id="totalNum">条记录</td>
-            <td width="6%">
-                <input id="fir" type="button" value="首页" onclick="firClick()" />
-            </td>
-            <td width="6%">
-                <input id="pre" type="button" value="上一页" onclick="preClick()" />
-            </td>
-            <td width="6%">
-                <input id="next" type="button" value="下一页" onclick="nextClick()" />
-            </td>
-            <td width="6%">
-                <input id="last" type="button" value="末页" onclick="lastClick()" />
-            </td>
-            <td width="3%">
-                <input type="text" id="pages" size="1" value="" />
-            </td>
-            <td width="6%">
-                <input type="button" id="tpageNo" value="跳转" onclick="tpageNoClick()">
-            </td>
-            <td id="lstd" style="margin-right: 100px">当前第
-                <span style="color: red;"></span>/
-                <span></span>页
-            </td>
-        </tr>
-    </table>
-
+    <%- include("./../splitPage.ejs") %>
     <div id="hidde"></div>
 </body>
 

@@ -1,7 +1,7 @@
 const db = require('./redis_conn.js');
-const queryOrder = require('./../db_mysql/queryOrder');
-const queryEmp = require('./../db_mysql/queryEmp');
-const queryData = require('./../db_mysql/queryData');
+const queryOrder = require('./../../db/mysql/queryOrder');
+const queryEmp = require('./../db/../mysql/queryEmp');
+const queryData = require('./../db/../mysql/queryData');
 
 const async = require('async');
 const copy = {};

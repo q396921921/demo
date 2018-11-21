@@ -50,7 +50,7 @@ function getEmpName(emp_id) {
 function getAllProducts() {
     let text;
     $.ajax({
-        url: "/users/getProductById",
+        url: "/users/getProduct",
         type: "post",
         data: {
             product_id: "",
@@ -500,7 +500,7 @@ function getStates(state_id) {
 function getProduct(product_id) {
     let text = "";
     $.ajax({
-        url: "/users/getProductsByTypeId",
+        url: "/users/getProduct",
         type: "post",
         data: {
             product_id: product_id
@@ -541,7 +541,7 @@ function getTypes() {
         async: false,
         dataType: "text",
         success: function (result) {
-            text = JSON.parse(result)
+            text = JSON.parse(result).data
         }
     })
     return text;

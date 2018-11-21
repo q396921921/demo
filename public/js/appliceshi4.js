@@ -89,7 +89,7 @@ function getOrderState(num) {
 function getProduct(product_id) {
     let text = "";
     $.ajax({
-        url: "/users/getProductsByTypeId",
+        url: "/users/getProduct",
         type: "post",
         data: {
             product_id: product_id
@@ -152,30 +152,12 @@ function getTypes() {
         async: false,
         dataType: "text",
         success: function (result) {
-            text = JSON.parse(result)
+            text = JSON.parse(result).data
         }
     })
     return text;
 }
 
-// 获得所有订单     ✔
-function getOrders(num, tableId) {
-    $.ajax({
-        url: "/users/getNotAppliOrders",
-        type: "post",
-        data: {
-            appli_id: num
-        },
-        async: false,
-        dataType: "text",
-        success: function (result) {
-            let data = JSON.parse(result).result
-            data = JSON.stringify(data)
-            $("#allOrder").val(data)
-            printTable(result, tableId);
-        }
-    })
-}
 
 
 

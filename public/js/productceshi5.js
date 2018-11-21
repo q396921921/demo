@@ -35,7 +35,7 @@ function deleteTb() {
     $("#table tbody").empty();
     let product_id = $("#aid").val();
     $.ajax({
-        url: "/users/getProductById",
+        url: "/users/getProduct",
         type: "post",
         data: {
             product_id: product_id
@@ -378,7 +378,7 @@ function getTypes() {
         async: false,
         dataType: "text",
         success: function (result) {
-            result = JSON.parse(result)
+            result = JSON.parse(result).data
             let select = "";
             for (let i = 0; i < result.length; i++) {
                 select += '<option value="' + result[i].product_type_id + '">' + result[i].name + '</option>';
@@ -391,7 +391,7 @@ function getTypes() {
 function getScreenProduct() {
     let product_type_id = $("#types").val();
     $.ajax({
-        url: "/users/getProductsByTypeId",
+        url: "/users/getProduct",
         type: "post",
         data: {
             product_type_id: product_type_id,
@@ -410,7 +410,7 @@ function getSplitPage() {
     let limit = $("#pageNo").val();
     let product_type_id = $("#types").val();
     $.ajax({
-        url: "/users/getProductsByTypeId",
+        url: "/users/getProduct",
         type: "post",
         data: {
             product_type_id: product_type_id,

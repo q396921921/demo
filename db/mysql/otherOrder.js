@@ -25,21 +25,6 @@ module.exports = {
         conn.getConn(sql, arr, cb);
     }),
     /**
-     * 传入null,以及function即可
-     * 返回按时间排序的所有非申请订单
-     */
-    getNotAppliOrders: Promise.promisify(function (arr, cb) {
-        let sql = "select * from order2 t where 1=1 and order_type !=1 order by appliTime desc";
-        conn.getConn(sql, arr, cb);
-    }),
-    /**
-     * 传入订单id
-     */
-    getNotAppliOrdersById: Promise.promisify(function (arr, cb) {
-        let sql = "select * from order2 t where 1=1 and appli_id=? and order_type !=1 order by appliTime desc";
-        conn.getConn(sql, arr, cb);
-    }),
-    /**
      * 传入order_id以及状态id，state_detail_id和失败原因failReason将
      * 修改订单与状态中间表的失败原因
      */

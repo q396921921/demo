@@ -56,7 +56,7 @@ function getTypes() {
         async: false,
         dataType: "text",
         success: function (result) {
-            result = JSON.parse(result)
+            result = JSON.parse(result).data
             let select = '<option value="">----------请选择商品类型----------</option>';
             for (let i = 0; i < result.length; i++) {
                 select += '<option value="' + result[i].product_type_id + '">' + result[i].name + '</option>';

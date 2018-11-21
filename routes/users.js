@@ -213,12 +213,6 @@ router.post('/updateOrder', function (req, res, next) {
     res.send(ret)
   })
 })
-router.post('/getNotAppliOrders', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getNotAppliOrders(body, (ret) => {
-    res.send(ret)
-  })
-})
 router.post('/setOrder_state2', function (req, res, next) {
   let body = req.body;
   mdOrder.setOrder_state(body, (ret) => {
@@ -436,12 +430,6 @@ router.get('/gethome_page', function (req, res, next) {
     res.send(ret)
   })
 })
-router.post('/getProductsByTypeId', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getProductsByTypeId(body, (ret) => {
-    res.send(ret)
-  })
-})
 router.post('/getProEmp', function (req, res, next) {
   let body = req.body;
   mdOrder.getProEmp(body, (ret) => {
@@ -503,10 +491,9 @@ router.get('/product/ceshi*', function (req, res, next) {
 
   res.render(ulstr, { "username": req.session.username, "menu": menu })
 });
-router.post('/getProductById', function (req, res, next) {
+router.post('/getProduct', function (req, res, next) {
   let body = req.body;
-  body = { product_type_id: 1, isNum: 0 }
-  mdOrder.getProductById(body, (ret) => {
+  mdOrder.getProduct(body, (ret) => {
     res.send(ret);
   })
 })
