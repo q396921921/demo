@@ -47,7 +47,7 @@ function confirmAct(text) {
 function getFlows() {
     $("#allFlows tr:gt(0)").empty()
     $.ajax({
-        url: "/users/getFlowNameId",
+        url: "/users/getFlow",
         type: "get",
         async: false,
         dataType: "text",

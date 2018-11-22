@@ -68,7 +68,7 @@ function getAllProducts() {
 function getFlows() {
     let text = "";
     $.ajax({
-        url: "/users/getFlowByFlow_detail_id",
+        url: "/users/getFlow_detail",
         type: "post",
         data: {
             flow_detail_id: ""
@@ -163,7 +163,7 @@ function printTable(result, tableId) {
 function getAllFlow(order_id) {
     var text = "";
     $.ajax({
-        url: "/users/getFlow",
+        url: "/users/getFlows",
         type: "post",
         data: {
             order_id: order_id
@@ -171,7 +171,7 @@ function getAllFlow(order_id) {
         async: false,
         dataType: "text",
         success: function (result) {
-            result = JSON.parse(result).result
+            result = JSON.parse(result).data
             var rst1 = result[0];   // 流程id
             $("#flow_id").val(rst1)
             var order_id = result[1];   // 订单id
@@ -325,7 +325,7 @@ function select(t) {
         async: false,
         dataType: "text",
         success: function (result) {
-            result = JSON.parse(result).result
+            result = JSON.parse(result).data
             let arr1 = result[0];   // 这个流程下对应的状态，订单状态中间表的信息
             let arr2 = result[1];   // 这个流程下对应的名字
             let flow_name = result[2];  // 当前流程的名字
@@ -400,6 +400,7 @@ function getState() {
         url: "/users/getState",
         type: "post",
         data: {
+            order_type: 1,
             order_id: order_id,
         },
         async: false,
@@ -410,26 +411,6 @@ function getState() {
     })
     return text;
 }
-// // 通过具体流程id获得具体流程信息
-// function getFlow(flow_detail_id) {
-//     let text = "";
-//     if (flow_detail_id && flow_detail_id != "") {
-//         $.ajax({
-//             url: "/users/getFlowByFlow_detail_id",
-//             type: "post",
-//             data: {
-//                 flow_detail_id: flow_detail_id
-//             },
-//             async: false,
-//             dataType: "text",
-//             success: function (result) {
-//                 result = JSON.parse(result).data[0];
-//                 text = result.flow_name;
-//             }
-//         })
-//     }
-//     return text;
-// }
 // 将日期进行转换最终得到一个正确时区的日期     ✔
 function timestampToTime(timestamp) {
     let text;

@@ -67,7 +67,7 @@ var util = {
         let limit = Number(obj.limit) - 1;
         let totalNum = arr.length;
         let nums = 10;
-        if (tName == 'order1' || tName == 'order3' || tName == 'order2') {
+        if (tName == 'order') {
             nums = 20;
         } else if (tName == 'emp' || tName == 'product') {
             nums = 15;
@@ -80,16 +80,16 @@ var util = {
             if (i == nums * (limit + 1)) {
                 break;
             } else if (i == totalNum - 1) {
-                arr2.push(arr[i].data);
+                arr2.push(arr[i]);
                 break;
             }
-            arr2.push(arr[i].data);
+            arr2.push(arr[i]);
         }
         return [arr2, totalPage, totalNum];
     },
     /**
      * 根据传入的key，来相对应的对数组中的所有json对象排序
-     * @param {Array} arr redis返回来的没有去处row的结果
+     * @param {Array} arr redis返回来的已经去处row的结果
      * @param {string} key 要排序的字段
      * @param {String} sort 排序规则 asc(从小到大)desc从大到小
      * @returns {Array} [json1,json2,...] 
@@ -100,7 +100,7 @@ var util = {
         if (sort == 'asc') {
             while (i > 0) {
                 for (j = 0; j < i - 1; j++) {
-                    if (arr[j].data[key] > arr[j + 1].data[key]) {
+                    if (arr[j][key] > arr[j + 1][key]) {
                         tempExchangVal = arr[j];
                         arr[j] = arr[j + 1];
                         arr[j + 1] = tempExchangVal;
@@ -111,13 +111,27 @@ var util = {
         } else if (sort == 'desc') {
             while (i > 0) {
                 for (j = 0; j < i - 1; j++) {
-                    if (arr[j].data[key] < arr[j + 1].data[key]) {
+                    if (arr[j][key] < arr[j + 1][key]) {
                         tempExchangVal = arr[j];
                         arr[j] = arr[j + 1];
                         arr[j + 1] = tempExchangVal;
                     }
                 }
                 i--;
+            }
+        }
+        return arr;
+    },
+    /**
+     * @param {Array} keys [k1,k2...],要转换时间格式的字段名
+     * @param {Array} arr  [json1,json2...]要转换的结果
+     */
+    dataFormat: function (keys, arr) {
+        for (let i = 0; i < arr.length; i++) {
+            const val = arr[i];
+            for (let j = 0; j < keys.length; j++) {
+                const k = keys[j];
+                arr[i][k] = new Date(arr[i][k]).toLocaleString().substring(0, 15);
             }
         }
         return arr;

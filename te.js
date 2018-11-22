@@ -119,8 +119,8 @@
 
 
 
-const db = require('./db_redis/redis_conn');
-const client = db.client
+// const db = require('./db_redis/redis_conn');
+// const client = db.client
 
 
 
@@ -136,3 +136,12 @@ const client = db.client
 // })
 
 
+// let te = 'abc<pic>saofdf<pic>';
+// let c = '<pic>';
+// let b = te.indexOf('<pic>');
+// while (true) {
+//     if(te.includes('')) {
+
+//     }
+// }
+// console.log(b);

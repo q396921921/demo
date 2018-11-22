@@ -110,7 +110,7 @@ function detailPt(t) {
     })
     $("#t3").show();
     $.ajax({
-        url: "/users/getOffByProduct_id",
+        url: "/users/getRelation_product_dep",
         type: "post",
         data: {
             product_id: product_id
@@ -318,7 +318,7 @@ function unCheck() {
 function getProEmps(product_id, dep_id, off_id) {
     let text = "";
     $.ajax({
-        url: "/users/getProEmp",
+        url: "/users/getRelation_product_dep",
         type: "post",
         data: {
             product_id: product_id,

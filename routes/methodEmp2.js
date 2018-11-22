@@ -26,7 +26,7 @@ let me = {
                 tName: 'emp',
                 condi: 'and',
             }
-            let obj = util.spliceCode(obj, body);
+            obj = util.spliceCode(obj, body);
             let ret = await get.myData(obj);
             let data = getData(ret);
             cb(null, data)
@@ -44,7 +44,7 @@ let me = {
                 tName: 'dep',
                 condi: 'and',
             }
-            let obj = util.spliceCode(obj, body);
+            obj = util.spliceCode(obj, body);
             let ret = await get.myData(obj);
             let data = getData(ret);
             cb(null, data)
@@ -62,7 +62,7 @@ let me = {
                 tName: 'relation_emp_resource',
                 condi: 'and',
             }
-            let obj = util.spliceCode(obj, body);
+            obj = util.spliceCode(obj, body);
             let ret = await get.myData(obj);
             let data = getData(ret);
             cb(null, data)
@@ -80,7 +80,7 @@ let me = {
                 tName: 'relation_emp_role',
                 condi: 'and',
             }
-            let obj = util.spliceCode(obj, body);
+            obj = util.spliceCode(obj, body);
             let ret = await get.myData(obj);
             let data = getData(ret);
             cb(null, data)
@@ -98,7 +98,7 @@ let me = {
                 tName: 'relation_role_resource',
                 condi: 'and',
             }
-            let obj = util.spliceCode(obj, body);
+            obj = util.spliceCode(obj, body);
             let ret = await get.myData(obj);
             let data = getData(ret);
             cb(null, data)
@@ -116,7 +116,7 @@ let me = {
                 tName: 'resource',
                 condi: 'and',
             }
-            let obj = util.spliceCode(obj, body);
+            obj = util.spliceCode(obj, body);
             let ret = await get.myData(obj);
             let data = getData(ret);
             cb(null, data)
@@ -134,7 +134,7 @@ let me = {
                 tName: 'role',
                 condi: 'and',
             }
-            let obj = util.spliceCode(obj, body);
+            obj = util.spliceCode(obj, body);
             let ret = await get.myData(obj);
             let data = getData(ret);
             cb(null, data)

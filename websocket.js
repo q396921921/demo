@@ -16,9 +16,9 @@ websocket.getSocketio = function (port) {
     var wss = new WebSocketServer(port);
     console.log(`端口为${port.port}的长连接服务器已开启`);
     var count = 1;
-    mdOrder.getProfit((ret) => {
-        count = JSON.parse(ret).data[0].count
-    })
+    mdOrder.getTotal_profit({}).then(((ret) => {
+        count = ret[0].count;
+    }))
     let t1 = new Date();
     let hours = 23 - t1.getHours();
     let minute = 59 - t1.getMinutes();

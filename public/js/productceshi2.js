@@ -170,7 +170,7 @@ function change(fileDom) {
 // 获得所有的流程id与名字
 function getFlows() {
     $.ajax({
-        url: "/users/getFlowNameId",
+        url: "/users/getFlow",
         type: "get",
         async: false,
         dataType: "text",
@@ -187,7 +187,7 @@ function getFlows() {
 // 获得所有的文件类型id与名字
 function getFile_type() {
     $.ajax({
-        url: "/users/getFile_typeNameId",
+        url: "/users/getFile_types_num",
         type: "get",
         async: false,
         dataType: "text",

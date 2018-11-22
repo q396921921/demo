@@ -18,11 +18,15 @@ var mdData = require('./methodData');
 
 // 创建一个订单
 router.post('/createOrder', function (req, res, next) {
-    console.log(123456);
-    let body = req.body
-    mdOrder.createOrder(body, (ret) => {
-        res.send(ret)
-    })
+    (async function () {
+        try {
+            let body = req.body
+            let data = await mdOrder.createOrder(body);
+            res.send(JSON.stringify({ data: data }));
+        } catch (err) {
+            res.send('error');
+        }
+    })()
 });
 // 如果此订单指定内容为空，删除此订单
 router.post('/deleteOrder', function (req, res, next) {

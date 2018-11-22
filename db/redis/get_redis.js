@@ -217,7 +217,18 @@ get.insert = promise.promisify(async function (condis, cb) {
 })
 get.tbMaxId = promise.promisify(async function (condis, key, cb) {
     try {
-        let result = await getAllDate(condis);
+        let tName = condis.tName;
+        let result = [];
+        if (tName == 'order') {
+            condis.tName = 'order1';
+            result = result.concat(await getAllDate(condis));
+            condis.tName = 'order2';
+            result = result.concat(await getAllDate(condis));
+            condis.tName = 'order3';
+            result = result.concat(await getAllDate(condis));
+        } else {
+            result = await getAllDate(condis);
+        }
         let maxId = 0;
         for (let i = 0; i < result.length; i++) {
             const val = result[i];
@@ -340,7 +351,6 @@ function sortArr(arr, sort) {
             }
             i--;
         }
-        console.log(arry);
         return arr;
     } else if (sort == 'desc') {   //从大到小
         var i = arr.length, j;

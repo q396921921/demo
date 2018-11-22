@@ -96,7 +96,7 @@ function confirmAct(t) {
 function getDetailFileTypes() {
     $("#allDetailTypes tr:gt(0)").empty()
     $.ajax({
-        url: "/users/getDetailFileType",
+        url: "/users/getDetail_file_type",
         type: "get",
         async: false,
         dataType: "text",
@@ -171,7 +171,7 @@ function deleteFileType(t) {
 function getDetailFileType() {
     $("#updateFileType tr:gt(0)").empty()
     $.ajax({
-        url: "/users/getDetailFileType",
+        url: "/users/getDetail_file_type",
         type: "get",
         async: false,
         dataType: "text",
@@ -192,7 +192,7 @@ function getFile_type() {
     let text = "";
     $("#allTypes tr:gt(0)").empty()
     $.ajax({
-        url: "/users/getFile_typeNameId",
+        url: "/users/getFile_types_num",
         type: "get",
         async: false,
         dataType: "text",

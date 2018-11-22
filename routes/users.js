@@ -124,11 +124,16 @@ router.get('/appli/ceshi*', function (req, res, next) {
   req.session.menu = menu;
   res.render(ulstr, { "username": req.session.username, "menu": menu })
 });
+// use
 router.post('/getOrders', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getOrders(body, (ret) => {
-    res.send(ret)
-  })
+  (async function () {
+    try {
+      let data = await mdOrder.getOrders(req.body);
+      res.send(JSON.stringify({ data: data }));
+    } catch (err) {
+      res.send('error');
+    }
+  })()
 })
 // 获得当前人物权限所有未被处理的订单
 router.post('/getNoHandleOrders', function (req, res, next) {
@@ -137,28 +142,48 @@ router.post('/getNoHandleOrders', function (req, res, next) {
     res.send(ret)
   })
 })
-router.post('/getFlowByFlow_detail_id', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getFlowByFlow_detail_id(body, (ret) => {
-    res.send(ret)
-  })
+// use
+router.post('/getFlow_detail', function (req, res, next) {
+  (async function () {
+    try {
+      let data = await mdOrder.getFlow_detail(req.body);
+      res.send(JSON.stringify({ data: data }));
+    } catch (err) {
+      res.send('error');
+    }
+  })()
 })
+// use
 router.get('/getType', function (req, res, next) {
-  mdOrder.getProductTypes({}, (ret) => {
-    res.send(ret)
-  })
+  (async function () {
+    try {
+      let data = await mdOrder.getProduct_type(req.body);
+      res.send(JSON.stringify({ data: data }));
+    } catch (err) {
+      res.send('error');
+    }
+  })()
 })
 router.post('/getStates', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getStates(body, (ret) => {
-    res.send(ret)
-  });
+  (async function () {
+    try {
+      let data = await mdOrder.getStates(req.body);
+      res.send(data);
+    } catch (err) {
+      res.send('error');
+    }
+  })()
 })
-router.post('/getFlow', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getFlow(body, (ret) => {
-    res.send(ret)
-  });
+// use专门的返回流程
+router.post('/getFlows', function (req, res, next) {
+  (async function () {
+    try {
+      let data = await mdOrder.getFlows(req.body);
+      res.send(JSON.stringify({ data: data }));
+    } catch (err) {
+      res.send('error');
+    }
+  })()
 })
 router.post('/deleteOrder', function (req, res, next) {
   let body = req.body;
@@ -167,16 +192,24 @@ router.post('/deleteOrder', function (req, res, next) {
   });
 })
 router.post('/getState', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getState(body, (ret) => {
-    res.send(ret.toString())
-  });
+  (async function () {
+    try {
+      let data = await mdOrder.getState(req.body);
+      res.send(data.toString());
+    } catch (err) {
+      res.send('error');
+    }
+  })()
 })
 router.post('/getStatess', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getStatess(body, (ret) => {
-    res.send(ret)
-  });
+  (async function () {
+    try {
+      let data = await mdOrder.getStatess(req.body);
+      res.send(JSON.stringify({ data: data }));
+    } catch (err) {
+      res.send('error');
+    }
+  })()
 })
 router.post('/setFailReason', function (req, res, next) {
   let body = req.body;
@@ -190,10 +223,15 @@ router.post('/updateProfit', function (req, res, next) {
     res.send(ret);
   })
 })
-router.get('/getProfit', function (req, res, next) {
-  mdOrder.getProfit((ret) => {
-    res.send(ret)
-  })
+router.get('/getTotal_profit', function (req, res, next) {
+    (async function () {
+      try {
+        let data = await mdOrder.getTotal_profit(req.body);
+        res.send(JSON.stringify({ data: data }));
+      } catch (err) {
+        res.send('error');
+      }
+    })()
 })
 router.post('/setState', function (req, res, next) {
   let body = req.body;
@@ -430,12 +468,6 @@ router.get('/gethome_page', function (req, res, next) {
     res.send(ret)
   })
 })
-router.post('/getProEmp', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getProEmp(body, (ret) => {
-    res.send(ret)
-  })
-})
 router.get('/getbusiness', function (req, res, next) {
   let body = req.body;
   mdData.getbusiness(body, (ret) => {
@@ -492,10 +524,14 @@ router.get('/product/ceshi*', function (req, res, next) {
   res.render(ulstr, { "username": req.session.username, "menu": menu })
 });
 router.post('/getProduct', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getProduct(body, (ret) => {
-    res.send(ret);
-  })
+  (async function () {
+    try {
+      let data = await mdOrder.getProduct(req.body);
+      res.send(JSON.stringify({ data: data }));
+    } catch (err) {
+      res.send('error');
+    }
+  })()
 })
 router.post('/getSortFlowState', function (req, res, next) {
   let body = req.body;
@@ -509,21 +545,21 @@ router.post('/getDetailFile_types', function (req, res, next) {
     res.send(ret);
   })
 })
-router.get('/getFlowNameId', function (req, res, next) {
+router.get('/getFlow', function (req, res, next) {
   let body = req.body;
-  mdOrder.getFlowNameId(body, (ret) => {
+  mdOrder.getFlow(body, (ret) => {
     res.send(ret);
   })
 })
-router.get('/getFile_typeNameId', function (req, res, next) {
+router.get('/getFile_types_num', function (req, res, next) {
   let body = req.body;
-  mdOrder.getFile_typeNameId(body, (ret) => {
+  mdOrder.getFile_types_num(body, (ret) => {
     res.send(ret);
   })
 })
-router.get('/getDetailFileType', function (req, res, next) {
+router.get('/getDetail_file_type', function (req, res, next) {
   let body = req.body;
-  mdOrder.getDetailFileType(body, (ret) => {
+  mdOrder.getDetail_file_type(body, (ret) => {
     res.send(ret);
   })
 })
@@ -599,10 +635,9 @@ router.post('/allotProduct', function (req, res, next) {
     res.send(ret);
   })
 })
-// 获得这个商品对应的内勤
-router.post('/getOffByProduct_id', function (req, res, next) {
+router.post('/getRelation_product_dep', function (req, res, next) {
   let body = req.body;
-  mdOrder.getOffByProduct_id(body, (ret) => {
+  mdOrder.getRelation_product_dep(body, (ret) => {
     res.send(ret);
   })
 })
