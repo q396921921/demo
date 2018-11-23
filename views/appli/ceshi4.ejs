@@ -9,241 +9,194 @@
     <link rel="stylesheet" href="/css/appliceshi4.css">
     <script src="/js/jquery.min.js"></script>
     <script src="/js/appliceshi4.js"></script>
-    <script src="/js/jquery-form.js"></script>
     <script src="/js/public.js"></script>
     <script src="/js/powers.js"></script>
+    <script src="/js/splitPage.js"></script>
     <script>
-        var path;
+        
+        var username = "<%=username%>";
+        var menu = "<%=menu%>";
         $(function () {
-            if (document.cookie.length != 0) {
-                var ck1 = document.cookie.split(';');
-                var state2;
-                var menu;
-                for (var i = 0; i < ck1.length; i++) {
-                    var ck2 = ck1[i];
-                    var ck2 = ck2.split('=');
-                    if (ck2[0].trim() == 'menu') {
-                        menu = ck2[1];
-                    } else if (ck2[0].trim() == 'path') {
-                        path = decodeURIComponent(ck2[1]);
-                    }
-                }
-            }
-            getTypes();
+            getEmp();
+            getAllProducts();
+            getAllEmpName();
+            getDepUserIdName();
+            $("#pageNo").val(1);
+            getSplitPage("", $("#table"), 1)
             bindEvents()
             if (menu == '4') {
                 $("#li4").children().css("background", "#97C65E");
                 $("#b span").attr('style', "display:none")
             }
 
+            // 显示隐藏选择的对钩的，并将值进行改变
+            $("img").parent().click(function () {
+                var ts = $(this).children();
+                if (ts.css('display') == "none") {
+                    ts.show()
+                } else {
+                    ts.css('display', 'none')
+                }
+            })
+            $(".class1").click(function () {
+                var data = $(this).parent().parent();
+                data.children().children().each(function () {
+                    var name = $(this).attr('name')
+
+                })
+            })
         })
 
     </script>
 
-    <body>
-        <div id="a">
-            <ul>
-                <li id="li1">
-                    <input type="button" value="全部" class="canButton" name="head1" onclick="jump(1)">
-                </li>
-                <li id="li2">
-                    <input type="button" value="筛选/统计" class="canButton" name="head2" onclick="jump(2)">
-                </li>
-                <li id="li3">
-                    <input type="button" value="询值/推荐" class="canButton" name="head3" onclick="jump(3)">
-                </li>
-                <!-- <li id="li4">
-                    <input type="button" value="创建" class="canButton" name="head4" onclick="jump(4)">
-                </li> -->
-            </ul>
-            <input id="orderSelect" type="button" onclick="deleteTb()" class="canButton" value="订单ID查询">
-            <input id="aid" type="text">
-        </div>
+<body>
+    <!-- 设置一个隐藏属性用来存储订单id -->
+    <input type="hidden" id="order_id">
+    <!-- 用来控制可读可写的，1只读，2可写 -->
+    <input type="hidden" id="read" value="1">
+    <!-- 用来得到当前订单的流程ID -->
+    <input type="hidden" id="flow_id">
+    <!-- 存储查询出来的全部订单 -->
+    <input type="hidden" id="allOrder">
+    <!-- 订单类型 -->
+    <input type="hidden" id="allPName">
+    <!-- 储存所有用户的名字 -->
+    <input type="hidden" id="allName">
+    <!-- 商品类型id -->
+    <input type="hidden" id="product_type_id">
+    <div id="a">
+        <ul>
+            <li id="li1">
+                <input type="button" value="申请订单" class="canButton" name="head1" onclick="jump(1)">
+            </li>
+            <li id="li2">
+                <input type="button" value="筛选/统计" class="canButton" name="head2" onclick="jump(2)">
+            </li>
+            <li id="li3">
+                <input type="button" value="询值订单" class="canButton" name="head3" onclick="jump(3)">
+            </li>
+            <li id="li4">
+                <input type="button" value="推荐订单" class="canButton" name="head5" onclick="jump(4)">
+            </li>
+        </ul>
+        <input id="orderSelect" type="button" onclick="deleteTb()" class="canButton" value="订单ID查询">
+        <input id="aid" type="text">
+    </div>
 
-        <div id="create" style="text-align: center">
-            <form action="./../createOrder" method="POST" enctype="multipart/form-data">
-                <div id="product">
-                    <input type="text" name="order_type" value="1" hidden>
-                    <input type="text" name="type" hidden>
-                    <input type="text" name="product_id" hidden> 商品类别:
-                    <select name="s1" style="width: 30%;text-align: center;margin-right: 10%;margin-top: 20px;"></select>
-                    商品名称:
-                    <select name='s2' style="width: 30%;text-align: center;">
+    <div id="b">
+        <input id="output1" class="canButton" type="button" value="导出" onclick="output()">
+
+        <table id='table' width="96%" cellpadding="0" cellspacing="0" style="top: 1%;">
+            <thead>
+                <th width="10%">订单编号</th>
+                <th width="6%">渠道编号</th>
+                <th width="6%">客户姓名</th>
+                <th width="6%">产品类型</th>
+                <th width="10%">申请时间</th>
+                <th width="8%">出值金额</th>
+                <th width="8%">用户备注</th>
+                <th width="8%">员工备注</th>
+                <th width="14%">订单状态</th>
+                <th width="10%">操作</th>
+            </thead>
+        </table>
+
+    </div>
+    <div id="detail">
+        <table id="table2" width="99%" cellpadding="0" cellspacing="0" style="display: none;">
+            <tr>
+                <td width="8%">订单编号</td>
+                <td width="17%">
+                    <input type="text" name="appli_id">
+                </td>
+                <td width="8%">渠道姓名</td>
+                <td width="17%">
+                    <select disabled id="channel_name" style="width:98%;text-align: center"></select>
+                    <input hidden type="text" name="channel_id">
+                </td>
+                <td width="8%">产品类型</td>
+                <td width="17%">
+                    <select hidden id="types" style="width:98%;text-align: center"></select>
+                    <input type="text" name="type">
+                </td>
+                <td width="8%">客户姓名</td>
+                <td>
+                    <input type="text" name="clientName">
+                </td>
+            </tr>
+            <tr>
+                <td width="8%">申请时间</td>
+                <td>
+                    <input type="text" name="appliTime">
+                </td>
+                <td width="8%">订单状态</td>
+                <td>
+                    <select hidden id="states" style="width:98%;text-align: center">
                         <option value="">----请选择----</option>
+                        <option value="1" onclick="setOrder_state(this.value)">申请中</option>
+                        <option value="2" onclick="setOrder_state(this.value)">审核中</option>
+                        <option value="3" onclick="setOrder_state(this.value)">通过</option>
+                        <option value="4" onclick="setOrder_state(this.value)">失败</option>
                     </select>
-                    <br>
-                    <input style="margin-top: 20px" type="button" class="canButton" onclick="getFileTypes()" value="我要申请">
-                    <input style="margin-top: 20px" type="button" class="canButton" onclick="submitForm(this)" id='submit' value="我要提交" hidden>
-                </div>
-                <div id="file" style="width: 100%;text-align: center">
-                    <table cellpadding="0" cellspacing="0" border="0" style="width: 80%">
-                    </table>
-                </div>
-            </form>
-        </div>
-
-    </body>
+                    <input type="text" name="order_state">
+                </td>
+                <td width="8%">订单文件</td>
+                <td colspan="3">
+                    <input style="width:99%;" type="text" name="orderFile">
+                </td>
+            </tr>
+            <tr>
+                <td width="8%">推荐商品1</td>
+                <td>
+                    <select hidden style="width:98%;height:100%;text-align: center"></select>
+                    <input type="text" hidden name="product_type_id">
+                    <input type="text" name="commend1">
+                </td>
+                <td width="8%">推荐商品2</td>
+                <td>
+                    <select hidden style="width:98%;height:100%;text-align: center"></select>
+                    <input type="text" hidden name="product_type_id">
+                    <input type="text" name="commend2">
+                </td>
+                <td width="8%">推荐商品3</td>
+                <td>
+                    <select hidden style="width:98%;height:100%;text-align: center"></select>
+                    <input type="text" hidden name="product_type_id">
+                    <input type="text" name="commend3">
+                </td>
+                <td width="8%">推荐商品4</td>
+                <td>
+                    <select hidden style="width:98%;height:100%;text-align: center"></select>
+                    <input type="text" hidden name="product_type_id">
+                    <input type="text" name="commend4">
+                </td>
+            </tr>
+            <tr>
+                <td width="8%">出值金额</td>
+                <td colspan="7"><input style="width:99%;" type="text" name="money"></td>
+            </tr>
+            <tr height="50px;">
+                <td width="8%">用户备注</td>
+                <td colspan="7">
+                    <input style="width:99%;height: 49px;" type="text" name="userComment" hidden>
+                    <textarea cols="170" rows="5" style="resize:none" readonly onchange="getText(this)"></textarea>
+                </td>
+            </tr>
+            <tr height="50px;">
+                <td width="8%">员工备注</td>
+                <td colspan="7">
+                    <input style="width:99%;height: 49px;" type="text" name="empComment" hidden>
+                    <textarea cols="170" rows="5" style="resize:none" readonly onchange="getText(this)"></textarea>
+                </td>
+            </tr>
+        </table>
+        <input hidden id="update2" class="canButton" type="button" value="编辑" style="position: absolute;bottom: 10%;left: 50%;"
+            onclick="text2()">
+    </div>
+    <!-- 分页 -->
+    <%- include("./../splitPage.ejs") %>
+    </div>
+    <div id="hidde"></div>
+</body>
 
 </html>
-<script>
-
-    // 表单用ajax进行提交，然后后台进行修改
-    function submitForm(t) {
-        $(t).parent().parent().ajaxSubmit({
-            type: 'post',
-            async: false,
-            dataType: "text",
-            success: function (result) {
-                if (result == 'success') {
-                    alert('修改成功')
-                } else {
-                    alert('修改失败')
-                }
-            }
-        })
-        return false;
-    }
-    function getFileTypes() {
-        $("#file table").empty();
-        let product_id = $("#product input[name='product_id']").val();
-        let product_type_id = $("#product input[name='type']").val();
-        if (product_type_id && product_id) {
-            $("#submit").show();
-            $.ajax({
-                url: "/users/getProduct",
-                type: "post",
-                data: {
-                    product_id: product_id
-                },
-                async: false,
-                dataType: "text",
-                success: function (result) {
-                    let text = JSON.parse(result).data[0]
-                    let file_type_id = text.file_type_id;
-                    $.ajax({
-                        url: "/users/getDetailFile_types",
-                        type: "post",
-                        data: {
-                            file_type_id: file_type_id
-                        },
-                        async: false,
-                        dataType: "text",
-                        success: function (result) {
-                            let text = JSON.parse(result).data
-                            let table = '<tr><td>申请用户:<input type="text" name="channel_id" style="width:93%"><td></tr>'
-                                + '<tr><td>客户姓名:<input type="text" name="clientName" style="width:93%"><td></tr>'
-                                + '<tr><td>申请金额:<input type="text" name="inmonney" style="width:93%"><td></tr>';
-                            for (let i = 0; i < text.length; i++) {
-                                table += '<tr><td style="text-align:left;">' + (i + 1) + '. ' + text[i].name + '</td></tr>'
-                                    + '<tr><td><textarea cols="150" rows="3">' + set_br_n(text[i].text) + '</textarea></td></tr>'
-                                    + '<tr><td style="text-align:left;"><img onclick="uploadImg(this)" style="width:100px;height:100px;" src="/images/plustag.jpg"></td></tr>'
-                            }
-                            $(table).appendTo($("#file table"))
-                        }
-                    })
-                }
-            })
-        } else {
-            alert('商品类型或商品名称不能为空！')
-        }
-    }
-
-    // 点击图片触发图片触发上传文件事件         公共的图片事件！！！！！！！
-    function uploadImg(t) {
-        let text = '<img style="width:100px;height:100px;margin-right:5px" onclick="updateImg(this)" hidden><input type="file" name="file" onchange="change(this)" hidden>'
-        $($(t)).before(text);
-        $(t).prev().trigger('click');
-    }
-    // 图片经过加号创建好了之后想修改
-    function updateImg(t) {
-        $(t).next().trigger('click');
-    }
-    // 选择好图片文件之后实现预览功能           公共的图片预览事件！！！！！！！
-    function change(fileDom) {
-        $(fileDom).prev().show();
-        //判断是否支持FileReader
-        if (window.FileReader) {
-            var reader = new FileReader();
-        } else {
-            alert("您的设备不支持图片预览功能，如需该功能请升级您的设备！");
-        }
-
-        //获取文件
-        var file = fileDom.files[0];
-        var imageType = /^image\//;
-        //是否是图片
-        if (!imageType.test(file.type)) {
-            alert("请选择图片！");
-            return;
-        }
-        //读取完成
-        reader.onload = function (e) {
-            //获取图片dom
-            // var img = document.getElementById("img12");
-            var img = $(fileDom).prev();
-            //图片路径设置为读取的图片
-            // img.src = e.target.result;
-            img.attr('src', e.target.result);
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function set_br_n(text) {
-        text = text.replace(/&br/g, '\n');
-        return text;
-    }
-
-    function getTypes() {
-        $("#submit").hide();
-        $.ajax({
-            url: "/users/getType",
-            type: "get",
-            async: false,
-            dataType: "text",
-            success: function (result) {
-                text = JSON.parse(result).data
-                let opt = '<option value="" onclick="getProducts(this)">----请选择类别----</option>';
-                for (let i = 0; i < text.length; i++) {
-                    opt += '<option onclick="getProducts(this)" value="' + text[i].product_type_id + '">' + text[i].name + '</option>';
-                }
-                $(opt).appendTo($("#product select[name='s1']"));
-            }
-        })
-    }
-
-    // 获取不同类别的商品
-    function getProducts(t) {
-        $("#submit").hide();
-        let s = $(t).parent().next();
-        s.empty()
-        let product_type_id = $(t).val();
-        setProduct_type_id(product_type_id);
-        $.ajax({
-            url: "/users/getProduct",
-            type: "post",
-            data: {
-                product_type_id: product_type_id
-            },
-            async: false,
-            dataType: "text",
-            success: function (result) {
-                $("#productInfo").val(result);
-                let text = JSON.parse(result).data
-                let opt = '<option value="">----请选择----</option>';
-                for (let i = 0; i < text.length; i++) {
-                    opt += '<option onclick="setProduct_id(this)" value="' + text[i].product_id + '">' + text[i].name + '</option>';
-                }
-                $(opt).appendTo(s)
-            }
-        })
-    }
-    // 为所选择的商品隐藏的product_type_id赋值
-    function setProduct_type_id(t) {
-        $("#product input[name='type']").val(t);
-    }
-    // 为所选择的商品隐藏的product_id赋值
-    function setProduct_id(t) {
-        let product_id = $(t).parent().val();
-        $("#product input[name='product_id']").val(product_id);
-    }
-</script>

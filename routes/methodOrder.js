@@ -31,14 +31,11 @@ var md = {
    */
   getTotal_profit: promise.promisify(async function (body, cb) {
     try {
-      let obj = {
-        tName: 'total_profit',
-        condi: 'and',
-      }
-      obj = util.spliceCode(obj, body);
-      let ret = await get.myData(obj);
+      let condis = { tName: 'total_profit' };
+      condis = util.spliceCode(condis, body);
+      let ret = await get.myData(condis);
       let data = util.getData(ret);
-      cb(null, data)
+      cb(null, data);
     } catch (err) {
       cb('error');
     }
@@ -49,12 +46,9 @@ var md = {
    */
   getDetail_file_type: promise.promisify(async function (body, cb) {
     try {
-      let obj = {
-        tName: 'detail_file_type',
-        condi: 'and',
-      }
-      obj = util.spliceCode(obj, body);
-      let ret = await get.myData(obj);
+      let condis = { tName: 'detail_file_type' }
+      condis = util.spliceCode(condis, body);
+      let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
@@ -67,12 +61,9 @@ var md = {
    */
   getFile_types_num: promise.promisify(async function (body, cb) {
     try {
-      let obj = {
-        tName: 'file_types_num',
-        condi: 'and',
-      }
-      obj = util.spliceCode(obj, body);
-      let ret = await get.myData(obj);
+      let condis = { tName: 'file_types_num' }
+      condis = util.spliceCode(condis, body);
+      let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
@@ -85,12 +76,9 @@ var md = {
    */
   getFlow: promise.promisify(async function (body, cb) {
     try {
-      let obj = {
-        tName: 'flow',
-        condi: 'and',
-      }
-      obj = util.spliceCode(obj, body);
-      let ret = await get.myData(obj);
+      let condis = { tName: 'flow' }
+      condis = util.spliceCode(condis, body);
+      let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
@@ -103,12 +91,9 @@ var md = {
    */
   getFlow_detail: promise.promisify(async function (body, cb) {
     try {
-      let obj = {
-        tName: 'flow_detail',
-        condi: 'and',
-      }
-      obj = util.spliceCode(obj, body);
-      let ret = await get.myData(obj);
+      let condis = { tName: 'flow_detail' }
+      condis = util.spliceCode(condis, body);
+      let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
@@ -130,12 +115,9 @@ var md = {
       } else if (order_type == 3) {
         tName = 'order3';
       }
-      let obj = {
-        tName: tName,
-        condi: 'and',
-      }
-      obj = util.spliceCode(obj, body);
-      let ret = await get.myData(obj);
+      let condis = { tName: tName }
+      condis = util.spliceCode(condis, body);
+      let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
@@ -148,12 +130,10 @@ var md = {
    */
   getProduct: promise.promisify(async function (body, cb) {
     try {
-      let obj = {
-        tName: 'product',
-        condi: 'and',
-      }
-      obj = util.spliceCode(obj, body);
-      let ret = await get.myData(obj);
+      let condis = { tName: 'product' }
+      console.log(body);
+      condis = util.spliceCode(condis, body);
+      let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
@@ -166,12 +146,9 @@ var md = {
    */
   getProduct_type: promise.promisify(async function (body, cb) {
     try {
-      let obj = {
-        tName: 'product_type',
-        condi: 'and',
-      }
-      obj = util.spliceCode(obj, body);
-      let ret = await get.myData(obj);
+      let condis = { tName: 'product_type' }
+      condis = util.spliceCode(condis, body);
+      let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
@@ -184,12 +161,9 @@ var md = {
    */
   getRelation_file_type_detail: promise.promisify(async function (body, cb) {
     try {
-      let obj = {
-        tName: 'relation_file_type_detail',
-        condi: 'and',
-      }
-      obj = util.spliceCode(obj, body);
-      let ret = await get.myData(obj);
+      let condis = { tName: 'relation_file_type_detail' }
+      condis = util.spliceCode(condis, body);
+      let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
@@ -202,12 +176,9 @@ var md = {
    */
   getRelation_flow_detail: promise.promisify(async function (body, cb) {
     try {
-      let obj = {
-        tName: 'relation_flow_detail',
-        condi: 'and',
-      }
-      obj = util.spliceCode(obj, body);
-      let ret = await get.myData(obj);
+      let condis = { tName: 'relation_flow_detail' }
+      condis = util.spliceCode(condis, body);
+      let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
@@ -220,12 +191,9 @@ var md = {
    */
   getRelation_order_state: promise.promisify(async function (body, cb) {
     try {
-      let obj = {
-        tName: 'relation_order_state',
-        condi: 'and',
-      }
-      obj = util.spliceCode(obj, body);
-      let ret = await get.myData(obj);
+      let condis = { tName: 'relation_order_state' }
+      condis = util.spliceCode(condis, body);
+      let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
@@ -238,12 +206,9 @@ var md = {
    */
   getRelation_product_dep: promise.promisify(async function (body, cb) {
     try {
-      let obj = {
-        tName: 'relation_product_dep',
-        condi: 'and',
-      }
-      obj = util.spliceCode(obj, body);
-      let ret = await get.myData(obj);
+      let condis = { tName: 'relation_product_dep' }
+      condis = util.spliceCode(condis, body);
+      let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
@@ -256,12 +221,9 @@ var md = {
    */
   getRelation_state_flow: promise.promisify(async function (body, cb) {
     try {
-      let obj = {
-        tName: 'relation_state_flow',
-        condi: 'and',
-      }
-      obj = util.spliceCode(obj, body);
-      let ret = await get.myData(obj);
+      let condis = { tName: 'relation_state_flow' }
+      condis = util.spliceCode(condis, body);
+      let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
@@ -274,12 +236,9 @@ var md = {
    */
   getState_detail: promise.promisify(async function (body, cb) {
     try {
-      let obj = {
-        tName: 'state_detail',
-        condi: 'and',
-      }
-      obj = util.spliceCode(obj, body);
-      let ret = await get.myData(obj);
+      let condis = { tName: 'state_detail' }
+      condis = util.spliceCode(condis, body);
+      let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
@@ -298,12 +257,11 @@ var md = {
   deleteOffPro: promise.promisify(async function (body, cb) {
     try {
       let product_id = body.product_id;
-      let obj = {
+      let condis = {
         tName: 'relation_product_dep',
-        condi: 'and',
         product_id: product_id
       }
-      await get.delete(obj);
+      await get.delete(condis);
       cb(null, 'success');
     } catch (err) {
       debug("删除商品对应的内勤错误");
@@ -316,20 +274,19 @@ var md = {
    */
   allotProduct: promise.promisify(async function (body, cb) {
     try {
-      let obj = {
+      let condis = {
         tName: 'relation_product_dep',
-        condi: 'and',
         product_id: body.product_id,
         off_id: body.off_id,
         dep_id: body.dep_id,
       }
       // 查询之前与此商品相关联的内勤,然后删掉
-      await get.delete(obj);
+      await get.delete(condis);
       let emp_id_arr = body.emp_id_arr;
       for (let i = 0; i < emp_id_arr.length; i++) {
         let dep_emp_id = emp_id_arr[i];
-        obj[dep_emp_id] = dep_emp_id;
-        await get.insert(obj);
+        condis[dep_emp_id] = dep_emp_id;
+        await get.insert(condis);
       }
       cb(null, 'success')
     } catch (err) {
@@ -351,10 +308,9 @@ var md = {
       for (let i = 0; i < sortFlow.length; i++) {
         let state_detail_id_arr = await md.getRelation_state_flow({ flow_detail_id: sortFlow[i].flow_detail_id });
         for (let j = 0; j < state_detail_id_arr.length; j++) {
-          let maxId = await get.tbMaxId({ tName: 'relation_order_state', condi: 'and' }, 'relation_state_id');
+          let maxId = await get.tbMaxId({ tName: 'relation_order_state' }, 'relation_state_id');
           let obj3 = {
             tName: 'relation_order_state',
-            condi: 'and',
             relation_state_id: maxId,
             order_id: Number(body.order_id),
             state_detail_id: state_detail_id_arr[j].data.state_detail_id,
@@ -362,7 +318,7 @@ var md = {
           // let data = await otherOrder.getBigRealtionOrder_id();
           // let keys = Object.keys(data[0]);
           // let relation_state_id = data[0][keys[0]];
-          await get.insert(obj);
+          await get.insert(obj3);
         }
       }
       cb(null, 'success');
@@ -388,28 +344,23 @@ var md = {
       let orderFile = body.orderFile;
       let clientName = body.clientName;
       let userComment = body.userComment; // 用户备注
-      let obj = {
-        tName: 'emp',
-        condi: 'and',
-        emp_id: channel_id
-      };
+      let condis = { tName: 'emp', emp_id: channel_id };
 
-      let emps = await get.myData(obj);
+      let emps = await get.myData(condis);
       let count = 0;
       while (count < 2) {
         if (count == 1) {
-          await get.update(obj, { 'submitTime': new Date().toLocaleString() });
+          await get.update(condis, { 'submitTime': new Date().toLocaleString() });
         } else if (count == 2) {
           let iiuv = emps[0].data.iiuv;
           if (iiuv) {
-            let dep_emp = await get.myDataAndOrNot(obj, null, { 'type': 6 });
+            let dep_emp = await get.myDataAndOrNot({ tName: 'emp' }, { and: { emp_id: channel_id }, not: { 'type': 6 } });
             let dep_emp_id;
             if (emps.length != 0) {
               dep_emp_id = dep_emp[0].data.emp_id;
             }
             let obj2 = {
               tName: 'relation_product_dep',
-              condi: 'and',
               "product_id": product_id,
               "dep_emp_id": dep_emp_id
             }
@@ -545,16 +496,15 @@ var md = {
       if (typeof (detail_file_type_id_arr) != "object") {
         detail_file_type_id_arr = [detail_file_type_id_arr];
       }
-      let obj = {
+      let condis = {
         tName: 'relation_file_type_detail',
-        condi: 'and',
         file_type_id: file_type_id,
       }
-      await get.delete(obj);
+      await get.delete(condis);
       for (let i = 0; i < detail_file_type_id_arr.length; i++) {
         const detail_file_type_id = detail_file_type_id_arr[i];
-        obj.detail_file_type_id = detail_file_type_id;
-        await get.insert(obj);
+        condis.detail_file_type_id = detail_file_type_id;
+        await get.insert(condis);
       }
       cb(null, 'success');
     } catch (err) {
@@ -573,8 +523,11 @@ var md = {
       if (files.length != 0) {
         cb(null, "fileFail");
       } else {
-        obj.tName = 'detail_file_type';
-        await get.delete(obj);
+        let condis = {
+          tName: 'detail_file_type',
+          detail_file_type_id: detail_file_type_id
+        };
+        await get.delete(condis);
         cb(null, 'success');
       }
     } catch (err) {
@@ -592,8 +545,11 @@ var md = {
       if (product.length != 0) {
         cb(null, "productFail");
       } else {
-        obj.tName = 'file_types_num';
-        await get.delete(obj);
+        let condis = {
+          tName: 'file_types_num',
+          file_type_id: body.file_type_id
+        };
+        await get.delete(condis);
         cb(null, 'success')
       }
     } catch (err) {
@@ -608,13 +564,13 @@ var md = {
   insertFileType: promise.promisify(async function (body, cb) {
     try {
       let bus_name = body.bus_name;
-      let maxId = await get.tbMaxId({ tName: 'file_types_num', condi: 'and' }, 'file_type_id');
-      let obj = {
+      let maxId = await get.tbMaxId({ tName: 'file_types_num' }, 'file_type_id');
+      let condis = {
         tName: 'file_types_num',
         file_type_id: maxId,
         name: bus_name,
       }
-      await get.insert(obj);
+      await get.insert(condis);
       cb(null, 'success')
     } catch (err) {
       cb('error');
@@ -636,15 +592,13 @@ var md = {
         text_arr = [text_arr];
       }
       let count = 0;
-      let obj = {
-        tName: 'detail_file_type',
-      }
+      let condis = { tName: 'detail_file_type', }
       for (let i = 0; i < name_arr.length; i++) {
         const name = name_arr[i];
-        obj.detail_file_type_id = await get.tbMaxId({ 'tName': 'detail_file_type', condi: 'or' }, 'detail_file_type_id');
-        obj.name = name;
-        obj.text = text_arr[count++];
-        await get.insert(obj);
+        condis.detail_file_type_id = await get.tbMaxId({ 'tName': 'detail_file_type', condi: 'or' }, 'detail_file_type_id');
+        condis.name = name;
+        condis.text = text_arr[count++];
+        await get.insert(condis);
       }
       cb(null, 'success');
     } catch (err) {
@@ -656,19 +610,16 @@ var md = {
   insertProduct: promise.promisify(async function (req, cb) {
     try {
       let body = req.body;
-      let obj = {
-        tName: 'product',
-        condi: 'and',
-      }
-      let maxId = await get.tbMaxId(obj, 'product_id');
+      let condis = { tName: 'product' }
+      let maxId = await get.tbMaxId(condis, 'product_id');
 
-      obj.product_id = maxId;
-      obj.product_type_id = Number(body.product_type_id);
-      obj.name = body.name;
-      obj.isNum = 0;
-      obj.isBourse = 0;
-      obj.putaway = 0;
-      await get.insert(obj);
+      condis.product_id = maxId;
+      condis.product_type_id = Number(body.product_type_id);
+      condis.name = body.name;
+      condis.isNum = 0;
+      condis.isBourse = 0;
+      condis.putaway = 0;
+      await get.insert(condis);
       req.body.product_id = maxId;
       this.updateProductInfo(req, cb);
     } catch (err) {
@@ -683,14 +634,11 @@ var md = {
   insertProductType: promise.promisify(async function (req, cb) {
     try {
       let body = req.body;
-      let obj = {
-        tName: 'product_type',
-        condi: 'and'
-      }
-      let maxId = await get.tbMaxId(obj, 'product_type_id');
-      obj.product_type_id = maxId;
-      obj.product_type_name = body.product_type_name;
-      await get.insert(obj);
+      let condis = { tName: 'product_type' }
+      let maxId = await get.tbMaxId(condis, 'product_type_id');
+      condis.product_type_id = maxId;
+      condis.product_type_name = body.product_type_name;
+      await get.insert(condis);
       cb(null, 'success');
     } catch (err) {
       cb('error');
@@ -748,11 +696,7 @@ var md = {
           continue;
         }
       }
-      let obj2 = {
-        tName: 'product',
-        condi: 'and',
-        product_id: product_id
-      }
+      let obj2 = { tName: 'product', product_id: product_id }
       let obj3 = {
         name: name, isNum: isNum, isBourse: isBourse, putaway: putaway, threeText: threeText,
         product_detail: product_detail, imgPath: imgPathDetail, imgPath2: imgPathDetail2, imgPathSmall: imgPathSmall,
@@ -928,7 +872,6 @@ var md = {
     try {
       let order_id = body.order_id;
       let orders = await md.getOrder({ order_id: order_id, order_type: 1 });
-      let obj = {};
       let product_id = orders[0].product_id;
       let flowState = orders[0].flowState;
       let products = await md.getProduct({ product_id: product_id });
@@ -1026,21 +969,19 @@ var md = {
       appli_id = addZero(appli_id);
       let appliTime = new Date();
       // 获得主键
-      let obj = {
-        tName: 'order',
-        condi: 'and'
-      }
-      let order_id = await get.tbMaxId(obj, 'order');
-      obj.order_id = order_id;
-      obj.appli_id = appli_id;
-      obj.appliTime = appliTime;
-      obj.order_type = order_type;
-      await get.insert(obj);
+      let condis = { tName: 'order' }
+      let order_id = await get.tbMaxId(condis, 'order');
+      condis.order_id = order_id;
+      condis.appli_id = appli_id;
+      condis.appliTime = appliTime;
+      condis.order_type = order_type;
+      await get.insert(condis);
       cb(null, order_id);
     } catch (err) {
       cb('error');
     }
   }),
+  // use
   /**
    * 传入创建流程所需要的数据
    * 创建一个完整的流程
@@ -1066,17 +1007,19 @@ var md = {
     // 这个for循环是用来将对应的具体流程的等级，拼接在一起.拼接格式为 [[detail_flow_name, leavl], [detail_flow_name, leavl], ......]
     let flow_arr = [];
     for (let i = 0; i < flow_leavl.length; i++) {
-      let obj = {};
-      obj.flow_name = detail_flow_name[i];
-      obj.leavl = Number(flow_leavl[i]);
-      flow_arr.push(obj);
+      let condis = {
+        flow_name: detail_flow_name[i],
+        leavl: Number(flow_leavl[i])
+      };
+      flow_arr.push(condis);
     }
     let state_arr = [];
     for (let i = 0; i < state_leavl.length; i++) {
-      let obj = {};
-      obj.state_name = detail_state_name[i];
-      obj.leavl = Number(state_leavl[i]);
-      state_arr.push(obj);
+      let condis = {
+        state_name: detail_state_name[i],
+        leavl: Number(state_leavl[i])
+      };
+      state_arr.push(condis);
     }
     let flow_id;
     let detail_flow_id_arr = [];
@@ -1087,12 +1030,12 @@ var md = {
       function (cb2) {
         (async function () {
           try {
-            let flow_id = await get.tbMaxId({ tName: 'flow', condi: 'and' });
-            let obj = {
+            let flow_id = await get.tbMaxId({ tName: 'flow' });
+            let condis = {
               tName: 'flow',
               flow_id: flow_id
             }
-            let flow = await get.insert(obj);
+            let flow = await get.insert(condis);
             cb2(null, 1);
           } catch (err) {
             cb('error');
@@ -1103,11 +1046,11 @@ var md = {
         (async function () {
           try {
             for (let i = 0; i < flow_arr.length; i++) {
-              const obj = flow_arr[i];
-              let flow_detail_id = await get.tbMaxId({ tName: 'flow_detail', condi: 'and' });
-              obj.flow_detail_id = flow_detail_id;
-              obj.tName = 'flow_detail';
-              let order = await get.insert(obj);
+              const condis = flow_arr[i];
+              let flow_detail_id = await get.tbMaxId({ tName: 'flow_detail' });
+              condis.flow_detail_id = flow_detail_id;
+              condis.tName = 'flow_detail';
+              let order = await get.insert(condis);
               detail_flow_id_arr.push(flow_detail_id);
               cb2(null, 2);
             }
@@ -1120,17 +1063,13 @@ var md = {
         (async function () {
           try {
             for (let i = 0; i < state_arr.length; i++) {
-              const obj = state_arr[i];
-              obj.tName = 'state_detail';
-              if (obj.leavl != "0") {
-                let state_detail_id = await get.tbMaxId({ tName: 'state_detail', condi: 'and' });
-                obj.state_detail_id = state_detail_id;
-                obj.tName = 'state_detail';
-                let sDetail = await get.insert(obj);
-                detail_state_id_arr.push(state_detail_id);
-              } else {
-                detail_state_id_arr.push(null);
-              }
+              const condis = state_arr[i];
+              condis.tName = 'state_detail';
+              let state_detail_id = await get.tbMaxId({ tName: 'state_detail' });
+              condis.state_detail_id = state_detail_id;
+              condis.tName = 'state_detail';
+              await get.insert(condis);
+              detail_state_id_arr.push(state_detail_id);
             }
             cb2(null, 3);
           } catch (err) {
@@ -1156,14 +1095,24 @@ var md = {
         try {
           for (let i = 0; i < detail_flow_id_arr.length; i++) {
             const detail_flow_id = detail_flow_id_arr[i];
-            let rFlows = await otherOrder.insertRelationFlow([flow_id, detail_flow_id]);
+            let condis = {
+              tName: 'relation_flow_detail',
+              flow_id: flow_id,
+              flow_detail_id: detail_flow_id
+            }
+            let rFlows = await get.insert(condis);
+            let obj2 = {
+              tName: 'relation_state_flow',
+              flow_detail_id: detail_flow_id,
+            }
             for (let j = 0; j < arr[count].length; j++) {
               const detail_state_id = arr[count];
-              await otherOrder.insertRelationState([detail_flow_id, detail_state_id]);
+              obj2.state_detail_id = detail_state_id;
+              await get.insert(obj2);
               count++;
             }
           }
-          cb('success');
+          cb(null, 'success');
         } catch (err) {
           cb('error')
         }
@@ -1171,36 +1120,38 @@ var md = {
     }
   }),
 
-  // 搞定！！！！！！即数据库用了触发器
+  // use
   /**
    * 传入流程id，flow_id，查看流程中间表，是否有与此对应的值
    * 数据库出现错误返回error，存在关联不能删除返回fail，可以删除就返回success
+   * @param {JSON} body flow_id流程的主键id
+   * @returns {string} productFail(商品与该流程关联)/orderFail(订单状态与该流程关联)/success(删除成功)/error
    */
   deleteFlow: promise.promisify(async function (body, cb) {
     let obj = {};
     let flow_id = body.flow_id;
     let flow_arr;
     let state_arr;
-    obj.data = { flow_id: flow_id };
-    obj.arr = [flow_id];
-    let products = await queryOrder.getProduct(obj);
+
+    let products = await md.getProduct({ flow_id: flow_id });
     if (products.length != 0) {
-      cb("productFail");
+      cb(null, "productFail");
     } else {
-      let sFlows = await queryOrder.getSortFlows([flow_id]);
+      let sFlows = await getsortFlow(flow_id);
+      flow_arr = sFlows;
       async.each(sFlows, function (rt1, cb2) {
         (async function () {
           try {
             let flow_detail_id = rt1.flow_detail_id;
-            let states = await queryOrder.getSortStates([flow_detail_id]);
+            let states = await getsortSate(flow_detail_id);
             state_arr = states;
             async.each(states, function (rt2, cb3) {
               (async function () {
                 try {
                   let state_detail_id = rt2.state_detail_id;
-                  let oState = await queryOrder.getRelation_order_state({ state_detail_id: state_detail_id }, [state_detail_id]);
+                  let oState = await md.getRelation_order_state({ state_detail_id: state_detail_id });
                   if (oState.length != 0) {
-                    cb("orderFail");
+                    cb(null, "orderFail");
                   } else {
                     cb3();
                   }
@@ -1216,66 +1167,109 @@ var md = {
           }
         })()
       }, function (err) {
-        cb('success');
+        (async function () {
+          try {
+            // 删除中间表流程与具体流程的关联
+            await get.delete({ tName: 'relation_flow_detail', flow_id: flow_id });
+            // 删除流程表的流程
+            await get.delete({ tName: 'flow', flow_id: flow_id });
+            for (let i = 0; i < flow_arr.length; i++) {
+              const val = flow_arr[i];
+              // 删除中间表具体流程与具体状态的关联
+              await get.delete({ tName: 'relation_state_flow', flow_detail_id: val.flow_detail_id });
+              // 删除具体流程详细表
+              await get.delete({ tName: 'flow_detail', flow_detail_id: val.flow_detail_id });
+            }
+            for (let i = 0; i < state_arr.length; i++) {
+              const val = state_arr[i];
+              // 删除具体状态详细表
+              await get.delete({ tName: 'flow_detail', state_detail_id: val.state_detail_id })
+            }
+            cb(null, 'success');
+          } catch (err) {
+            cb('error');
+          }
+        })()
       })
     }
   }),
-  // 此删除无须更改。
+  // use
   /**
    * 根据传入的商品id，删除此商品
+   * @param {JSON} body {product: x}
+   * @returns {string} orderFail(该商品与订单有关联)/success/eror
    */
   deleteProduct: promise.promisify(async function (body, cb) {
     try {
       let product_id = body.product_id;
-      let orders = await queryOrder.getOrder({ product_id: product_id }, [product_id]);
-      if (ret.length != 0) {
-        cb("orderFail");
+      let order1 = await md.getOrder({ order_type: 1, product_id: product_id });
+      let order2 = await md.getOrder({ order_type: 2, product_id: product_id });
+      let order3 = await md.getOrder({ order_type: 3, product_id: product_id });
+      if (order1 != 0 || order2 != 0 || order3 != 0) {
+        cb(null, "orderFail");
       } else {
-        let obj = {};
-        obj.data = { product_id: product_id };
-        obj.arr = [product_id];
-        let products = await queryOrder.getProduct(obj);
+        let products = await md.getProduct({ product_id: product_id });
         let agoImgPath = products[0].imgPath;
-        deleteFile(agoImgPath);
+        util.deleteFile(agoImgPath, uploadFile);
         agoImgPath = products[0].imgPathSmall;
-        deleteFile(agoImgPath);
-        await otherOrder.deleteProduct([product_id]);
-        cb("success");
+        util.deleteFile(agoImgPath, uploadFile);
+        await get.delete({ tName: 'product', product_id: product_id });
+        cb(null, "success");
       }
     } catch (err) {
       cb('error');
     }
   }),
+  // use
   /**
    * 传入大状态与订单id，修改他的大状态
+   * @param {JSON} body {order_type:x, order_state:x, order_id:x}
+   * @returns {string} success
    */
   setOrder_state: promise.promisify(async function (body, cb) {
     try {
+      let order_type = body.order_type;
       let order_state = body.order_state;
       let order_id = body.order_id;
-      let oState = await otherOrder.setOrder_state([order_state, order_id]);
-      cb("success");
+      let tName;
+      if (order_type == 1) {
+        tName = 'order1';
+      } else if (order_type == 2) {
+        tName = 'order2';
+      } else if (order_type == 3) {
+        tName = 'order3';
+      }
+      let condis = { tName: tName, order_id: order_id }
+      let update = {
+        order_state: order_state
+      }
+      await get.update(condis, update);
+      cb(null, "success");
     } catch (err) {
       cb("error");
     }
   }),
+  // use
   /**
-   * 传入还款状态1和2，修改还款状态
+   * 传入还款状态1或2，修改还款状态
+   * @param {JSON} body {refund:x, order_id:x };
+   * @returns {string} success
    */
   setRefund_state: promise.promisify(async function (body, cb) {
     try {
       let refund = body.refund;
       let order_id = body.order_id;
-      await otherOrder.setRefund_state([refund, order_id]);
-      cb("success");
+      await get.update({ tName: 'order1', order_id: order_id }, { refund: refund });
+      cb(null, "success");
     } catch (err) {
       cb("error");
     }
   }),
-
+  // use
   /**
-   * 传入order_id以及状态id，state_detail_id和失败原因failReason将
-   * 修改订单与状态中间表的失败原因
+   * 修改订单与状态中间表的失败原因,如果failReason为空将订单状态变为审核中，否则为失败
+   * @param {JSON} body {failReason:x, order_id:x };
+   * @returns {string} success
    */
   setFailReason: promise.promisify(async function (body, cb) {
     try {
@@ -1284,81 +1278,90 @@ var md = {
       if (failReason == "") {
         failReason = null;
       }
-      await otherOrder.setFailReason([failReason, order_id]);
+      await get.update({ tName: 'order1', order_id: order_id }, { failReason: failReason });
       if (failReason && failReason != "") {
-        this.setOrder_state({ order_state: 4, order_id: order_id }, cb);
+        await md.setOrder_state({ order_state: 4, order_id: order_id });
       } else {
-        this.setOrder_state({ order_state: 2, order_id: order_id }, cb);
+        await md.setOrder_state({ order_state: 2, order_id: order_id });
       }
+      cb(null, 'success');
     } catch (err) {
       cb('error');
     }
   }),
-
+  // use
   /**
-   * 传入要修改的总利润的值
    * 修改总利润的值
+   * @param {JSON} body {profit:x };
+   * @returns {string} success
    */
   updateProfit: promise.promisify(async function (body, cb) {
     try {
       let profit = body.profit;
-      await otherOrder.updateProfit([profit]);
-      cb('error');
+      await get.update({ tName: 'total_profit' }, { profit: profit });
+      cb(null, 'success');
     } catch (err) {
-      cb("success");
+      cb("error");
     }
   }),
+  // use
   /**
    * 传入状态表id，state_detail_id与订单id,order_id,和时间time
-   * 返回success或error
+   * @param {JSON} body {state_detail_id:x, order_id:x, time:x };
+   * @returns {string} success
    */
   setState: promise.promisify(async function (body, cb) {
     try {
       let state_detail_id = body.state_detail_id;
       let order_id = body.order_id;
       let time = body.time;
-      await otherOrder.setStateTime([time, order_id, state_detail_id]);
-      let oState = await queryOrder.getRelation_order_state({ state_detail_id: state_detail_id, order_id: order_id }, [state_detail_id, order_id]);
+      await get.update({ tName: 'relation_order_state', order_id: order_id, state_detail_id: state_detail_id }, { time: time });
+      let oState = await md.getRelation_order_state({ state_detail_id: state_detail_id, order_id: order_id });
       let relation_state_id = oState[0].relation_state_id;
-      await otherOrder.setState([relation_state_id, order_id]);
-      cb("success");
+      await get.update({ tName: 'order1', relation_state_id: relation_state_id }, { order_id: order_id });
+      cb(null, "success");
     } catch (err) {
       cb("error");
     }
   }),
+  // use
   /**
-   * 设置此订单流程对应的时间
+   * 设置此订单流程对应的时间,把对应的订单的申请流程id修改为当前流程
    * 传入流程id，flow_id,与订单id，order_id与栏值，以及中间表流程对应的事件，flow_time
-   * 把对应的订单的申请流程id修改为当前流程
-   * 返回success或error
+   * @param {JSON} body {flow_id:x, order_id:x, flow_time:x }
+   * @returns {string} success
    */
   setFlowTime: promise.promisify(async function (body, cb) {
     try {
       let flow_detail_id = body.flow_detail_id;
       let order_id = body.order_id;
       let flow_time = body.flow_time;
-      await otherOrder.updateOrder({ flowState: flow_detail_id }, [flow_detail_id, order_id]);
-      let sFlows = await queryOrder.getStateFlow({ flow_detail_id: flow_detail_id }, [flow_detail_id]);
+      await get.update({ tName: 'order1', order_id: order_id }, { flow_detail_id: flow_detail_id });
+      let sFlows = await md.getRelation_state_flow({ flow_detail_id: flow_detail_id });
       for (let i = 0; i < sFlows.length; i++) {
         const rt = sFlows[i];
         let state_detail_id = rt.state_detail_id;
-        await otherOrder.setFlowTime([flow_time, order_id, state_detail_id]);
+        await get.update({ tName: 'relation_order_state', order_id: order_id, state_detail_id: state_detail_id }, { flow_time: flow_time });
       }
-      cb("success");
+      cb(null, "success");
     } catch (err) {
       cb("error");
     }
   }),
+  // use
   /**
    * 传入订单id，以及字段名，以及要修改的内容
+   * @param {JSON} body {字段名:值};
+   * @returns {string} success
    */
   updateOneOrder: promise.promisify(async function (body, cb) {
     try {
+      let order_type = body.order_type;
       let name = body.name[0];
       let val = body.name[1];
       let order_id = body.order_id;
-      await otherOrder.updateOneOrder(name, [val, order_id]);
-      cb("success");
+      await get.update({ tName: tName, order_id: order_id }, { name: val });
+      cb(null, "success");
     } catch (err) {
       cb("error");
     }
@@ -2006,18 +2009,6 @@ function getRelation_order_state(num, cb) {
     text = "撤销";
   }
   cb(text);
-}
-// 判断文件路径是否存在，如果存在将这个路径删除掉
-function deleteFile(imgAgoPath) {
-  if (imgAgoPath) {
-    let pathStr = path.join(
-      __dirname,
-      "../public/" + uploadFile + "/" + imgAgoPath
-    );
-    if (fs.existsSync(pathStr)) {
-      fs.unlinkSync(pathStr);
-    }
-  }
 }
 // 数位不够加0,生成订单编号
 function addZero(num) {

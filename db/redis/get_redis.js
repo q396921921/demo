@@ -56,23 +56,22 @@ let getAllDate = promise.promisify(async function getDate(obj, cb) {
 
 /**
  * 通过传入相应的条件，得到相应的数据
- * @param  {Object} condis
- * 包括tName：要查询的表名；  condi：or/and与还是或；  数据库字段名：实际值
+ * @param  {Object} condis {tName:x, condi:x(默认值为and),xxx(数据库字段名):yyy...}
+ * @returns {Array} [{data:x,row:y},...]; 
  */
 get.myData = promise.promisify(async function (condis, cb) {
     try {
         let condi = condis.condi;
-        let sort = condis.sort;
+        condi = condi ? condi : 'and';
+        if(!condi) {
+            condis.condi = condi;
+        }
         let data = await getAllDate(condis);
         let arr = [];
         if (condi == 'or') {
             arr = getOrDate(condis, data);
         } else if (condi == 'and') {
             arr = getAndDate(condis, data);
-        }
-        if (sort) {
-            arr = sortArr(arr, sort);
-            console.log(arr);
         }
         cb(null, arr);
     } catch (err) {
@@ -80,52 +79,76 @@ get.myData = promise.promisify(async function (condis, cb) {
         cb('error');
     }
 })
-// 查询语句and和or和not都有,默认是and
-get.myDataAndOrNot = promise.promisify(async function (condiAnd, condiOr, condiNot, cb) {
+/**
+ * 传入查询的表名json格式（为了查出整张表所有数据），然后传入json格式的各个数据，进行多次筛选
+ * and即=，not！=，or或者，后续可能会加> < >= <=
+ * @param {JSON} tName {tName:x}表名
+ * @param {JSON} rule {and:{字段名:x },or:{字段名:x }, not:{字段名:x }}
+ * @returns {Array} [{data:x,row:y},...]; 
+ */
+get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
     try {
-        let condi = condiAnd.condi;
-        let data = await getAllDate(condis);
-        let arr = [];
-        if (condi == 'or') {
-            arr = getOrDate(condis, data);
-        } else if (condi == 'and') {
-            arr = getAndDate(condis, data);
-        } else if (condi == 'not') {
-            arr = getNotData(condis, data);
-        }
-        let tName = condiAnd.tName;
-        if (condiOr) {
-            let keys = Object.keys(condiOr);
-            for (let i = 0; i < arr.length; i++) {
-                const val = arr[i]
-                // 默认有与此条件相等的
-                let flag = false;
-                for (let j = 0; j < keys.length; j++) {
-                    const k = keys[j];
-                    if (val.data[k] == condi[k]) {
-                        flag = true;
-                        break;
-                    }
-                }
-                if (flag) {
-                    arr.splice(i, 1);
-                }
-            }
-        } else if (condiNot) {
-            let keys = Object.keys(condiNot);
+        let arr = await getAllDate(tName);
+        let and = rule.and;
+        let or = rule.or;
+        let not = rule.not;
+        // let condiAnd = rule.condiAnd;
+        // let condiAnd = rule.condiAnd;
+        if (and) {
+
+            let keys = Object.keys(and);
             for (let i = 0; i < arr.length; i++) {
                 const val = arr[i]
                 // 默认有与此条件相等的
                 let flag = true;
                 for (let j = 0; j < keys.length; j++) {
                     const k = keys[j];
-                    if (val.data[k] == condi[k]) {
+                    if (val.data[k] != and[k]) {
                         flag = false;
                         break;
                     }
                 }
                 if (flag) {
                     arr.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+        if (or) {
+            let keys = Object.keys(or);
+            for (let i = 0; i < arr.length; i++) {
+                const val = arr[i]
+                // 默认有与此条件相等的
+                let flag = false;
+                for (let j = 0; j < keys.length; j++) {
+                    const k = keys[j];
+                    if (val.data[k] == or[k]) {
+                        flag = true;
+                        break;
+                    }
+                }
+                if (flag) {
+                    arr.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+        if (not) {
+            let keys = Object.keys(not);
+            for (let i = 0; i < arr.length; i++) {
+                const val = arr[i]
+                // 默认有与此条件相等的
+                let flag = true;
+                for (let j = 0; j < keys.length; j++) {
+                    const k = keys[j];
+                    if (val.data[k] == not[k]) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
+                    arr.splice(i, 1);
+                    i--;
                 }
             }
         }
@@ -137,9 +160,9 @@ get.myDataAndOrNot = promise.promisify(async function (condiAnd, condiOr, condiN
 })
 /**
  * 修改redis数据库数据
- * @param {Object} condis   查询条件
- * @param {Object} update   修改条件
- * 
+ * @param {JSON} condis   查询条件，包括tName与condi
+ * @param {JSON} update   修改条件
+ * @returns {string} success
  */
 get.update = promise.promisify(async function (condis, update, cb) {
     try {
@@ -171,8 +194,8 @@ get.update = promise.promisify(async function (condis, update, cb) {
 
 /**
  * 删除redis数据库数据
- * @param {Object} condis   查询条件
- * 
+ * @param {JSON} condis   查询条件包括tName,condi
+ * @returns {string} success
  */
 get.delete = promise.promisify(async function (condis, cb) {
     try {
@@ -189,14 +212,19 @@ get.delete = promise.promisify(async function (condis, cb) {
             arr.splice(row, 1);
             // 传回redis一定是字符串
             data = JSON.stringify(data);
-            // 将更改好的源数据，通过索引修改回去
+            // 删除数据
             await client.lrem(tName, 0, data);
+            i--;
         }
         cb(null, 'success')
     } catch (err) {
         cb(err);
     }
 });
+/**
+ * @param {JSON} condis {tName:x, 主键id:x, 其他字段:x };
+ * @returns {string} success
+ */
 get.insert = promise.promisify(async function (condis, cb) {
     try {
         let tName = condis.tName;
@@ -215,6 +243,11 @@ get.insert = promise.promisify(async function (condis, cb) {
         cb(err);
     }
 })
+/**
+ * 传入表名获取当前表最大的（ 主键id + 1 ）的值，order表特殊，需要传递order字段，会遍历三张order表
+ * @param {JSON} condis {tName:x }
+ * @returns {number} maxId
+ */
 get.tbMaxId = promise.promisify(async function (condis, key, cb) {
     try {
         let tName = condis.tName;
@@ -243,8 +276,8 @@ get.tbMaxId = promise.promisify(async function (condis, key, cb) {
 })
 /**
  * 返回 不等于！=条件的数据
- * @param {*} condi 
- * @param {*} data 
+ * @param {JSON} condi 筛选条件{字段名1:x, 字段名2:x ...};
+ * @param {Array} data 要筛选的数据
  */
 function getNotData(condi, data) {
     let keys = Object.keys(condi);
@@ -255,7 +288,7 @@ function getNotData(condi, data) {
         let flag = true;
         for (let j = 0; j < keys.length; j++) {
             const k = keys[j];
-            if (k != 'tName' && k != 'condi' && k != 'sort') {
+            if (k != 'tName' && k != 'condi') {
                 if (val[k] == condi[k]) {
                     flag = false;
                     break;
@@ -275,7 +308,6 @@ function getNotData(condi, data) {
  * 返回 与&& 条件的数据，即完全符合
  * @param {JSON} condi 
  * @param {Array} data 
- * @callback cb 
  */
 function getAndDate(condi, data) {
     let keys = Object.keys(condi);
@@ -286,7 +318,7 @@ function getAndDate(condi, data) {
         let flag = true;
         for (let j = 0; j < keys.length; j++) {
             const k = keys[j];
-            if (k != 'tName' && k != 'condi' && k != 'sort') {
+            if (k != 'tName' && k != 'condi') {
                 if (val[k] != condi[k]) {
                     flag = false;
                     break;
@@ -307,7 +339,6 @@ function getAndDate(condi, data) {
  * 返回 与&& 条件的数据，即完全符合
  * @param {JSON} condi 
  * @param {Array} data 
- * @callback cb 
  */
 function getOrDate(condi, data) {
     let keys = Object.keys(condi);
@@ -318,7 +349,7 @@ function getOrDate(condi, data) {
         let flag = false;
         for (let j = 0; j < keys.length; j++) {
             const k = keys[j];
-            if (k != 'tName' && k != 'condi' && k != 'sort') {
+            if (k != 'tName' && k != 'condi') {
                 if (val[k] == condi[k]) {
                     flag = true;
                     break;
@@ -334,40 +365,12 @@ function getOrDate(condi, data) {
     }
     return arr;
 }
-// 根据穿过来的sort规则进行排序
-function sortArr(arr, sort) {
-    let rule = sort[0]; // asc或desc
-    let key = sort[1];  // 排序字段
-    if (sort == 'asc') { // 从小到大
-        var i = arr.length, j;
-        var tempExchangVal;
-        while (i > 0) {
-            for (j = 0; j < i - 1; j++) {
-                if (arr[j].data[key] > arr[j + 1].data[key]) {
-                    tempExchangVal = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = tempExchangVal;
-                }
-            }
-            i--;
-        }
-        return arr;
-    } else if (sort == 'desc') {   //从大到小
-        var i = arr.length, j;
-        var tempExchangVal;
-        while (i > 0) {
-            for (j = 0; j < i - 1; j++) {
-                if (arr[j].data[key] < arr[j + 1].data[key]) {
-                    tempExchangVal = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = tempExchangVal;
-                }
-            }
-            i--;
-        }
-        return arr;
-    }
-}
+/**
+ * 
+ * 获得与此表名相同的变量的值，返回其中储存的数据
+ * @param {string} tName 表名
+ * @returns {Array} [json1,json2,...]
+ */
 function getVar(tName) {
     switch (tName) {
         case 'total_profit':
@@ -508,6 +511,11 @@ function getVar(tName) {
             break;
     }
 }
+/**
+ * 通过传入表名，将传入的数据赋值给正确的变量
+ * @param {Array} data [json1,json2...];
+ * @param {string} tName 表名
+ */
 function setVar(data, tName) {
     switch (tName) {
         case 'total_profit':

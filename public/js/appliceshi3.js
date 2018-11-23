@@ -556,6 +556,7 @@ function setOrder_state(order_state, exist) {
             url: "/users/setOrder_state2",
             type: "post",
             data: {
+                order_type: 2,
                 order_state: order_state,
                 order_id: order_id,
             },
@@ -628,6 +629,7 @@ function submit(t) {
             url: "/users/updateOrder",
             type: "post",
             data: {
+                order_type:2,
                 name: [name, val],
                 order_id: order_id
             },

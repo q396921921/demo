@@ -3,7 +3,7 @@
     padding: 0;
 }
 body {
-    height: 765px;
+    height: 690px;
 }
 /* ✔ */
 #a {
@@ -60,9 +60,9 @@ ul {
 }
 /* ✔ */
 #output1 {
-    position: relative;
-    float: right;
-    margin-right: 40px;
+    position: absolute;
+    top: 5%;
+    right: 5%;
     height: 30px;
     width: 60px;
     font-size: 15px;
@@ -76,16 +76,6 @@ ul {
     height: 100%;
 }
 
-/* ✔ 返回顶部按钮*/
-#bottom{
-    position: absolute; 
-    right: 15px;
-    bottom: 0;
-    width: 80px;
-    height: 25px;
-    background: white;
-    text-align: center;
-}
 /* ✔ */
 table {
     font-weight:bold;

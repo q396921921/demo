@@ -135,13 +135,25 @@
 //     console.log(replies); // 101, 2
 // })
 
-
-// let te = 'abc<pic>saofdf<pic>';
-// let c = '<pic>';
-// let b = te.indexOf('<pic>');
-// while (true) {
-//     if(te.includes('')) {
-
+let a = [1, 2, 1, 1, 1, 1, 1, 1, 2, 3, 3, 4, 5, 1, 1];
+// let flag = true;
+// while (flag) {
+//     for (let i = 0; i < a.length; i++) {
+//         const val = a[i];
+//         if (val == 1) {
+//             a.splice(i, 1);
+//             flag = true;
+//             break;
+//         }else {
+//             flag = false;
+//         }
 //     }
 // }
-// console.log(b);
+for (let i = 0; i < a.length; i++) {
+    const val = a[i];
+    if (val == 1) {
+        a.splice(i, 1);
+        i--;
+    }
+}
+console.log(a);
