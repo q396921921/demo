@@ -149,7 +149,7 @@ function getEmpName(emp_id) {
 function getAllEmpName(emp_id) {
     let text;
     $.ajax({
-        url: "/users/getEmpName",
+        url: "/users/getUser",
         type: "post",
         data: {
             emp_id: emp_id,
@@ -249,8 +249,8 @@ function hideT1(t) {
 function getAllDep() {
     $("#t1").empty();
     $.ajax({
-        url: "/users/getAllDep",
-        type: "get",
+        url: "/users/getDep",
+        type: "post",
         async: false,
         dataType: "text",
         success: function (result) {

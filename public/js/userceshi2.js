@@ -363,8 +363,10 @@ function selectUsers(t) {
             dataType: "text",
             success: function (result) {
                 let data = JSON.parse(result).data;
-                $("#totalPage").val(Math.ceil(data.length / 15));
-                $("#totalNum").val(data.length)
+                let totalPage = data[1];
+                let totalNum = data[2];
+                $("#totalPage").val(totalPage);
+                $("#totalNum").val(totalNum)
                 getSplitPage();
             }
         })
@@ -488,9 +490,8 @@ function getSplitPage() {
             dataType: "text",
             success: function (result) {
                 $("#table tr:gt(0)").empty()
-                result = JSON.parse(result).data;
-                printTable(result);
-
+                let data = JSON.parse(result).data;
+                printTable(data[0]);
                 $("#pages").val(limit);
                 $("#lstd span:first").html(limit);
                 $("#lstd span:last").html($("#totalPage").val());

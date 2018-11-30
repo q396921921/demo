@@ -100,6 +100,7 @@ function submitForm(t) {
         async: false,
         dataType: "text",
         success: function (result) {
+            console.log(result);
             if (result == 'success') {
                 alert('创建成功')
             } else {

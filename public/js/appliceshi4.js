@@ -717,7 +717,7 @@ function getPName(product_id) {
 function getAllEmpName(emp_id, dep_id, type) {
     let text;
     $.ajax({
-        url: "/users/getEmpName",
+        url: "/users/getUser",
         type: "post",
         data: {
             emp_id: emp_id,

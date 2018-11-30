@@ -310,6 +310,7 @@ get.insert = promise.promisify(async function (condis, cb) {
 /**
  * 传入表名获取当前表最大的（ 主键id + 1 ）的值，order表特殊，需要传递order字段，会遍历三张order表
  * @param {JSON} condis {tName:x }
+ * @param {string} key 字段名
  * @returns {number} maxId
  */
 get.tbMaxId = promise.promisify(async function (condis, key, cb) {

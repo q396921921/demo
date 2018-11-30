@@ -244,8 +244,6 @@ function getAllCheck() {
                 success: function (result) {
                     if (result == 'error') {
                         alert('分配失败')
-                    } else if (result == 'userexist') {
-                        alert('该员工已被分配部门，分配失败')
                     } else {
                         alert('分配成功');
                         location = location;
@@ -310,8 +308,8 @@ function getAllManager() {
 // 获得所有的部门
 function getAllDep() {
     $.ajax({
-        url: "/users/getAllDep",
-        type: "get",
+        url: "/users/getDep",
+        type: "post",
         async: false,
         dataType: "text",
         success: function (result) {

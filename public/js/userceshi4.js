@@ -40,7 +40,7 @@ function jump(num) {
 function getAllEmpName(emp_id, dep_id, type) {
     let text;
     $.ajax({
-        url: "/users/getEmpName",
+        url: "/users/getUser",
         type: "post",
         data: {
             emp_id: emp_id,
@@ -103,8 +103,10 @@ function getUser6() {
         dataType: "text",
         success: function (result) {
             let data = JSON.parse(result).data
-            $("#totalPage").val(Math.ceil(data.length / 15));
-            $("#totalNum").val(data.length)
+            let totalPage = data[1];
+            let totalNum = data[2];
+            $("#totalPage").val(totalPage);
+            $("#totalNum").val(totalNum)
         }
     })
 }
@@ -121,9 +123,8 @@ function getSplitPage() {
         async: false,
         dataType: "text",
         success: function (result) {
-            let data = JSON.parse(result).data
-            printTable(result);
-
+            let data = JSON.parse(result).data;
+            printTable(data[0]);
             $("#pages").val(limit);
             $("#lstd span:first").html(limit);
             $("#lstd span:last").html($("#totalPage").val());
@@ -132,7 +133,6 @@ function getSplitPage() {
     })
 }
 function printTable(result) {
-    result = JSON.parse(result).data;
     let str = "";
     let str2 = "";
     let str3 = "";

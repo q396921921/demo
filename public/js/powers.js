@@ -156,6 +156,7 @@ function getPowerResource(id, type) {
             }
         }
     })
+    return false;
 }
 
 // 

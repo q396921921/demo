@@ -104,8 +104,8 @@ function getDetailFileTypes() {
             result = JSON.parse(result).data
             let trtd = "";
             for (let i = 0; i < result.length; i++) {
-                let detail_file_type_id = result[i].data.detail_file_type_id;
-                let name = result[i].data.name;
+                let detail_file_type_id = result[i].detail_file_type_id;
+                let name = result[i].name;
                 trtd += '<tr><td><input type="text" name="detail_file_type_id" value="' + detail_file_type_id + '"></td>'
                     + '<td><input type="text" value="' + name + '"></td>'
                     + '<td><input type="button" value="删除" style="width:50px" onclick="deleteDetailType(this)"></td></tr>';
@@ -201,8 +201,8 @@ function getFile_type() {
             text = result;
             let trtd = '';
             for (let i = 0; i < result.length; i++) {
-                trtd += '<tr><td><input type="text" name="file_type_id" value="' + result[i].data.file_type_id + '"></td>'
-                    + '<td><input type="text" value="' + result[i].data.name + '"></td>'
+                trtd += '<tr><td><input type="text" name="file_type_id" value="' + result[i].file_type_id + '"></td>'
+                    + '<td><input type="text" value="' + result[i].name + '"></td>'
                     + '<td><input type="button" value="删除" style="width:50px" onclick="deleteFileType(this)"></td></tr>';
             }
             $(trtd).appendTo($("#allTypes"));

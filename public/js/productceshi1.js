@@ -73,7 +73,7 @@ function getTypes() {
             result = JSON.parse(result).data
             let select = "";
             for (let i = 0; i < result.length; i++) {
-                select += '<option value="' + result[i].product_type_id + '" onclick="setPageNo_1()">' + result[i].name + '</option>';
+                select += '<option value="' + result[i].product_type_id + '">' + result[i].name + '</option>';
             }
             $(select).appendTo($("#types"));
         }
@@ -226,7 +226,7 @@ function getFlows(t) {
             result = JSON.parse(result).data
             let select = "";
             for (let i = 0; i < result.length; i++) {
-                select += '<option value="' + result[i].data.flow_id + '">' + result[i].data.flow_name + '</option>'
+                select += '<option value="' + result[i].flow_id + '">' + result[i].flow_name + '</option>'
             }
             $(select).appendTo($(t).next());
         }
@@ -243,7 +243,7 @@ function getFile_type(t) {
             result = JSON.parse(result).data
             let select = "";
             for (let i = 0; i < result.length; i++) {
-                select += '<option value="' + result[i].data.file_type_id + '">' + result[i].name + '</option>'
+                select += '<option value="' + result[i].file_type_id + '">' + result[i].name + '</option>'
             }
             $(select).appendTo($(t).next());
         }
@@ -409,19 +409,23 @@ function setData(t) {
 }
 // 筛选全部商品         ✔
 function getScreenProduct() {
+    let limit = 1;
     let product_type_id = $("#types").val();
     $.ajax({
-        url: "/users/getProduct",
+        url: "/users/getLimitProduct",
         type: "post",
         data: {
             product_type_id: product_type_id,
+            limit: limit
         },
         async: false,
         dataType: "text",
         success: function (result) {
             let data = JSON.parse(result).data
-            $("#totalPage").val(Math.ceil(data.length / 15));
-            $("#totalNum").val(data.length)
+            let totalPage = data[1];
+            let totalNum = data[2];
+            $("#totalPage").val(totalPage);
+            $("#totalNum").val(totalNum)
             getSplitPage()
         }
     })
@@ -430,7 +434,7 @@ function getSplitPage() {
     let limit = $("#pageNo").val();
     let product_type_id = $("#types").val();
     $.ajax({
-        url: "/users/getProduct",
+        url: "/users/getLimitProduct",
         type: "post",
         data: {
             product_type_id: product_type_id,
@@ -443,7 +447,7 @@ function getSplitPage() {
             $("#pages").val(limit);
             $("#lstd span:first").html(limit);
             $("#lstd span:last").html($("#totalPage").val());
-            printProducts(data)
+            printProducts(data[0])
         }
     })
 }

@@ -178,7 +178,7 @@ function getFlows() {
             result = JSON.parse(result).data
             let select = '<option value="">----------请选择商品流程----------</option>';
             for (let i = 0; i < result.length; i++) {
-                select += '<option value="' + result[i].data.flow_id + '">' + result[i].data.flow_name + '</option>'
+                select += '<option value="' + result[i].flow_id + '">' + result[i].flow_name + '</option>'
             }
             $(select).appendTo($("#flow_id"));
         }
@@ -195,7 +195,7 @@ function getFile_type() {
             result = JSON.parse(result).data
             let select = '<option value="">----------请选择申请材料----------</option>';
             for (let i = 0; i < result.length; i++) {
-                select += '<option value="' + result[i].data.file_type_id + '">' + result[i].name + '</option>'
+                select += '<option value="' + result[i].file_type_id + '">' + result[i].name + '</option>'
             }
             $(select).appendTo($("#file_type_id"));
         }

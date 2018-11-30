@@ -501,7 +501,7 @@ var md = {
         condis.detail_file_type_id = detail_file_type_id;
         await get.insert(condis);
       }
-      cb(null, 'success');
+      cb('success');
     } catch (err) {
       cb('error');
     }
@@ -566,7 +566,7 @@ var md = {
         name: bus_name,
       }
       await get.insert(condis);
-      cb(null, 'success')
+      cb('success')
     } catch (err) {
       cb('error');
     }
@@ -595,7 +595,7 @@ var md = {
         condis.text = text_arr[count++];
         await get.insert(condis);
       }
-      cb(null, 'success');
+      cb('success');
     } catch (err) {
       cb('error');
     }
@@ -616,7 +616,7 @@ var md = {
       condis.putaway = 0;
       await get.insert(condis);
       req.body.product_id = maxId;
-      this.updateProductInfo(req, cb);
+      md.updateProductInfo(req, cb);
     } catch (err) {
       cb('error');
     }
@@ -632,9 +632,9 @@ var md = {
       let condis = { tName: 'product_type' }
       let maxId = await get.tbMaxId(condis, 'product_type_id');
       condis.product_type_id = maxId;
-      condis.product_type_name = body.product_type_name;
+      condis.name = body.product_type_name;
       await get.insert(condis);
-      cb(null, 'success');
+      cb('success');
     } catch (err) {
       cb('error');
     }
@@ -698,7 +698,7 @@ var md = {
         flow_id: flow_id, file_type_id: file_type_id, product_intro: product_intro
       }
       await get.update(obj2, obj3);
-      cb(null, 'success');
+      cb('success');
     } catch (err) {
       cb('error');
     }
@@ -774,6 +774,22 @@ var md = {
       cb('error');
     }
   }),
+  /**
+   * 传入要查询的商品的JSON数据，返回分页的商品
+   * @param {JSON} body {limit:x, 其他字段:x }
+   * @returns {string} "{'data':'[p1,p2...]'}"
+   */
+  getLimitProduct: async function (body, cb) {
+    try {
+      let product_type_id = body.product_type_id;
+      let limit = body.limit;
+      let data = await md.getProduct({ product_type_id: product_type_id });
+      data = util.splitPage({ tName: 'product', limit: limit }, data);
+      cb(JSON.stringify({ 'data': data }));
+    } catch (err) {
+      cb('error');
+    }
+  },
   // use
   /**
    * 获得这张订单的所有信息
@@ -1010,12 +1026,9 @@ var md = {
       function (cb2) {
         (async function () {
           try {
-            let flow_id = await get.tbMaxId({ tName: 'flow' });
-            let condis = {
-              tName: 'flow',
-              flow_id: flow_id
-            }
-            let flow = await get.insert(condis);
+            flow_id = await get.tbMaxId({ tName: 'flow' }, 'flow_id');
+            let condis = { tName: 'flow', flow_id: flow_id, flow_name: flow_name }
+            await get.insert(condis);
             cb2(null, 1);
           } catch (err) {
             cb('error');
@@ -1027,9 +1040,10 @@ var md = {
           try {
             for (let i = 0; i < flow_arr.length; i++) {
               const condis = flow_arr[i];
-              let flow_detail_id = await get.tbMaxId({ tName: 'flow_detail' });
+              let flow_detail_id = await get.tbMaxId({ tName: 'flow_detail' }, 'flow_detail_id');
               condis.flow_detail_id = flow_detail_id;
               condis.tName = 'flow_detail';
+              condis.flow_name = flow_arr[i].flow_name;
               let order = await get.insert(condis);
               detail_flow_id_arr.push(flow_detail_id);
               cb2(null, 2);
@@ -1045,19 +1059,20 @@ var md = {
             for (let i = 0; i < state_arr.length; i++) {
               const condis = state_arr[i];
               condis.tName = 'state_detail';
-              let state_detail_id = await get.tbMaxId({ tName: 'state_detail' });
+              let state_detail_id = await get.tbMaxId({ tName: 'state_detail' }, 'state_detail_id');
               condis.state_detail_id = state_detail_id;
               condis.tName = 'state_detail';
+              condis.state_name = state_arr[i].state_name;
               await get.insert(condis);
               detail_state_id_arr.push(state_detail_id);
             }
             cb2(null, 3);
           } catch (err) {
-            ccb('error');
+            cb('error');
           }
         })();
       }
-    ]), function (err) {
+    ], function (err) {
       let arr = [];
       let arr2 = [];
       for (let i = 0; i < state_leavl.length; i++) {
@@ -1085,19 +1100,23 @@ var md = {
               tName: 'relation_state_flow',
               flow_detail_id: detail_flow_id,
             }
-            for (let j = 0; j < arr[count].length; j++) {
-              const detail_state_id = arr[count];
-              obj2.state_detail_id = detail_state_id;
-              await get.insert(obj2);
-              count++;
+            for (let i = 0; i < arr.length; i++) {
+              const val = arr[i];
+              for (let j = 0; j < val.length; j++) {
+                const detail_state_id = val[j];
+                obj2.state_detail_id = detail_state_id;
+                await get.insert(obj2);
+                count++;
+              }
             }
           }
-          cb(null, 'success');
+          cb('success');
         } catch (err) {
+          console.log(err);
           cb('error')
         }
       })()
-    }
+    })
   }),
 
   // use

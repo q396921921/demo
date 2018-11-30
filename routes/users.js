@@ -285,8 +285,12 @@ router.post('/screen', function (req, res, next) {
 })
 router.post('/getDep', function (req, res, next) {
   let body = req.body;
-  mdEmp.getDep(body, (ret) => {
-    res.send(ret);
+  mdEmp.getDep(body, (ret, ret2) => {
+    if (ret) {
+      res.send(ret);
+    } else {
+      res.send(JSON.stringify({ 'data': ret2 }))
+    }
   })
 })
 router.post('/writeExcel', function (req, res, next) {
@@ -314,14 +318,20 @@ router.get('/user/ceshi*', function (req, res, next) {
 
   res.render(ulstr, { "username": req.session.username, "menu": menu })
 })
+// use
 router.get('/getRoles', function (req, res, next) {
-  mdEmp.getRoles(null, (ret) => {
-    res.send(ret);
+  mdEmp.getRole(null, (ret, ret2) => {
+    if (ret) {
+      res.send(ret);
+    } else {
+      res.send(JSON.stringify({ 'data': ret2 }))
+    }
   })
 })
+// use
 router.post('/getRole', function (req, res, next) {
   let body = req.body;
-  mdEmp.getRole(body, (ret) => {
+  mdEmp.getRoleInfo(body, (ret) => {
     res.send(ret);
   })
 })
@@ -336,12 +346,6 @@ router.post('/createUsers', function (req, res, next) {
 
 
 // ///////�˻�,������ҳ
-router.post('/getEmpName', function (req, res, next) {
-  let body = req.body;
-  mdEmp.getEmpName(body, (ret) => {
-    res.send(ret);
-  })
-})
 router.post('/selectUsers', function (req, res, next) {
   let body = req.body;
   mdEmp.getEmpByType2(body, (ret) => {
@@ -354,6 +358,7 @@ router.post('/outputUser', function (req, res, next) {
     res.send(ret)
   })
 })
+// use
 router.post('/getResource', function (req, res, next) {
   let body = req.body;
   mdEmp.getAllResourcesChecked(body, (ret) => {
@@ -553,34 +558,63 @@ router.post('/getProduct', function (req, res, next) {
     }
   })()
 })
+router.post('/getLimitProduct', function (req, res, next) {
+  let body = req.body;
+  mdOrder.getLimitProduct(body, (ret) => {
+    res.send(ret);
+  })
+})
 router.post('/getSortFlowState', function (req, res, next) {
   let body = req.body;
-  mdOrder.getSortFlowState(body, (ret) => {
-    res.send(ret);
+  mdOrder.getSortFlowState(body, (ret, ret2) => {
+    if (ret) {
+      res.send(ret);
+    } else {
+      res.send(JSON.stringify({ 'data': ret2 }))
+    }
   })
 })
 router.post('/getDetailFile_types', function (req, res, next) {
   let body = req.body;
-  mdOrder.getDetailFile_types(body, (ret) => {
-    res.send(ret);
+  mdOrder.getDetailFile_types(body, (ret, ret2) => {
+    if (ret) {
+      res.send(ret);
+    } else {
+      res.send(JSON.stringify({ 'data': ret2 }))
+    }
   })
 })
+// use
 router.get('/getFlow', function (req, res, next) {
   let body = req.body;
-  mdOrder.getFlow(body, (ret) => {
-    res.send(ret);
+  mdOrder.getFlow(body, (ret, ret2) => {
+    if (ret) {
+      res.send(ret);
+    } else {
+      res.send(JSON.stringify({ 'data': ret2 }))
+    }
   })
 })
+// use
 router.get('/getFile_types_num', function (req, res, next) {
   let body = req.body;
-  mdOrder.getFile_types_num(body, (ret) => {
-    res.send(ret);
+  mdOrder.getFile_types_num(body, (ret, ret2) => {
+    if (ret) {
+      res.send(ret);
+    } else {
+      res.send(JSON.stringify({ 'data': ret2 }))
+    }
   })
 })
+// use
 router.get('/getDetail_file_type', function (req, res, next) {
   let body = req.body;
-  mdOrder.getDetail_file_type(body, (ret) => {
-    res.send(ret);
+  mdOrder.getDetail_file_type(body, (ret, ret2) => {
+    if (ret) {
+      res.send(ret);
+    } else {
+      res.send(JSON.stringify({ 'data': ret2 }))
+    }
   })
 })
 router.post('/updateProductInfo', function (req, res, next) {
@@ -593,6 +627,7 @@ router.post('/insertProduct', function (req, res, next) {
     res.send(ret);
   })
 })
+// use
 router.post('/insertProductType', function (req, res, next) {
   mdOrder.insertProductType(req, (ret) => {
     res.send(ret);
@@ -686,12 +721,6 @@ router.get('/dep/ceshi*', function (req, res, next) {
 router.post('/createDep', function (req, res, next) {
   let body = req.body;
   mdEmp.createDep(body, (ret) => {
-    res.send(ret);
-  })
-})
-router.get('/getAllDep', function (req, res, next) {
-  let body = req.body;
-  mdEmp.getAllDep(body, (ret) => {
     res.send(ret);
   })
 })

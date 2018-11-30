@@ -32,7 +32,7 @@ function getEmpName(emp_id) {
     let text = "";
     if (emp_id && emp_id != "") {
         $.ajax({
-            url: "/users/getEmpName",
+            url: "/users/getUser",
             type: "post",
             data: {
                 emp_id: emp_id,

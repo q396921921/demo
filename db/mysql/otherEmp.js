@@ -106,9 +106,9 @@ module.exports = {
     updateUserInfo: Promise.promisify(function (arr, password, cb) {
         if (password && password != "") {
             arr = [password].concat(arr);
-            sql = 'update emp set password=?,name=?,tel=?,idCard=?,username=? where username=?'
+            sql = 'update emp set password=?,name=?,tel=?,username=? where username=?'
         } else {
-            sql = 'update emp set name=?,tel=?,idCard=?,username=? where username=?'
+            sql = 'update emp set name=?,tel=?,username=? where username=?'
         }
         conn.getConn(sql, arr, cb);
     }),
