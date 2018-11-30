@@ -8,7 +8,7 @@ const excelFile = 'excelFile';
 
 var symbol = '\\';  // 这个是决定window系统\\与linux下的/的;
 
-const port = '1238';
+const port = '1236';
 var http = 'http://192.168.1.238:' + port + '/';
 
 const platform = 'window';
@@ -23,7 +23,7 @@ const all = {
     // 服务器端口
     httpport: port,
     // 针对websocket长连接监听的端口
-    wsport: { port: 1237 },
+    wsport: { port: 1235 },
     // 修改后台导出文件存储位置的
 
     symbol: symbol,

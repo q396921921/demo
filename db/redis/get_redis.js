@@ -39,6 +39,7 @@ let getAllDate = promise.promisify(async function getDate(obj, cb) {
             cb(null, arr);
         } else {
             let ret = await client.lrange(tName, 0, -1);
+            arr = [];
             for (let i = 0; i < ret.length; i++) {
                 const data = JSON.parse(ret[i]);
                 arr.push(data);
@@ -49,10 +50,7 @@ let getAllDate = promise.promisify(async function getDate(obj, cb) {
     } catch (err) {
         cb(err)
     }
-
-
 })
-
 
 /**
  * 通过传入相应的条件，得到相应的数据
@@ -62,9 +60,9 @@ let getAllDate = promise.promisify(async function getDate(obj, cb) {
 get.myData = promise.promisify(async function (condis, cb) {
     try {
         let condi = condis.condi;
-        condi = condi ? condi : 'and';
-        if(!condi) {
-            condis.condi = condi;
+        if (!condi) {
+            condis.condi = 'and';
+            condi = 'and';
         }
         let data = await getAllDate(condis);
         let arr = [];
@@ -80,6 +78,7 @@ get.myData = promise.promisify(async function (condis, cb) {
     }
 })
 /**
+ * 注意：如果有or，那么需要传入主键id，不能去重没有主键id的表
  * 传入查询的表名json格式（为了查出整张表所有数据），然后传入json格式的各个数据，进行多次筛选
  * and即=，not！=，or或者，后续可能会加> < >= <=
  * @param {JSON} tName {tName:x}表名
@@ -89,31 +88,14 @@ get.myData = promise.promisify(async function (condis, cb) {
 get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
     try {
         let arr = await getAllDate(tName);
+        let arr2 = [];  // 用于存储or规则下，复合条件的数据
         let and = rule.and;
         let or = rule.or;
+        let id = or.id;
         let not = rule.not;
-        // let condiAnd = rule.condiAnd;
-        // let condiAnd = rule.condiAnd;
-        if (and) {
+        let bigEqual = rule.bigEqual;
+        let smallEqual = rule.smallEqual;
 
-            let keys = Object.keys(and);
-            for (let i = 0; i < arr.length; i++) {
-                const val = arr[i]
-                // 默认有与此条件相等的
-                let flag = true;
-                for (let j = 0; j < keys.length; j++) {
-                    const k = keys[j];
-                    if (val.data[k] != and[k]) {
-                        flag = false;
-                        break;
-                    }
-                }
-                if (flag) {
-                    arr.splice(i, 1);
-                    i--;
-                }
-            }
-        }
         if (or) {
             let keys = Object.keys(or);
             for (let i = 0; i < arr.length; i++) {
@@ -122,8 +104,28 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
                 let flag = false;
                 for (let j = 0; j < keys.length; j++) {
                     const k = keys[j];
-                    if (val.data[k] == or[k]) {
-                        flag = true;
+                    if (k != 'id') {
+                        if (val.data[k] == or[k]) {
+                            flag = true;
+                            break;
+                        }
+                    }
+                }
+                if (flag) {
+                    arr2.push(arr[i]);
+                }
+            }
+        }
+        if (and) {
+            let keys = Object.keys(and);
+            for (let i = 0; i < arr.length; i++) {
+                const val = arr[i]
+                // 默认有与此条件相等的
+                let flag = true;
+                for (let j = 0; j < keys.length; j++) {
+                    const k = keys[j];
+                    if (val.data[k] == and[k]) {
+                        flag = false;
                         break;
                     }
                 }
@@ -141,7 +143,7 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
                 let flag = true;
                 for (let j = 0; j < keys.length; j++) {
                     const k = keys[j];
-                    if (val.data[k] == not[k]) {
+                    if (val.data[k] != not[k]) {
                         flag = false;
                         break;
                     }
@@ -152,6 +154,50 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
                 }
             }
         }
+        if (bigEqual) {
+            let keys = Object.keys(bigEqual);
+            for (let i = 0; i < arr.length; i++) {
+                const val = arr[i]
+                // 默认有复合此条件的
+                let flag = true;
+                for (let j = 0; j < keys.length; j++) {
+                    const k = keys[j];
+                    if (val.data[k] >= bigEqual[k]) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
+                    arr.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+        if (smallEqual) {
+            let keys = Object.keys(smallEqual);
+            for (let i = 0; i < arr.length; i++) {
+                const val = arr[i]
+                // 默认有与此条件相等的
+                let flag = true;
+                for (let j = 0; j < keys.length; j++) {
+                    const k = keys[j];
+                    if (val.data[k] <= smallEqual[k]) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
+                    arr.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+        arr = arr.concat(arr2);
+        let hash = [];
+        arr = arr.reduce((preVal, curVal) => {
+            hash[curVal[id]] ? '' : hash[curVal[id]] = true && preVal.push(curVal);
+            return preVal
+        }, [])
         cb(null, arr);
     } catch (err) {
         console.log(err);
@@ -166,6 +212,19 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
  */
 get.update = promise.promisify(async function (condis, update, cb) {
     try {
+        let condi = condis.condi;
+        if (!condi) {
+            condis.condi = 'and';
+            condi = 'and';
+        }
+        for (const key in update) {
+            if (update.hasOwnProperty(key)) {
+                const val = update[key];
+                if (val == 'null') {
+                    update[key] = null;
+                }
+            }
+        }
         // 查询出符合条件的数据
         let result = await get.myData(condis);
         let tName = condis.tName;
@@ -199,6 +258,11 @@ get.update = promise.promisify(async function (condis, update, cb) {
  */
 get.delete = promise.promisify(async function (condis, cb) {
     try {
+        let condi = condis.condi;
+        if (!condi) {
+            condis.condi = 'and';
+            condi = 'and';
+        }
         // 查询出符合条件的数据
         let result = await get.myData(condis);
         let tName = condis.tName;
@@ -312,6 +376,14 @@ function getNotData(condi, data) {
 function getAndDate(condi, data) {
     let keys = Object.keys(condi);
     let arr = [];
+    for (const key in condi) {
+        if (condi.hasOwnProperty(key)) {
+            const val = condi[key];
+            if (val == 'null') {
+                condi[key] = null;
+            }
+        }
+    }
     for (let i = 0; i < data.length; i++) {
         const val = data[i];
         // 默认有与此条件相等的
@@ -374,139 +446,59 @@ function getOrDate(condi, data) {
 function getVar(tName) {
     switch (tName) {
         case 'total_profit':
-            if (total_profit) {
-                return total_profit;
-            }
-            break;
+            return total_profit;
         case 'data_business':
-            if (data_business) {
-                return data_business;
-            }
-            break;
+            return data_business;
         case 'data_home_page':
-            if (data_home_page) {
-                return data_home_page;
-            }
-            break;
+            return data_home_page;
         case 'data_partner':
-            if (data_partner) {
-                return data_partner;
-            }
-            break;
+            return data_partner;
         case 'data_zizhi':
-            if (data_zizhi) {
-                return data_zizhi;
-            }
-            break;
+            return data_zizhi;
         case 'dep':
-            if (dep) {
-                return dep;
-            }
-            break;
+            return dep;
         case 'detail_file_type':
-            if (detail_file_type) {
-                return detail_file_type;
-            }
-            break;
+            return detail_file_type;
         case 'emp':
-            if (emp) {
-                return emp;
-            }
-            break;
+            return emp;
         case 'file_types_num':
-            if (file_types_num) {
-                return file_types_num;
-            }
-            break;
+            return file_types_num;
         case 'flow':
-            if (flow) {
-                return flow;
-            }
-            break;
+            return flow;
         case 'flow_detail':
-            if (flow_detail) {
-                return flow_detail;
-            }
-            break;
+            return flow_detail;
         case 'order1':
-            if (order1) {
-                return order1;
-            }
-            break;
+            return order1;
         case 'order2':
-            if (order2) {
-                return order2;
-            }
-            break;
+            return order2;
         case 'order3':
-            if (order3) {
-                return order3;
-            }
-            break;
+            return order3;
         case 'product':
-            if (product) {
-                return product;
-            }
-            break;
+            return product;
         case 'product_type':
-            if (product_type) {
-                return product_type;
-            }
-            break;
+            return product_type;
         case 'relation_emp_resource':
-            if (relation_emp_resource) {
-                return relation_emp_resource;
-            }
-            break;
+            return relation_emp_resource;
         case 'relation_emp_role':
-            if (relation_emp_role) {
-                return relation_emp_role;
-            }
-            break;
+            return relation_emp_role;
         case 'relation_file_type_detail':
-            if (relation_file_type_detail) {
-                return relation_file_type_detail;
-            }
-            break;
+            return relation_file_type_detail;
         case 'relation_flow_detail':
-            if (relation_flow_detail) {
-                return relation_flow_detail;
-            }
-            break;
+            return relation_flow_detail;
         case 'relation_order_state':
-            if (relation_order_state) {
-                return relation_order_state;
-            }
-            break;
+            return relation_order_state;
         case 'relation_product_dep':
-            if (relation_product_dep) {
-                return relation_product_dep;
-            }
-            break;
+            return relation_product_dep;
         case 'relation_role_resource':
-            if (relation_role_resource) {
-                return relation_role_resource;
-            }
-            break;
+            return relation_role_resource;
         case 'relation_state_flow':
-            if (relation_state_flow) {
-                return relation_state_flow;
-            }
-            break;
+            return relation_state_flow;
         case 'resource':
-            if (resource) {
-                return resource;
-            }
-            break;
+            return resource;
         case 'role':
-            if (role) {
-                return role;
-            }
+            return role;
         case 'state_detail':
-            if (state_detail) {
-                return state_detail;
-            }
-            break;
+            return state_detail;
         default:
             break;
     }

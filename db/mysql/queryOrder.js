@@ -47,7 +47,6 @@ module.exports = {
         let timeType = otjs.timeType;
         let limit = otjs.limit;
         let dep_id = otjs.dep_id;
-        let userdep_id = otjs.userdep_id;
         let role_type = otjs.role_type;
 
         let str3 = "";

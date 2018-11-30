@@ -8,152 +8,14 @@ var momoent = require('moment');
 var xlsx = require('node-xlsx');
 var path = require('path');
 var timer = require('./timer');
-const promise = require('bluebird');
 var debug = require('debug')('app:server');
 var public = require('../public/public');
 var excelFile = public.excelFileCreate;
-const util = require('./util');
 
-const get = require('../db/redis/get_redis');
-
-const me = {
-    /**
-       * emp表
-       * @param {JSON} body 查询条件
-       */
-    getEmp: promise.promisify(async function (body, cb) {
-        try {
-            let obj = {
-                tName: 'emp',
-                condi: 'and',
-            }
-            obj = util.spliceCode(obj, body);
-            let ret = await get.myData(obj);
-            let data = util.getData(ret);
-            cb(null, data)
-        } catch (err) {
-            cb('error');
-        }
-    }),
-    /**
-     * dep表
-     * @param {JSON} body 查询条件
-     */
-    getDep: promise.promisify(async function (body, cb) {
-        try {
-            let obj = {
-                tName: 'dep',
-                condi: 'and',
-            }
-            obj = util.spliceCode(obj, body);
-            let ret = await get.myData(obj);
-            let data = util.getData(ret);
-            cb(null, data)
-        } catch (err) {
-            cb('error');
-        }
-    }),
-    /**
-     * relation_emp_resource表
-     * @param {JSON} body 查询条件
-     */
-    getRelation_emp_resource: promise.promisify(async function (body, cb) {
-        try {
-            let obj = {
-                tName: 'relation_emp_resource',
-                condi: 'and',
-            }
-            obj = util.spliceCode(obj, body);
-            let ret = await get.myData(obj);
-            let data = util.getData(ret);
-            cb(null, data)
-        } catch (err) {
-            cb('error');
-        }
-    }),
-    /**
-     * relation_emp_role表
-     * @param {JSON} body 查询条件
-     */
-    getRelation_emp_role: promise.promisify(async function (body, cb) {
-        try {
-            let obj = {
-                tName: 'relation_emp_role',
-                condi: 'and',
-            }
-            obj = util.spliceCode(obj, body);
-            let ret = await get.myData(obj);
-            let data = util.getData(ret);
-            cb(null, data)
-        } catch (err) {
-            cb('error');
-        }
-    }),
-    /**
-     * relation_role_resource表
-     * @param {JSON} body 查询条件
-     */
-    getRelation_role_resource: promise.promisify(async function (body, cb) {
-        try {
-            let obj = {
-                tName: 'relation_role_resource',
-                condi: 'and',
-            }
-            obj = util.spliceCode(obj, body);
-            let ret = await get.myData(obj);
-            let data = util.getData(ret);
-            cb(null, data)
-        } catch (err) {
-            cb('error');
-        }
-    }),
-    /**
-     * resource表
-     * @param {JSON} body 查询条件
-     */
-    getResource: promise.promisify(async function (body, cb) {
-        try {
-            let obj = {
-                tName: 'resource',
-                condi: 'and',
-            }
-            obj = util.spliceCode(obj, body);
-            let ret = await get.myData(obj);
-            let data = util.getData(ret);
-            cb(null, data)
-        } catch (err) {
-            cb('error');
-        }
-    }),
-    /**
-     * role表
-     * @param {JSON} body 查询条件
-     */
-    getRole: promise.promisify(async function (body, cb) {
-        try {
-            let obj = {
-                tName: 'role',
-                condi: 'and',
-            }
-            obj = util.spliceCode(obj, body);
-            let ret = await get.myData(obj);
-            let data = util.getData(ret);
-            cb(null, data)
-        } catch (err) {
-            cb('error');
-        }
-    }),
-
-
-    //  分割
-
-
-    // use
+module.exports = {
     /**
      * 删除部门正或副经理
      * 传入正或副经理部门表对应的字段，以及账户id，以及部门id
-     * @param {JSON} body {emp_id:x, dep_id:x, name:x}
-     * @returns {string} success/error
      */
     deleteManager: async function (body, cb) {
         try {
@@ -161,50 +23,47 @@ const me = {
             let dep_id = body.dep_id;
             let name = body.name;
             if (name == 'manager_id') {
-                await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id: 'null' });
+                await otherEmp.allotManager(1, [null, dep_id]);
             } else if (name == 'manager2_id') {
-                await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id2: 'null' });
+                await otherEmp.allotManager(2, [null, dep_id]);
             } else if (name == 'manager3_id') {
-                await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id3: 'null' });
+                await otherEmp.allotManager(3, [null, dep_id]);
             }
-            await get.update({ tName: 'emp', emp_id: emp_id }, { dep_id: 'null' });
+            await otherEmp.deleteDepUser([emp_id]);
             cb('success');
         } catch (err) {
             cb('error')
         }
     },
-    // use
     /**
      * 传入部门id并删除此部门
-     * @param {JSON} body {dep_id:x }
-     * @returns {string} empExist(部门下有人) || success || error
      */
     deleteDep: async function (body, cb) {
         try {
+            let obj = {};
             let dep_id = body.dep_id;
-            let ret = await me.getEmp({ dep_id: dep_id });
+            obj.data = { dep_id: dep_id };
+            obj.arr[dep_id];
+            let ret = await queryEmp.getEmp(obj);
             if (ret.length != 0) {
                 cb('empExist')
             } else {
-                await get.delete({ tName: 'dep', dep_id: dep_id })
+                await otherEmp.deleteDep([dep_id]);
                 cb('success')
             }
         } catch (err) {
             cb('error');
         }
     },
-    // use
     /**
      * 传入账户id的数组，与部门id，将此账户从部门中删除
-     * @param {JSON} body {emp_id_arr:[arr1,arr2...]}
-     * @returns {string} success || error
      */
     deleteDepUser: async function (body, cb) {
         let emp_id_arr = body.emp_id_arr;
         async.each(emp_id_arr, function (emp_id, cb2) {
             (async function () {
                 try {
-                    awaitget.delete({ tName: 'emp', emp_id: emp_id });
+                    await otherEmp.deleteDepUser([emp_id]);
                     cb2();
                 } catch (err) {
                     cb('error');
@@ -214,11 +73,9 @@ const me = {
             cb('success');
         })
     },
-    // use
     /**
-     * 传入账户id，正副经理字段，以及部门id。为部门分配经理
-     * @param {JSON} body {emp_id:x, dep_id:x, name:x}
-     * @returns {string} userexist(已经被分配在其他部门) || success || error
+     * 传入账户id，正副经理字段，以及部门id。
+     * 为部门分配经理
      */
     allotManager: async function (body, cb) {
         try {
@@ -226,7 +83,7 @@ const me = {
             let dep_id = body.dep_id;
             let name = body.name;
             let num = null;
-            let ret = await me.getDep({ dep_id: dep_id });
+            let ret = await queryEmp.getDep({ dep_id: dep_id }, [dep_id]);
             if (name == 'manager_id') {
                 if (emp_id == ret[0].manager_id) {
                     cb('success')
@@ -246,29 +103,21 @@ const me = {
                     num = 3;
                 }
             }
-            let ret2 = await me.getEmp({ emp_id, emp_id, dep_id: 'null' });
+            let ret2 = await queryEmp.getAllEmpNotAllot({ emp_id, emp_id }, [emp_id]);
             if (ret2.length == 0) {
                 cb('userexist');
             } else {
-                await get.update({ emp_id: emp_id }, { dep_id: dep_id });
-                if (num == 1) {
-                    await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id: emp_id });
-                } else if (num == 2) {
-                    await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id2: emp_id });
-                } else if (num == 3) {
-                    await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id3: emp_id });
-                }
+                await otherEmp.allotUser([dep_id, emp_id]);
+                await otherEmp.allotManager(num, [emp_id, dep_id]);
                 cb('success');
             }
         } catch (err) {
             cb('error');
         }
     },
-    // use
     /**
-     * 传入部门id，与员工id。将相应的员工分配到相应的部门
-     * @param {JSON} body {dep_id:x, emp_id_arr:[id1,id2...]}
-     * @returns 
+     * 传入部门id，与员工id
+     * 将相应的员工分配到相应的部门
      */
     allotUser: async function (body, cb) {
         let dep_id = body.dep_id;
@@ -276,11 +125,11 @@ const me = {
         async.each(emp_id_arr, function (emp_id, cb2) {
             (async function () {
                 try {
-                    let ret = await me.getEmp({ emp_id, emp_id, dep_id: 'null' });
+                    let ret = await queryEmp.getAllEmpNotAllot({ emp_id, emp_id }, [emp_id]);
                     if (ret.length == 0) {
                         cb('userexist');
                     } else {
-                        await get.update({ tName: 'emp', emp_id: emp_id }, { dep_id: dep_id });
+                        await otherEmp.allotUser([dep_id, emp_id]);
                         cb2();
                     }
                 } catch (err) {
@@ -291,16 +140,13 @@ const me = {
             cb('success');
         })
     },
-    // use
     /**
-     * 传入角色id，获得该角色下未被分配的员工
-     * @param {JSON} body {type:x }
-     * @returns {string} { "data": "[emp1],[emp2]..." }
+     * 无须传入数据，获得未被分配的员工
      */
     getAllEmpNotAllot: async function (body, cb) {
         try {
             let type = body.type;
-            let ret = await me.getEmp({ type, type, dep_id: 'null' });
+            let ret = await queryEmp.getAllEmpNotAllot({ type: type }, [type]);
             cb(JSON.stringify({ "data": ret }));
         } catch (err) {
             cb('error');
@@ -353,6 +199,24 @@ const me = {
             await otherEmp.deleteEmpResource([emp_id]);
             await otherEmp.recoverPower([emp_id]);
             cb('success')
+        } catch (err) {
+            cb('error');
+        }
+    },
+    /**
+     * 通过emp_id或username获得用户
+     */
+    getEmp: async function (body, cb) {
+        try {
+            let obj = {};
+            let emp_id = body.emp_id;
+            let username = body.username;
+            let type = body.type;
+            let dep_id = body.dep_id;
+            obj.data = { dep_id: dep_id, emp_id: emp_id, username: username, type: type };
+            obj.arr = [dep_id, emp_id, username, type];
+            let ret = await queryEmp.getEmp(obj);
+            cb(JSON.stringify({ data: ret }));
         } catch (err) {
             cb('error');
         }
@@ -445,6 +309,19 @@ const me = {
         try {
             let ret = await queryEmp.getRole({}, []);
             cb(JSON.stringify({ data: ret }));
+        } catch (err) {
+            cb('error');
+        }
+    },
+    /**
+     * 传入json对象dep_id:xxx（部门id）
+     * 返回相应的部门信息
+     */
+    getDep: async function (body, cb) {
+        try {
+            let dep_id = body.dep_id;
+            let ret = await queryEmp.getDep({ "dep_id": dep_id }, [dep_id]);
+            cb(JSON.stringify({ result: ret }));
         } catch (err) {
             cb('error');
         }
@@ -824,4 +701,74 @@ const me = {
     }
 }
 
-module.exports = me;
+// 处理账户信息导出excel的方法
+async function getDep(dep_id, cb) {
+    try {
+        if (dep_id) {
+            let rst = await queryEmp.getDep({ "dep_id": dep_id }, [dep_id]);
+            cb(rst[0].managerName);
+        } else {
+            cb('无')
+        }
+    } catch (err) {
+        cb('error');
+    }
+}
+// 获取对应的角色名字
+async function getRole(role_id, cb) {
+    try {
+        if (role_id) {
+            let rst = await queryEmp.getRole({ "role_id": role_id }, [role_id]);
+            if (rst.length != 0) {
+                cb(rst[0].name);
+            } else {
+                cb('无')
+            }
+        } else {
+            cb('无')
+        }
+    } catch (err) {
+        cb('error');
+    }
+}
+// 获得默认的内勤或者业务的名字
+async function getUser(body, cb) {
+    try {
+        let obj = {};
+        let buf_id = body.buf_id;
+        let off_id = body.off_id;
+        obj.data = { "buf_id": buf_id, "off_id": off_id };
+        obj.arr = [buf_id, off_id];
+        let rst = await queryEmp.getEmp(obj);
+        if (rst.length > 1) {
+            cb('暂无')
+        } else {
+            cb(rst[0].name);
+        }
+    } catch (err) {
+        cb('error');
+    }
+}
+
+function getTime(timestamp, cb) {
+    var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+    Y = date.getFullYear() + '-';
+    M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+    D = date.getDate();
+    if (D < 10) {
+        D = '0' + D + ' '
+    } else {
+        D = D + ' '
+    }
+    h = date.getHours();
+    if (h < 10) {
+        h = '0' + h + ':'
+    } else {
+        h = h + ':'
+    }
+    m = date.getMinutes();
+    if (m < 10) {
+        m = '0' + m;
+    }
+    cb(Y + M + D + h + m)
+}

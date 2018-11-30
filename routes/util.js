@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 var util = {
     /**
      * 将二者拼装在一起，condi默认为and如果需要修改，请在前端上传
@@ -57,14 +59,13 @@ var util = {
         return arr;
     },
     /**
-     * 按不同的表进行分页
-     * @param {JSON} obj tname表名与页数
+     * 按不同的表进行分页,如果limit有值进行分页，没有值不分页但同样会加上totalPage,totalNum
+     * @param {JSON} obj tname表名与页数 {tName:x, limit:x }
      * @param {Array} arr 要分页的数据
      * @returns {Array} [arr,totalPage,totalNum] 去掉row字段的arr，最大页数，总记录数
      */
     splitPage: function (obj, arr) {
         let tName = obj.tName;
-        let limit = Number(obj.limit) - 1;
         let totalNum = arr.length;
         let nums = 10;
         if (tName == 'order') {
@@ -76,16 +77,22 @@ var util = {
         }
         let totalPage = Math.ceil(totalNum / nums);
         let arr2 = [];
-        for (let i = (limit * nums); i < totalNum; i++) {
-            if (i == nums * (limit + 1)) {
-                break;
-            } else if (i == totalNum - 1) {
+        let limit = obj.limit;
+        if (limit) {
+            limit = Number(obj.limit) - 1;
+            for (let i = (limit * nums); i < totalNum; i++) {
+                if (i == nums * (limit + 1)) {
+                    break;
+                } else if (i == totalNum - 1) {
+                    arr2.push(arr[i]);
+                    break;
+                }
                 arr2.push(arr[i]);
-                break;
             }
-            arr2.push(arr[i]);
+            return [arr2, totalPage, totalNum];
+        } else {
+            return [arr, totalPage, totalNum];
         }
-        return [arr2, totalPage, totalNum];
     },
     /**
      * 根据传入的key，来相对应的对数组中的所有json对象排序

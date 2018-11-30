@@ -31,6 +31,7 @@ router.post('/createOrder', function (req, res, next) {
 // 如果此订单指定内容为空，删除此订单
 router.post('/deleteOrder', function (req, res, next) {
     let body = req.body
+    mdOrder.deleteOrderById
     mdOrder.deleteOrderById(body, (ret) => {
         res.send(ret)
     })
@@ -135,8 +136,8 @@ router.post('/setRefund_state', function (req, res, next) {
 // 获得公司资质介绍
 router.get('/getzizhiInfo', function (req, res, next) {
     let body = req.body;
-    mdData.getzizhi(body, (ret) => {
-        res.send(ret);
+    mdData.getData_zizhi(body, (ret) => {
+        res.send(JSON.stringify({ 'data': ret }));
     })
 })
 

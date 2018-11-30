@@ -299,19 +299,21 @@ function getScreenOrders() {
         success: function (result) {
             let names = getSelect();
             types = getTypes()
-            let data = JSON.parse(result).result;
+            let data = JSON.parse(result).data;
+            let val = data[0];
+            let totalPage = data[1];
+            let totalNum = data[2];
             let totalMoney = 0;
-            for (let i = 0; i < data.length; i++) {
-                let money = data[i].money
+            for (let i = 0; i < val.length; i++) {
+                let money = val[i].money
                 if (money) {
                     totalMoney += money;
                 }
             }
-
-            $("#totalPage").val(Math.ceil(data.length / 10));
-            $("#totalNum").val(data.length)
+            $("#totalPage").val(totalPage);
+            $("#totalNum").val(totalNum)
             getSplitPage()
-            $("#totalOrder").val(data.length);
+            $("#totalOrder").val(totalNum);
             $("#totalMoney").val(totalMoney);
 
         }
@@ -354,16 +356,16 @@ function getSplitPage() {
         success: function (result) {
             let names = getSelect();
             types = getTypes()
-            result = JSON.parse(result).result;
-            $("#data").val(JSON.stringify(result));
+            let data = JSON.parse(result).data;
+            let val = data[0];
+            $("#data").val(JSON.stringify(val));
             $("#pages").val(limit);
             $("#lstd span:first").html(limit);
             $("#lstd span:last").html($("#totalPage").val());
-
             deleteTb()
             printTr(names)
-            for (let i = 0; i < result.length; i++) {
-                printTable(names, result[i])
+            for (let i = 0; i < val.length; i++) {
+                printTable(names, val[i])
             }
             splitPageCss();
         }
@@ -502,6 +504,7 @@ function printTable(names, rst) {
         }
     }
     tr += '</tr>';
+    console.log(tr);
     $(tr).appendTo($("#table"))
 }
 // 先获取所有用户的id与姓名，再通过id进行判断

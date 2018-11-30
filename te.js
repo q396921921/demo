@@ -135,25 +135,90 @@
 //     console.log(replies); // 101, 2
 // })
 
-let a = [1, 2, 1, 1, 1, 1, 1, 1, 2, 3, 3, 4, 5, 1, 1];
-// let flag = true;
-// while (flag) {
-//     for (let i = 0; i < a.length; i++) {
-//         const val = a[i];
-//         if (val == 1) {
-//             a.splice(i, 1);
-//             flag = true;
-//             break;
-//         }else {
-//             flag = false;
-//         }
-//     }
-// }
-for (let i = 0; i < a.length; i++) {
-    const val = a[i];
-    if (val == 1) {
-        a.splice(i, 1);
-        i--;
+let fs = require('fs');
+// fs.stat('./s', (err, ret) => {
+//     console.log(ret);
+// })
+
+var writable = fs.createWriteStream('a.jpg', {
+    flags: 'w',
+    defaultEncoding: 'base64',
+    // mode: 0666,
+});
+
+writable.on('finish', function () {
+    console.log('write finished');
+    writable.end();
+    process.exit(0);
+});
+writable.on('error', function (err) {
+    console.log('write error - %s', err.message);
+});
+
+
+
+// var readable = fs.createReadStream('./plustag.jpg', {
+//     flags: 'r',
+//     encoding: 'base64',
+//     autoClose: true,
+//     // mode: 0666,
+// });
+
+// readable.on('open', function (fd) {
+//     console.log('file was opened, fd - ', fd);
+// });
+
+// readable.on('readable', function () {
+//     console.log('received readable');
+// });
+
+// readable.on('data', function (chunk) {
+//     writable.write(chunk, 'base64');
+//     console.log(writable.bytesWritten);
+//     // console.log('read %d bytes: %s', chunk.length, chunk);
+// });
+
+// readable.on('end', function () {
+//     console.log('read end');
+// });
+
+// readable.on('close', function () {
+//     console.log('file was closed.');
+// });
+
+// readable.on('error', function (err) {
+//     console.log('error occured: %s', err.message);
+// });
+
+
+
+
+
+
+let promise = require('bluebird');
+let a = promise.promisify(function (data, cb) {
+    if (data == 1) {
+        cb('1')
+    } else {
+        cb('error');
     }
-}
-console.log(a);
+})
+a(1).then((ret) => {
+    console.log(ret,0);     // 1
+})
+a(2).then((ret,err) => {
+    // if(err) {
+    //     console.log('我错了');
+    // }else {
+    //     console.log(ret,2);     // 
+    // }
+})
+
+a(1, (ret) => {
+    console.log(ret,1);     // null 
+})
+a(2, (ret) => {
+    console.log(ret,3);     // error
+})
+
+

@@ -1277,7 +1277,7 @@ function output() {
             if (result == 'error') {
                 alert('导出失败')
             } else {
-                let pt2 = result.split(excelFile + '/')[1];
+                let pt2 = result.split(excelFile + symbol)[1];
                 window.location.href = '/' + excelFile + '/' + pt2;
             }
         }
@@ -1327,7 +1327,7 @@ function submit(t) {
             url: "/users/updateOrder",
             type: "post",
             data: {
-                order_type:1,
+                order_type: 1,
                 name: [name, val],
                 order_id: order_id
             },

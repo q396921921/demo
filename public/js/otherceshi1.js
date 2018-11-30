@@ -18,7 +18,7 @@ function getzizhiInfo() {
                 } else if (name == 'text') {
                     elt.val(text)
                 } else if (name == 'img') {
-                    let url = '/' + upload + '/' + imgPath;
+                    let url = '/' + uploadFolde + '/' + imgPath;
                     elt.attr('src', url);
                 }
             })
@@ -85,10 +85,10 @@ function gethome_page() {
                                 if (name == 'text') {
                                     elt.val(text)
                                 } else if (name == 'img') {
-                                    let url = '/' + upload + '/' + imgPath;
+                                    let url = '/' + uploadFolde + '/' + imgPath;
                                     elt.attr('src', url);
                                 } else if (name == 'img2') {
-                                    let url = '/' + upload + '/' + imgPath2;
+                                    let url = '/' + uploadFolde + '/' + imgPath2;
                                     elt.attr('src', url);
                                 }
                             })
@@ -250,7 +250,7 @@ function getPartnerInfo2(t) {
                 let small_text = data[i].small_text;
                 $('#business1 img').each(function () {
                     if ($(this).attr('name') == partner_id) {
-                        let url = '/' + upload + '/' + bank_imgPath;
+                        let url = '/' + uploadFolde + '/' + bank_imgPath;
                         $(this).attr('src', url);
                     }
                 })
@@ -292,7 +292,7 @@ function getPartnerInfo1(t) {
                 let small_text = data[i].small_text;
                 $('#business0 img').each(function () {
                     if ($(this).attr('name') == partner_id) {
-                        let url = '/' + upload + '/' + bank_imgPath;
+                        let url = '/' + uploadFolde + '/' + bank_imgPath;
                         $(this).attr('src', url);
                     }
                 })
@@ -325,7 +325,7 @@ function getPartnerDetail(t) {
                 } else if (name == 'name') {
                     elt.val(name1);
                 } else if (name == 'img') {
-                    let url = '/' + upload + '/' + imgPath;
+                    let url = '/' + uploadFolde + '/' + imgPath;
                     elt.attr('src', url);
                 }
             })

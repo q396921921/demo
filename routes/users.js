@@ -43,6 +43,8 @@ router.post('/log', function (req, res, next) {
   mdEmp.getUserByUserPass(body, (ret) => {
     if (ret.indexOf("error") != -1) {
       res.render('login', { "mes": '您所输入的用户名或者密码错误' });
+    } else if (ret.indexOf("isusers") != -1) {
+      res.render('login', { "mes": '用户账户无法登录后台管理系统' });
     } else {
       let sessionStore = req.sessionStore.sessions;
       console.log(sessionStore);
@@ -224,14 +226,14 @@ router.post('/updateProfit', function (req, res, next) {
   })
 })
 router.get('/getTotal_profit', function (req, res, next) {
-    (async function () {
-      try {
-        let data = await mdOrder.getTotal_profit(req.body);
-        res.send(JSON.stringify({ data: data }));
-      } catch (err) {
-        res.send('error');
-      }
-    })()
+  (async function () {
+    try {
+      let data = await mdOrder.getTotal_profit(req.body);
+      res.send(JSON.stringify({ data: data }));
+    } catch (err) {
+      res.send('error');
+    }
+  })()
 })
 router.post('/setState', function (req, res, next) {
   let body = req.body;
@@ -263,7 +265,6 @@ router.post('/setRefund_state', function (req, res, next) {
     res.send(ret)
   })
 })
-
 
 
 
@@ -406,8 +407,12 @@ router.post('/deleteUser', function (req, res, next) {
 // ///////�˻�,�޸���Ϣ��ҳ
 router.post('/getUser', function (req, res, next) {
   let body = req.body;
-  mdEmp.getEmp(body, (ret) => {
-    res.send(ret)
+  mdEmp.getEmp(body, (ret, ret2) => {
+    if (ret) {
+      res.send(ret);
+    } else {
+      res.send(JSON.stringify({ 'data': ret2 }))
+    }
   })
 })
 router.post('/getUserByUserPass', function (req, res, next) {
@@ -455,28 +460,44 @@ router.get('/other/ceshi*', function (req, res, next) {
 
   res.render(ulstr, { "username": req.session.username, "menu": menu })
 });
+// use
 router.get('/getzizhiInfo', function (req, res, next) {
   let body = req.body;
-  mdData.getzizhi(body, (ret) => {
-    res.send(ret)
+  mdData.getData_zizhi(body, (ret, ret2) => {
+    if (ret) {
+      res.send(ret);
+    } else {
+      res.send(JSON.stringify({ 'data': ret2 }))
+    }
   })
 })
+// use
 router.get('/gethome_page', function (req, res, next) {
   let body = req.body;
   mdData.get_home_page(body, (ret) => {
     res.send(ret)
   })
 })
+// use
 router.get('/getbusiness', function (req, res, next) {
   let body = req.body;
-  mdData.getbusiness(body, (ret) => {
-    res.send(ret)
+  mdData.getData_business(body, (ret, ret2) => {
+    if (ret) {
+      res.send(ret);
+    } else {
+      res.send(JSON.stringify({ 'data': ret2 }))
+    }
   })
 })
+// use
 router.post('/getPartnerBankOrOrgan', function (req, res, next) {
   let body = req.body;
-  mdData.getPartnerBank(body, (ret) => {
-    res.send(ret);
+  mdData.getData_partner(body, (ret, ret2) => {
+    if (ret) {
+      res.send(ret);
+    } else {
+      res.send(JSON.stringify({ 'data': ret2 }))
+    }
   })
 })
 

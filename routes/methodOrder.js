@@ -12,7 +12,7 @@ const path = require("path");
 const timer = require("./timer");
 const promise = require('bluebird');
 
-const me = require('./methodEmp2');
+const me = require('./methodEmp');
 
 var debug = require("debug")("app:server");
 let public = require("./../public/public");
@@ -115,10 +115,23 @@ var md = {
       } else if (order_type == 3) {
         tName = 'order3';
       }
-      let condis = { tName: tName }
-      condis = util.spliceCode(condis, body);
-      let ret = await get.myData(condis);
-      let data = util.getData(ret);
+      let data;
+      if (order_type) {
+        let condis = { tName: tName }
+        condis = util.spliceCode(condis, body);
+        let ret = await get.myData(condis);
+        data = util.getData(ret);
+      } else {
+        let condis = util.spliceCode({}, body);
+        condis.tName = 'order1';
+        let ret1 = await get.myData(condis);
+        condis.tName = 'order2';
+        let ret2 = await get.myData(condis);
+        condis.tName = 'order3';
+        let ret3 = await get.myData(condis);
+        let ret = ret1.concat(ret2).concat(ret3);
+        data = util.getData(ret);
+      }
       cb(null, data)
     } catch (err) {
       cb('error');
@@ -131,7 +144,6 @@ var md = {
   getProduct: promise.promisify(async function (body, cb) {
     try {
       let condis = { tName: 'product' }
-      console.log(body);
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
@@ -206,7 +218,7 @@ var md = {
    */
   getRelation_product_dep: promise.promisify(async function (body, cb) {
     try {
-      let condis = { tName: 'relation_product_dep' }
+      let condis = { tName: 'relation_product_dep' };
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
@@ -412,10 +424,11 @@ var md = {
       cb('error');
     }
   }),
-  // not update
-  // 此删除也无需完善，中间代码是用来验证是否需要删除的
+  // use
   /**
-   * 传入订单id删除此订单
+   * 传入订单id,查看是否完整，否则删除此订单
+   * @param {JSON} body {order_id:x }
+   * @returns {number} count 删除的订单数量
    */
   deleteOrderById: promise.promisify(async function (body, cb) {
     try {
@@ -426,20 +439,20 @@ var md = {
         const order = order_arr[i];
         let order_id = order.order_id;
         let order_type = order.order_type;
-        let oreders = await queryOrder.getOrder({ order_id: order_id }, [order_id]);
-        if (oreders.length != 0) {
-          let product_id = oreders[0].product_id;
-          let channel_id = oreders[0].channel_id;
-          let type = oreders[0].type;
-          let inmoney = oreders[0].inmoney;
-          let orderFile = oreders[0].orderFile;
-          let clientName = oreders[0].clientName;
+        let orders = await md.getOrder({ order_type: order_type, order_id: order_id });
+        if (orders.length != 0) {
+          let product_id = orders[0].product_id;
+          let channel_id = orders[0].channel_id;
+          let type = orders[0].type;
+          let inmoney = orders[0].inmoney;
+          let orderFile = orders[0].orderFile;
+          let clientName = orders[0].clientName;
           if (order_type == "1") {
             // 订单
             if (product_id && channel_id && type && inmoney && orderFile && clientName) {
               continue;
             } else {
-              await otherOrder.deleteOrderById([order_id]);
+              await get.delete({ tName: 'order1', order_id: order_id });
               count++;
             }
           } else if (order_type == "2") {
@@ -447,7 +460,7 @@ var md = {
             if (product_id && channel_id && type && orderFile) {
               continue;
             } else {
-              await otherOrder.deleteOrderById([order_id]);
+              await get.delete({ tName: 'order2', order_id: order_id });
               count++;
             }
           } else if (order_type == "3") {
@@ -455,31 +468,13 @@ var md = {
             if (channel_id && clientName && type && orderFile) {
               continue;
             } else {
-              await otherOrder.deleteOrderById([order_id]);
+              await get.delete({ tName: 'order3', order_id: order_id });
               count++;
             }
           }
         }
       }
-      cb(count.toString());
-    } catch (err) {
-      cb('error');
-    }
-  }),
-  // not update
-  /**
-   * 传入该角色id，部门id，以及内勤id来获得他权限下的所有未处理订单
-   */
-  getNoHandleOrders: promise.promisify(async function (body, cb) {
-    try {
-      let otjs = {};
-      let order_type = body.order_type
-      let role_type = body.role_type;
-      let userdep_id = body.userdep_id;
-      let busoff_id = body.busoff_id;
-      let orders = await queryOrder.getNoHandleOrders({ "role_type": role_type, "userdep_id": userdep_id, "busoff_id": busoff_id },
-        { "order_state": 1, "order_type": order_type }, [1, order_type]);
-      cb(orders.length + "");
+      cb(null, count.toString());
     } catch (err) {
       cb('error');
     }
@@ -751,45 +746,30 @@ var md = {
   // use
   /**
    * 获得符合条件的订单信息,区分权限
-   * 传入不同订单信息,返回筛选后的订单，
-   * @returns {Array} [json1,json2...]
+   * @param {JSON} body {order_type:x && userdep_id:x && busoff_id:x && role_type:x || order_state }
+   * @returns {Array} [json1,json2...] || {number} data.length
    */
   getOrders: promise.promisify(async function (body, cb) {
     try {
-      let order_id = body.order_id;
-      let appli_id = body.appli_id;
-      let type = body.type;
-      let channel_id = body.channel_id;
-      let business_id = body.business_id;
-      let office_id = body.office_id;
-      let order_type = body.order_type;
+      // let order_id = body.order_id;
+      // let appli_id = body.appli_id;
+      // let type = body.type;
+      // let channel_id = body.channel_id;
+      // let business_id = body.business_id;
+      // let office_id = body.office_id;
+      let order_state = body.order_state;
       let limit = body.limit;
-      let role_type = body.role_type;
-      let userdep_id = body.userdep_id;
-      let busoff_id = body.busoff_id;
       // 通过order_type判断去查询哪种类型的订单表
-      let tName = "";
       let data = [];
       let obj = { tName: 'order', limit, limit };
-      if (role_type == 1 || role_type == 2 || role_type == 6) {    // 管理员 与 董事长
-        data = await md.getOrder({ order_type: order_type });
-      } else if (role_type == 3) {  // 经理
-        let ret1 = await me.getEmp({ dep_id: userdep_id });
-        let arr = [];
-        for (let i = 0; i < ret1.length; i++) {
-          const val = ret1[i];
-          let ret2 = await md.getOrder({ order_type: order_type, business_id: val.emp_id });
-          arr = arr.concat(ret2);
-        }
-        data = arr;
-      } else if (role_type == 4) {  // 内勤
-        data = await md.getOrder({ order_type: order_type, office_id: busoff_id });
-      } else if (role_type == 5) {  // 业务
-        data = await md.getOrder({ order_type: order_type, business_id: busoff_id });
+      data = await getPowerOrder(body);
+      if (order_state) {
+        cb(null, data.length);
+      } else {
+        data = util.sortArr(data, 'appliTime', 'desc');
+        data = util.splitPage(obj, data);
+        cb(null, data);
       }
-      data = util.sortArr(data, 'appliTime', 'desc');
-      data = util.splitPage(obj, data);
-      cb(null, data);
     } catch (err) {
       cb('error');
     }
@@ -1371,30 +1351,29 @@ var md = {
     let userdep_id = body.userdep_id;
     let role_type = body.role_type;
     let emp_id = body.emp_id;
-    async.parallel({
+    async.series({
       type: function (cb) {
         // 获取筛选的所有类型
         (async function () {
           try {
-            let result = await queryOrder.getProductType({}, []);
+            let result = await md.getProduct_type(null);
             cb(null, result);
           } catch (err) {
             cb2('error')
           }
         })()
       }, channel: function (cb) {
-
         (async function () {
           try {
             let arr = [];
             if (role_type == 3) {
               if (userdep_id) {
-                let ret = await queryEmp.getEmpIdAndName({ type: "5", dep_id: userdep_id }, [5, userdep_id]);
+                let ret = await me.getEmp({ type: "5", dep_id: userdep_id });
                 async.each(ret, function (rt, cb3) {
                   (async function () {
                     try {
                       let iiuv = rt.iiuv;
-                      let ret2 = await queryEmp.getDepUsers([iiuv, 6]);
+                      let ret2 = await me.getEmp({ iiuv: iiuv, type: 6 });
                       if (ret2.length != 0) {
                         arr = arr.concat(ret2)
                       }
@@ -1411,12 +1390,11 @@ var md = {
               }
             } else if (role_type == 4) {
               let arr = [];
-              let off_busName = await queryEmp.getOffBusName([emp_id]);
-              async.each(off_busName, function (rt, cb3) {
-                let iiuv = rt.iiuv;
+              let ret = await getProduct_DepEmps({ off_id: emp_id }, 'dep_emp_id');
+              async.each(ret, function (rt, cb3) {
                 (async function () {
                   try {
-                    let ret2 = await queryEmp.getDepUsers([iiuv, 6]);
+                    ret2 = await me.getEmp({ iiuv: rt.iiuv, type: 6 });
                     if (ret2.length != 0) {
                       arr = arr.concat(ret2)
                     }
@@ -1429,16 +1407,13 @@ var md = {
                 cb(null, arr);
               })
             } else if (role_type == 5) {
-              let obj = {};
-              obj.data = { emp_id: emp_id };
-              obj.arr = [emp_id];
-              let emps = await queryEmp.getEmp(obj);
+              let emps = await me.getEmp({ emp_id: emp_id });
               let iiuv = emps[0].iiuv;
-              let users = await queryEmp.getDepUsers([iiuv, 6]);
+              let users = await me.getEmp({ iiuv: iiuv, type: 6 });
               cb(null, users)
             } else {
               // 获取筛选的所有渠道
-              let result = await queryEmp.getEmpIdAndName({ type: "6" }, [6]);
+              let result = await me.getEmp({ type: 6 });
               cb(null, result);
             }
           } catch (err) {
@@ -1452,19 +1427,45 @@ var md = {
             if (role_type == 3) {
               // 获取筛选的所有业务
               if (userdep_id) {
-                let ret = await queryEmp.getEmpIdAndName({ type: "5", dep_id: userdep_id }, [5, userdep_id]);
+                let ret = await me.getEmp({ type: "5", dep_id: userdep_id });
                 cb(null, ret);
               } else {
                 cb(null, [])
               };
             } else if (role_type == 4) {
-              let ret = await queryEmp.getOffBusName([emp_id]);
-              cb(null, ret)
+              let arr = await getProduct_DepEmps({ off_id: emp_id }, 'dep_emp_id');
+              cb(null, arr)
             } else if (role_type == 5) {
-              let ret = await queryEmp.getEmpIdAndName({ type: "5", "emp_id": emp_id }, [5, emp_id]);
+              let ret = await me.getEmp({ type: "5", "emp_id": emp_id });
               cb(null, ret)
             } else {
-              let ret = await queryEmp.getEmpIdAndName({ type: "5" }, [5]);
+              let ret = await me.getEmp({ type: "5" });
+              cb(null, ret);
+            }
+          } catch (err) {
+            cb2('error')
+          }
+        })()
+      },
+      business: function (cb) {
+        (async function () {
+          try {
+            if (role_type == 3) {
+              // 获取筛选的所有业务
+              if (userdep_id) {
+                let ret = await me.getEmp({ type: "5", dep_id: userdep_id });
+                cb(null, ret);
+              } else {
+                cb(null, [])
+              };
+            } else if (role_type == 4) {
+              let arr = await getProduct_DepEmps({ off_id: emp_id }, 'dep_emp_id');
+              cb(null, arr)
+            } else if (role_type == 5) {
+              let ret = await me.getEmp({ type: "5", "emp_id": emp_id });
+              cb(null, ret)
+            } else {
+              let ret = await me.getEmp({ type: "5" });
               cb(null, ret);
             }
           } catch (err) {
@@ -1478,82 +1479,33 @@ var md = {
             if (role_type == 3) {
               if (userdep_id) {
                 let arr = [];
-                let rets = queryEmp.getEmpIdAndName({ type: "5", dep_id: userdep_id }, [5, userdep_id]);
+                let rets = await me.getEmp({ type: "5", dep_id: userdep_id });
+                for (let i = 0; i < rets.length; i++) {
+                  const rts = rets[i];
+                  arr = arr.concat(await getProduct_DepEmps({ dep_emp_id: rts.emp_id }, 'off_id'));
+                }
                 let arr2 = [];
-                async.each(rets, function (rts, callback) {
-                  (async function () {
-                    try {
-                      let dep_emp_id = rts.emp_id;
-                      let ret = queryEmp.getBusNameId([dep_emp_id]);
-                      if (ret.length != 0) {
-                        arr = arr.concat(ret);
-                      }
-                      callback();
-                    } catch (err) {
-                      cb2('error');
-                    }
-                  })()
-                }, function (err) {
-                  let flag = true;
-                  for (let i = 0; i < arr.length; i++) {
-                    let emp_id1 = arr[i].emp_id;
-                    if (arr2.length == 0) {
-                      arr2.push(arr[i])
-                    } else {
-                      // 默认没有和其一样的值
-                      let flag = false;
-                      for (let j = 0; j < arr2.length; j++) {
-                        let emp_id2 = arr2[j].emp_id;
-                        if (emp_id2 == emp_id1) {
-                          // 相等，那么就有不需要加入
-                          flag = true;
-                          break;
-                        }
-                      }
-                      if (!flag) {
-                        arr2.push(arr[i])
-                      } else {
-                        continue;
-                      }
-                    }
+                let arr3 = []
+                for (let i = 0; i < arr.length; i++) {
+                  const val = arr[i];
+                  if (arr2.indexOf(val.emp_id) < 0) {
+                    arr2.push(val.emp_id);
+                    arr3.push(val);
                   }
-                  cb(null, arr2)
-                })
+                }
+                cb(null, arr3);
               } else {
                 cb(null, []);
               }
             } else if (role_type == 4) {
-              let ret = await queryEmp.getEmpIdAndName({ type: "4", "emp_id": emp_id });
+              let ret = await me.getEmp({ "emp_id": emp_id });
               cb(null, ret);
             } else if (role_type == 5) {
-              let ret = await queryEmp.getBusNameId([emp_id]);
-              let arr2 = [];
-              for (let i = 0; i < ret.length; i++) {
-                let emp_id1 = ret[i].emp_id;
-                if (arr2.length == 0) {
-                  arr2.push(ret[i])
-                } else {
-                  // 默认没有和其一样的值
-                  let flag = false;
-                  for (let j = 0; j < arr2.length; j++) {
-                    let emp_id2 = arr2[j].emp_id;
-                    if (emp_id2 == emp_id1) {
-                      // 相等，那么就有不需要加入
-                      flag = true;
-                      break;
-                    }
-                  }
-                  if (!flag) {
-                    arr2.push(ret[i])
-                  } else {
-                    continue;
-                  }
-                }
-              }
-              cb(null, arr2);
+              let ret = await getProduct_DepEmps({ dep_emp_id: emp_id }, 'off_id');
+              cb(null, ret);
             } else {
               // 获取筛选的所有内勤
-              let result = await queryEmp.getEmpIdAndName({ type: "4" }, [4]);
+              let result = await me.getEmp({ type: "4" });
               cb(null, result);
             }
           } catch (err) {
@@ -1565,7 +1517,7 @@ var md = {
         // 获取筛选的所有部门
         (async function () {
           try {
-            let ret = await queryEmp.getDep("", []);
+            let ret = await me.getDep({});
             cb(null, ret);
           } catch (err) {
             cb2('error')
@@ -1583,21 +1535,9 @@ var md = {
    * 返回json字符串格式，{"result":result[Arrar]}
    */
   screen: promise.promisify(async function (body, cb) {
-    let dep_id = body.dep_id; // 部门id
-    let order_type = body.order_type; // 订单类型
-    let type = body.type; // 商品类型
-    let channel_id = body.channel_id; // 渠道id（用户id）
-    let business_id = body.business_id; // 业务id
-    let office_id = body.office_id; // 内勤id
-    let order_state = body.order_state; // 内勤id
-    let time1 = body.time1; // 起始时间
     let timeType = body.timeType; // 申请时间还是放款时间
-
     let limit = body.limit; // 分页
-    let role_type = body.role_type;
-    let userdep_id = body.userdep_id;
-    let busoff_id = body.busoff_id;
-
+    let time1 = body.time1; // 起始时间
     if (time1) {
       time1 = time1.toString();
     }
@@ -1605,51 +1545,27 @@ var md = {
     if (time2) {
       time2 = time2.toString();
     }
-    let otjs = {
-      limit: limit, dep_id: dep_id, timeType: timeType, role_type: role_type,
-      userdep_id: userdep_id, busoff_id: busoff_id
-    };
+    let data = await getPowerOrder(body);
     try {
-      if (dep_id) {
-        let jsBody = {
-          order_type: order_type, type: type, channel_id: channel_id, business_id: "",
-          office_id: office_id, order_state: order_state, time1: time1, time2: time2
-        };
-        let arr = [order_type, type, channel_id, business_id, office_id, order_state, time1, time2];
-        if (role_type != 3) {
-          arr.push(dep_id);
-        }
-        let splits = await queryOrder.getScreenOrderSplitPage(otjs, jsBody, arr);
-        cb(JSON.stringify({ result: result }));
-      } else {
-        let jsBody = {
-          order_type: order_type, type: type, channel_id: channel_id, business_id: business_id,
-          office_id: office_id, order_state: order_state, time1: time1, time2: time2
-        };
-        let result = await queryOrder.getScreenOrderSplitPage(otjs, jsBody, [order_type, type, channel_id, business_id,
-          office_id, order_state, time1, time2]);
-        let arr = [];
-        async.each(result, function (rt, cb3) {
-          (async function () {
-            try {
-              let obj = {};
-              let business_id = rt.business_id;
-              obj.data = { emp_id: business_id };
-              obj.arr = [business_id];
-              let emps = await queryEmp.getEmp(obj);
-              if (ret.length != 0) {
-                rt.dep_id = ret[0].dep_id;
-              }
-              arr.push(rt);
-              cb3();
-            } catch (err) {
-              cb('error');
-            }
-          })();
-        }, function (err) {
-          cb(JSON.stringify({ result: arr }))
-        })
+      let arr = [];
+      // 按时间排序
+      let timeKey = 'appliTime';
+      if (timeType == 8) {  // appliTime
+      } else if (timeType == 9) { // loanTime
+        timeKey = 'loanTime';
       }
+      data.forEach(function (val) {
+        try {
+          if (val[timeKey] >= time1 && val[timeKey] <= time2) {
+            arr.push(val);
+          }
+        } catch (err) {
+          cb('error');
+        }
+      });
+      let b = util.sortArr(data, 'appliTime', 'desc');
+      b = util.splitPage({ limit: limit }, arr);
+      cb(JSON.stringify({ data: b }))
     } catch (err) {
       cb('error');
     }
@@ -1659,157 +1575,156 @@ var md = {
    * @param {Object} results  results[json对象，json对象]
    * @param {any} callback    callback("true或者false") true写入成功，false写入失败
    */
-  writeExcel: function (results, callback) {
-    let arrStr = public.outputTitleArrOrder;
-    let data = [arrStr];
-    // fs.writeFileSync('b.xlsx', buffer, 'binary');
-    for (let i = 0; i < results.length; i++) {
-      const result = results[i];
-      let keys = Object.keys(result);
-      let arr = [];
-      for (let j = 0; j < keys.length; j++) {
-        const k = keys[j];
-        let time;
-        switch (k) {
-          case "emp_id":
-            cb2();
-            break;
-          case "relation_state_id":
-            getState(result[k], rt => {
-              arr.push(rt);
-              cb2();
-            });
-            break;
-          case "flowState":
-            getFlow(result[k], rt => {
-              arr.push(rt);
-              cb2();
-            });
-            break;
-          case "product_id":
-            getProduct(result[k], rt => {
-              arr.push(rt);
-              cb2();
-            });
-            break;
-          case "order_state":
-            getRelation_order_state(result[k], rt => {
-              arr.push(rt);
-              cb2();
-            });
-            break;
-          case "seeTime":
-            time = Date.parse(new Date(result[k]));
-            getTime(time, rt => {
-              arr.push(rt);
-              cb2();
-            });
-            break;
-          case "loanTime":
-            time = Date.parse(new Date(result[k]));
-            getTime(time, rt => {
-              arr.push(rt);
-              cb2();
-            });
-            break;
-          case "type":
-            getType(result[k], rt => {
-              arr.push(rt);
-              cb2();
-            });
-            break;
-          case "failReason":
-            set_br_n(result[k], rt => {
-              arr.push(rt);
-              cb2();
-            });
-            break;
-          case "empComment":
-            set_br_n(result[k], rt => {
-              arr.push(rt);
-              cb2();
-            });
-            break;
-          case "userComment":
-            set_br_n(result[k], rt => {
-              arr.push(rt);
-              cb2();
-            });
-            break;
-          case "appliTime":
-            time = Date.parse(new Date(result[k]));
-            getTime(time, rt => {
-              arr.push(rt);
-              cb2();
-            });
-            break;
-          case "order_type":
-            cb2();
-            break;
-          case "channel_id":
-            getEmpName(result[k], rt => {
-              arr.push(rt);
-              cb2();
-            });
-            break;
-          case "office_id":
-            getEmpName(result[k], rt => {
-              arr.push(rt);
-              cb2();
-            });
-            break;
-          case "business_id":
-            getEmpName(result[k], rt => {
-              arr.push(rt);
-              cb2();
-            });
-            break;
-          case "card_name":
-            arr.push(result[k]);
-            cb2("over");
-            break;
-          default:
-            arr.push(result[k]);
-            cb2();
+  writeExcel: async function (results, callback) {
+    try {
+      let arrStr = public.outputTitleArrOrder;
+      let data = [arrStr];
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        let keys = Object.keys(result);
+        let arr = [];
+        for (let j = 0; j < keys.length; j++) {
+          let val;
+          const k = keys[j];
+          let time;
+          switch (k) {
+            case "emp_id":
+              break;
+            case "relation_state_id":
+              if (result[k]) {
+                val = await getsortSate(result[k]);
+                if (val.length != 0) {
+                  arr.push(val[0].flow_name);
+                } else {
+                  arr.push('空');
+                }
+              } else {
+                arr.push('空');
+              }
+              break;
+            case "flowState":
+              if (result[k]) {
+                val = await getsortFlow(result[k]);
+                if (val.length != 0) {
+                  arr.push(val[0].flow_name);
+                } else {
+                  arr.push('空');
+                }
+              } else {
+                arr.push('空');
+              }
+              break;
+            case "product_id":
+              val = await md.getProduct({ product_id: result[k] });
+              if (val.length != 0) {
+                arr.push(val[0].name);
+              } else {
+                arr.push('空');
+              }
+              break;
+            case "order_state":
+              val = getRelation_order_state(result[k]);
+              arr.push(val);
+              break;
+            case "seeTime":
+              val = new Date(result[k]).toLocaleTimeString();
+              arr.push(val);
+              break;
+            case "loanTime":
+              val = new Date(result[k]).toLocaleTimeString();
+              arr.push(val);
+              break;
+            case "type":
+              val = await md.getProduct_type({ product_type_id: result[k] });
+              if (val.length != 0) {
+                arr.push(val[0].name);
+              } else {
+                arr.push('空');
+              }
+              break;
+            case "failReason":
+              val = set_br_n(result[k]);
+              arr.push(val);
+              break;
+            case "empComment":
+              val = set_br_n(result[k]);
+              arr.push(val);
+              break;
+            case "userComment":
+              val = set_br_n(result[k]);
+              arr.push(val);
+              break;
+            case "appliTime":
+              val = new Date(result[k]).toLocaleTimeString();
+              arr.push(val);
+              break;
+            case "order_type":
+              break;
+            case "channel_id":
+              val = await me.getEmp({ emp_id: result[k] });
+              if (val.length != 0) {
+                arr.push(val[0].name);
+              } else {
+                arr.push('空');
+              }
+              break;
+            case "office_id":
+              val = await me.getEmp({ emp_id: result[k] });
+              if (val.length != 0) {
+                arr.push(val[0].name);
+              } else {
+                arr.push('空');
+              }
+              break;
+            case "business_id":
+              val = await me.getEmp({ emp_id: result[k] });
+              if (val.length != 0) {
+                arr.push(val[0].name);
+              } else {
+                arr.push('空');
+              }
+              break;
+            case "card_name":
+              arr.push(result[k]);
+              break;
+            default:
+              arr.push(result[k]);
+          }
         }
-      }
-    }
-    for (let i = 0; i < results.length; i++) {
-      const result = results[i];
-      let keys = Object.keys(result);
-      let arr = [];
-      for (let j = 0; j < keys.length; j++) {
-        const k = keys[j];
-        console.log(arr);
         data.push(arr);
       }
+      let buffer = xlsx.build([{ name: "sheet1", data: data }]);
+      let timeStr = new Date().getTime();
+      let pathStr = path.join(__dirname, "../public/" + excelFile + "/" + timeStr + ".xlsx");
+      fs.writeFile(pathStr, buffer, "binary", function (err) {
+        if (err) {
+          callback("false", null);
+        } else {
+          timer.deleteExcel(pathStr);
+          callback("true", pathStr);
+        }
+      });
+    } catch (err) {
+      callback('error');
     }
-    let buffer = xlsx.build([{ name: "sheet1", data: data }]);
-    let timeStr = new Date().getTime();
-    let pathStr = path.join(__dirname, "../public/" + excelFile + "/" + timeStr + ".xlsx");
-    fs.writeFile(pathStr, buffer, "binary", function (err) {
-      if (err) {
-        callback("false", null);
-      } else {
-        timer.deleteExcel(pathStr);
-        callback("true", pathStr);
-      }
-    });
   },
+  // use
   /**
    * 为total_profit表中的count赋值，也就是订单编号尾数
+   * @param {JSON} body
    */
   setCount: promise.promisify(async function (body, cb) {
     try {
       let count = body.count;
-      let counts = await otherOrder.updateCount([count]);
+      let counts = await get.update({ tName: 'total_profit' }, { count: count });
       cb(null, "success");
     } catch (err) {
-      cb(null, "error");
+      cb("error");
     }
   })
 };
 
+// use
 function set_br_n(text, cb) {
   let str = "";
   if (text) {
@@ -1817,184 +1732,18 @@ function set_br_n(text, cb) {
     for (let i = 0; i < arr.length; i++) {
       str += arr[i];
     }
-    cb(str);
+    return str;
   } else {
-    cb("暂无");
-  }
-}
-function splitOrderFile(fileStr, cb) {
-  let ax = "";
-  async.each(fileStr, function (file, cb2) {
-    ax += public.path + public.httpport + "/" + file + ";";
-    cb2();
-  }, function (err) {
-    cb(ax);
-  }
-  );
-}
-
-// 处理订单输出excel的方法
-// 获得员工的名字
-async function getEmpName(emp_id, cb) {
-  try {
-    if (emp_id && emp_id != "") {
-      let obj = {};
-      obj.data = { emp_id: emp_id };
-      obj.arr = [emp_id];
-      let rst = await queryEmp.getEmp(obj);
-      if (rst[0].name) {
-        cb(rst[0].name);
-      } else {
-        cb("暂无");
-      }
-    } else {
-      cb("暂无");
-    }
-  } catch (err) {
-    cb('error');
-  }
-}
-// 获得订单的流程
-async function getFlow(flow_detail_id, cb) {
-  try {
-    if (flow_detail_id) {
-      let flows = await queryOrder.getFlow({ flow_detail_id: flow_detail_id }, [flow_detail_id]);
-      let flow = ret[0].flow_name;
-      cb(flow);
-    } else {
-      cb("暂无");
-    }
-  } catch (err) {
-    cb("error");
-  }
-}
-// 获得订单的状态
-async function getState(relation_state_id, cb) {
-  try {
-    if (relation_state_id) {
-      let result = await queryOrder.getRelation_order_state({ relation_state_id: relation_state_id }, [relation_state_id]);
-      let state_state_id = result[0].state_state_id;
-      let rst = await queryOrder.getStateDetail({ state_state_id: state_state_id }, [state_state_id]);
-      let state = rst[0].state_name;
-      if (state) {
-        cb(state);
-      } else {
-        cb("暂无");
-      }
-    } else {
-      cb("暂无");
-    }
-  } catch (err) {
-    cb('error');
-  }
-}
-// 获得商品的名字
-async function getProduct(product_id, cb) {
-  try {
-    if (product_id && product_id != "") {
-      let obj = {};
-      obj.data = { product_id: product_id };
-      obj.arr = [product_id];
-      let rst = await queryOrder.getProduct(obj);
-      if (rst[0].name) {
-        cb(rst[0].name);
-      } else {
-        cb("暂无");
-      }
-    } else {
-      cb("暂无");
-    }
-  } catch (err) {
-    cb('error');
-  }
-}
-// 获得商品的类别名字
-async function getType(type, cb) {
-  try {
-    let pType = await queryOrder.getProductType({ product_type_id: type }, [type]);
-    if (rst[0].name) {
-      cb(rst[0].name);
-    } else {
-      cb("暂无");
-    }
-  } catch (err) {
-    cb('error');
+    return '空';
   }
 }
 
-// 订单的流程的时间
-function getTime2(ret, cb) {
-  for (let i = 0; i < ret.length; i++) {
-    const rt = ret[i];
-    let state_time = rt.state_time;
-    let flow_time = rt.flow_time;
-    if (state_time) {
-      rt.state_time = timestampToTime2(state_time);
-    }
-    if (flow_time) {
-      rt.flow_time = timestampToTime2(flow_time);
-    }
-
-  }
-  return ret
-}
-function timestampToTime2(timestamp, cb) {
-  let text = null;
-  let date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
-  Y = date.getFullYear() + "-";
-  M =
-    (date.getMonth() + 1 < 10
-      ? "0" + (date.getMonth() + 1)
-      : date.getMonth() + 1) + "-";
-  D = date.getDate();
-  if (D < 10) {
-    D = "0" + D + " ";
-  } else {
-    D = D + " ";
-  }
-  h = date.getHours();
-  if (h < 10) {
-    h = "0" + h + ":";
-  } else {
-    h = h + ":";
-  }
-  m = date.getMinutes();
-  if (m < 10) {
-    m = "0" + m;
-  }
-  text = Y + M + D + h + m;
-  return text;
-}
-function getTime(timestamp, cb) {
-  let date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
-  Y = date.getFullYear() + "-";
-  M =
-    (date.getMonth() + 1 < 10
-      ? "0" + (date.getMonth() + 1)
-      : date.getMonth() + 1) + "-";
-  D = date.getDate();
-  if (D < 10) {
-    D = "0" + D + " ";
-  } else {
-    D = D + " ";
-  }
-  h = date.getHours();
-  if (h < 10) {
-    h = "0" + h + ":";
-  } else {
-    h = h + ":";
-  }
-  m = date.getMinutes();
-  if (m < 10) {
-    m = "0" + m;
-  }
-  if (Y + M + D + h + m) {
-    cb(Y + M + D + h + m);
-  } else {
-    cb("暂无");
-  }
-}
-// 得到实际订单状态，那5个成功失败的
+// use
+/**
+ * 传入相应的数字，返回对应的字符串值
+ * @param {number} num 1,2,3,4
+ * @returns {string} 
+ */
 function getRelation_order_state(num, cb) {
   let text = "";
   if (num == 1) {
@@ -2005,12 +1754,14 @@ function getRelation_order_state(num, cb) {
     text = "通过";
   } else if (num == 4) {
     text = "失败";
-  } else if (num == 5) {
-    text = "撤销";
   }
-  cb(text);
+  return text;
 }
-// 数位不够加0,生成订单编号
+// use
+/**
+ * 数位不够加0,生成订单编号
+ * @param {number} num 
+ */
 function addZero(num) {
   let tm = Date.now();
   tm = momoent(tm).format("YYYYMMDD");
@@ -2064,6 +1815,128 @@ let getsortSate = promise.promisify(async function (flow_detail_id, cb) {
     }
     state_details = util.sortArr(state_details, 'leavl', 'asc');
     cb(null, state_details);
+  } catch (err) {
+    cb('error');
+  }
+})
+
+// use
+/**
+ * @param {JSON} obj {order_type:x, userdep_id:x, busoff_id:x }
+ * @param {JSON} obj2 {字段1:x, 字段2:x...}筛选条件
+ * @returns {Array} data [json1,json2...]
+ */
+let getPowerOrder = promise.promisify(async function (obj, cb) {
+  try {
+    let dep_id = obj.dep_id; // 部门id
+    let order_type = obj.order_type; // 订单类型
+    let type = obj.type; // 商品类型
+    let channel_id = obj.channel_id; // 渠道id（用户id）
+    let business_id = obj.business_id; // 业务id
+    let office_id = obj.office_id; // 内勤id
+    let order_state = obj.order_state; // 订单状态
+
+    // 个人权限信息
+    let role_type = obj.role_type;
+    let userdep_id = obj.userdep_id;
+    let busoff_id = obj.busoff_id;
+
+
+    let data;
+    let jsBody = {
+      order_type: order_type, type: type, channel_id: channel_id,
+      business_id: business_id, office_id: office_id, order_state: order_state
+    };
+    if (role_type == 1 || role_type == 2) {    // 管理员 与 董事长
+      let arr = [];
+      if (dep_id) {
+        let emps = await me.getEmp({ dep_id: dep_id });
+        for (let i = 0; i < emps.length; i++) {
+          const val = emps[i];
+          let busId = val.emp_id;
+          jsBody.business_id = busId;
+          let ret = await md.getOrder(jsBody);
+          if (ret.length != 0) {
+            arr = arr.concat(ret);
+          }
+        }
+        data = arr;
+      } else {
+        data = await md.getOrder(jsBody);
+      }
+    } else if (role_type == 3) {  // 经理
+      if (dep_id) {
+        if (dep_id == userdep_id) {
+          let ret1 = await me.getEmp({ dep_id: userdep_id });
+          let arr = [];
+          for (let i = 0; i < ret1.length; i++) {
+            const val = ret1[i];
+            jsBody.business_id = val.emp_id;
+            let ret2 = await md.getOrder(jsBody);
+            arr = arr.concat(ret2);
+          }
+          data = arr;
+        } else {
+          data = [];
+        }
+      } else {
+        let ret1 = await me.getEmp({ dep_id: userdep_id });
+        let arr = [];
+        for (let i = 0; i < ret1.length; i++) {
+          const val = ret1[i];
+          jsBody.business_id = val.emp_id;
+          let ret2 = await md.getOrder(jsBody);
+          arr = arr.concat(ret2);
+        }
+        data = arr;
+      }
+    } else if (role_type == 4) {  // 内勤
+      jsBody.office_id = busoff_id;
+      if (dep_id) {
+        let arr = [];
+        let emps = await getProduct_DepEmps({ dep_id: dep_id, off_id: busoff_id }, 'dep_emp_id');
+        for (let i = 0; i < emps.length; i++) {
+          const val = emps[i];
+          jsBody.business_id = val.emp_id;
+          arr = arr.concat(await md.getOrder(jsBody));
+        }
+        data = arr;
+      } else {
+        data = await md.getOrder(jsBody);
+      }
+    } else if (role_type == 5) {  // 业务
+      jsBody.business_id = busoff_id;
+      data = await md.getOrder(jsBody);
+    }
+    cb(null, data);
+  } catch (err) {
+    cb('error');
+  }
+})
+// use
+/**
+ * 传入如下格式值，返回相对应的对应的数组格式的唯一人员
+ * @param {JSON} data {dep_emp_id:x || off_id:x || dep_id:x}
+ * @param {string} key 查出relation中间表时，获取相对应的键值（id）
+ * @returns {Array} {json1,json2...} 
+ */
+let getProduct_DepEmps = promise.promisify(async function (data, key, cb) {
+  try {
+    let arr = [];
+    let ret = await md.getRelation_product_dep(data);
+    let id_arr = [];
+    for (let i = 0; i < ret.length; i++) {
+      const val = ret[i];
+      if (id_arr.indexOf(val[key]) < 0) {
+        id_arr.push(val[key]);
+      }
+    }
+    for (let i = 0; i < id_arr.length; i++) {
+      const val = id_arr[i];
+      let emp = await me.getEmp({ emp_id: val });
+      arr.push(emp[0]);
+    }
+    cb(null, arr);
   } catch (err) {
     cb('error');
   }

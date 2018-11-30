@@ -127,10 +127,13 @@ websocket.getSocketio = function (port) {
                 // 如果存在这个用户的文件夹，不创建否则创建。
                 if (fs.existsSync(userPath)) {
                     if (fs.existsSync(orderPath)) {
+                        console.log('开始传递一张照片');
+                        console.time('t1');
                         fs.writeFile(filePath, buf, { encoding: 'utf8' }, (err) => {
                             if (err) throw err
                             else {
-                                debug('传完一张图片');
+                                console.log('传完一张图片');
+                                console.time('t1');
                                 ws.send(JSON.stringify({ 'imgOver': 1 }))
                             }
                         })
