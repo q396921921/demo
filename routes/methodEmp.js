@@ -468,9 +468,7 @@ const me = {
                 for (let i = 0; i < nums.length; i++) {
                     const num = nums[i];
                     let bigIIUV = 100000;  //默认最小的邀请码
-                    let rt = await get.tbMaxId({ tName: 'emp' }, 'iiuv');
-                    let keys = Object.keys(rt[0]);
-                    let biggerIIUV = rt[0][keys[0]];
+                    let biggerIIUV = await get.tbMaxId({ tName: 'emp' }, 'iiuv');
                     if (biggerIIUV > bigIIUV) {
                         bigIIUV = biggerIIUV;
                     }
@@ -481,11 +479,10 @@ const me = {
                             if (username > 1000000) {
                                 username = username - 100000;
                             }
-                            break;
+                            continue;
                         } else {
                             // 如果没有，创建这个用户
-                            (username, password, tel, type, iiuv, registTime)
-                            let maxId = get.tbMaxId({ tName: 'emp' }, 'emp_id');
+                            let maxId = await get.tbMaxId({ tName: 'emp' }, 'emp_id');
                             userArr.push({ "username": username, "password": password, "iiuv": bigIIUV });
                             await get.insert({
                                 tName: 'emp', emp_id: maxId, username: username, password: password,
@@ -522,6 +519,7 @@ const me = {
                 callback(JSON.stringify({ 'userArr': userArr }));
             }
         } catch (err) {
+            console.log(err);
             callback('error');
         }
     },
@@ -551,12 +549,13 @@ const me = {
      */
     getAllResourcesChecked: async function (body, cb) {
         try {
+            console.log(body);
             let id = body.id;
             let rslt = await me.getResource("");
             let type = body.type;
             let arr = [];
             if (type == 'role') {
-                let rslt2 = await me.getRelation_role_resource({ emp_id: id });
+                let rslt2 = await me.getRelation_role_resource({ 'role_id': id });
                 arr.push(rslt)
                 arr.push(rslt2);
                 cb(JSON.stringify({ data: arr }))
@@ -634,7 +633,7 @@ const me = {
     getOneUserResource: async function (body, cb) {
         try {
             let emp_id = body.emp_id;
-            let rslt = await me.getResource();
+            let rslt = await me.getResource("");
             let ret = await me.getEmp({ "emp_id": emp_id });
             let power_type = ret[0].power_type;
             let type = ret[0].type;
@@ -662,6 +661,7 @@ const me = {
      * @returns {string} success || error
      */
     updateRoleToUser: async function (body, cb) {
+        console.log(body);
         let emp_id_arr = body.emp_id;
         let resource_id_arr = body.resource_id
         async.each(emp_id_arr, function (emp_id, cb2) {
@@ -679,7 +679,7 @@ const me = {
                 updatePower_type: function (cb3) {
                     (async function () {
                         try {
-                            await get.update({ tName: 'emp', emp_id: emp_id }, { power_type: power_type });
+                            await get.update({ tName: 'emp', emp_id: emp_id }, { power_type: 2 });
                             cb3(null, "2");
                         } catch (err) {
                             cb('error');

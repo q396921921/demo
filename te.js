@@ -190,35 +190,3 @@ writable.on('error', function (err) {
 //     console.log('error occured: %s', err.message);
 // });
 
-
-
-
-
-
-let promise = require('bluebird');
-let a = promise.promisify(function (data, cb) {
-    if (data == 1) {
-        cb('1')
-    } else {
-        cb('error');
-    }
-})
-a(1).then((ret) => {
-    console.log(ret,0);     // 1
-})
-a(2).then((ret,err) => {
-    // if(err) {
-    //     console.log('我错了');
-    // }else {
-    //     console.log(ret,2);     // 
-    // }
-})
-
-a(1, (ret) => {
-    console.log(ret,1);     // null 
-})
-a(2, (ret) => {
-    console.log(ret,3);     // error
-})
-
-

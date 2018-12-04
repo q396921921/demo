@@ -55,8 +55,8 @@ function getFlows() {
             result = JSON.parse(result).data
             let trtd = '';
             for (let i = 0; i < result.length; i++) {
-                trtd += '<tr><td><input type="text" name="flow_id" value="' + result[i].data.flow_id + '"></td>'
-                    + '<td><input type="text" value="' + result[i].data.flow_name + '"></td>'
+                trtd += '<tr><td><input type="text" name="flow_id" value="' + result[i].flow_id + '"></td>'
+                    + '<td><input type="text" value="' + result[i].flow_name + '"></td>'
                     + '<td><input type="button" class="canButton" value="删除" style="width:50px" onclick="deleteFlow(this)"></td></tr>';
             }
             $(trtd).appendTo($("#allFlows"));
@@ -100,7 +100,6 @@ function submitForm(t) {
         async: false,
         dataType: "text",
         success: function (result) {
-            console.log(result);
             if (result == 'success') {
                 alert('创建成功')
             } else {

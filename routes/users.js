@@ -166,6 +166,7 @@ router.get('/getType', function (req, res, next) {
     }
   })()
 })
+// use
 router.post('/getStates', function (req, res, next) {
   (async function () {
     try {
@@ -193,32 +194,35 @@ router.post('/deleteOrder', function (req, res, next) {
     res.send(ret)
   });
 })
+// use
 router.post('/getState', function (req, res, next) {
   (async function () {
     try {
-      let data = await mdOrder.getState(req.body);
-      res.send(data.toString());
+      let data = await mdOrder.getOrder(req.body);
+      if (data[0].flowState) {
+        res.send(data[0].flowState);
+      } else {
+        res.send("");
+      }
     } catch (err) {
       res.send('error');
     }
   })()
 })
+// use
 router.post('/getStatess', function (req, res, next) {
-  (async function () {
-    try {
-      let data = await mdOrder.getStatess(req.body);
-      res.send(JSON.stringify({ data: data }));
-    } catch (err) {
-      res.send('error');
-    }
-  })()
+  mdOrder.getStatess(req.body, (ret) => {
+    res.send(ret);
+  });
 })
+// use
 router.post('/setFailReason', function (req, res, next) {
   let body = req.body;
   mdOrder.setFailReason(body, (ret) => {
     res.send(ret)
   })
 })
+// use
 router.post('/updateProfit', function (req, res, next) {
   let body = req.body;
   mdOrder.updateProfit(body, (ret) => {
@@ -235,30 +239,39 @@ router.get('/getTotal_profit', function (req, res, next) {
     }
   })()
 })
+// use
 router.post('/setState', function (req, res, next) {
   let body = req.body;
   mdOrder.setState(body, (ret) => {
     res.send(ret)
   });
 })
+// use
 router.post('/setFlow', function (req, res, next) {
   let body = req.body;
   mdOrder.setFlowTime(body, (ret) => {
     res.send(ret)
   });
 })
+// use
 router.post('/updateOrder', function (req, res, next) {
   let body = req.body;
   mdOrder.updateOneOrder(body, (ret) => {
     res.send(ret)
   })
 })
+// use
 router.post('/setOrder_state2', function (req, res, next) {
   let body = req.body;
-  mdOrder.setOrder_state(body, (ret) => {
-    res.send(ret)
+  mdOrder.setOrder_state(body, (ret, ret2) => {
+    if (ret) {
+      res.send(ret);
+    } else {
+      res.send(ret2)
+    }
   })
 })
+// use
 router.post('/setRefund_state', function (req, res, next) {
   let body = req.body;
   mdOrder.setRefund_state(body, (ret) => {
@@ -315,7 +328,6 @@ router.get('/user/ceshi*', function (req, res, next) {
   ul = qs.parse(ul.query)
   let menu = ul.menu;
   req.session.menu = menu;
-
   res.render(ulstr, { "username": req.session.username, "menu": menu })
 })
 // use
@@ -335,6 +347,7 @@ router.post('/getRole', function (req, res, next) {
     res.send(ret);
   })
 })
+// use
 router.post('/createUsers', function (req, res, next) {
   let body = req.body;
   mdEmp.createUser(body, (ret) => {
@@ -376,18 +389,21 @@ router.post('/updateRoleResource', function (req, res, next) {
     res.send(ret)
   })
 })
+// use
 router.post('/updateRoleToUser', function (req, res, next) {
   let body = req.body;
   mdEmp.updateRoleToUser(body, (ret) => {
     res.send(ret)
   })
 })
+// use
 router.post('/recoverPower', function (req, res, next) {
   let body = req.body;
   mdEmp.recoverPower(body, (ret) => {
     res.send(ret);
   })
 })
+// use
 router.post('/updateUserResource', function (req, res, next) {
   let body = req.body;
   mdEmp.updateUserResource(body, (ret) => {
@@ -548,6 +564,7 @@ router.get('/product/ceshi*', function (req, res, next) {
 
   res.render(ulstr, { "username": req.session.username, "menu": menu })
 });
+// use
 router.post('/getProduct', function (req, res, next) {
   (async function () {
     try {
@@ -558,12 +575,14 @@ router.post('/getProduct', function (req, res, next) {
     }
   })()
 })
+// use
 router.post('/getLimitProduct', function (req, res, next) {
   let body = req.body;
   mdOrder.getLimitProduct(body, (ret) => {
     res.send(ret);
   })
 })
+// use
 router.post('/getSortFlowState', function (req, res, next) {
   let body = req.body;
   mdOrder.getSortFlowState(body, (ret, ret2) => {
@@ -574,6 +593,7 @@ router.post('/getSortFlowState', function (req, res, next) {
     }
   })
 })
+// use
 router.post('/getDetailFile_types', function (req, res, next) {
   let body = req.body;
   mdOrder.getDetailFile_types(body, (ret, ret2) => {
@@ -633,6 +653,7 @@ router.post('/insertProductType', function (req, res, next) {
     res.send(ret);
   })
 })
+// use
 router.post('/createFlow', function (req, res, next) {
   let body = req.body;
   mdOrder.createFlow(body, (ret) => {
@@ -651,13 +672,14 @@ router.post('/deleteProduct', function (req, res, next) {
     res.send(ret);
   })
 })
-
+// use
 router.post('/createFileType', function (req, res, next) {
   let body = req.body;
   mdOrder.insertFileType(body, (ret) => {
     res.send(ret);
   })
 })
+// use
 router.post('/createDetailFileType', function (req, res, next) {
   let body = req.body;
   mdOrder.insertDetailFileType(body, (ret) => {
@@ -665,18 +687,21 @@ router.post('/createDetailFileType', function (req, res, next) {
   })
 
 })
+// use
 router.post('/deleteFileType', function (req, res, next) {
   let body = req.body;
   mdOrder.deleteFileType(body, (ret) => {
     res.send(ret);
   })
 })
+// use
 router.post('/deleteDetailFileType', function (req, res, next) {
   let body = req.body;
   mdOrder.deleteDetailFileType(body, (ret) => {
     res.send(ret);
   })
 })
+// use
 router.post('/updateFileType', function (req, res, next) {
   let body = req.body;
   mdOrder.updateFileType(body, (ret) => {

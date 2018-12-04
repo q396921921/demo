@@ -28,10 +28,10 @@ router.post('/createOrder', function (req, res, next) {
         }
     })()
 });
+// use
 // 如果此订单指定内容为空，删除此订单
 router.post('/deleteOrder', function (req, res, next) {
     let body = req.body
-    mdOrder.deleteOrderById
     mdOrder.deleteOrderById(body, (ret) => {
         res.send(ret)
     })

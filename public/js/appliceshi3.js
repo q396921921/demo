@@ -163,7 +163,8 @@ function deleteOrders(t) {
             url: "/users/deleteOrder",
             type: "post",
             data: {
-                order_id: order_id
+                order_id: order_id,
+                order_type: 2
             },
             async: false,
             dataType: "text",
@@ -629,7 +630,7 @@ function submit(t) {
             url: "/users/updateOrder",
             type: "post",
             data: {
-                order_type:2,
+                order_type: 2,
                 name: [name, val],
                 order_id: order_id
             },

@@ -3,6 +3,7 @@ const promise = require('bluebird');
 const get = {};
 const client = require('./async_redis');
 
+var chatroom = [];
 var total_profit = [];
 var data_business = [];
 var data_home_page = [];
@@ -213,6 +214,16 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
 get.update = promise.promisify(async function (condis, update, cb) {
     try {
         let condi = condis.condi;
+        if (condis.tName == 'order') {
+            let order_type = condis.order_type;
+            if (order_type == 1) {
+                condis.tName = 'order1';
+            } else if (order_type == 2) {
+                condis.tName = 'order2';
+            } else {
+                condis.tName = 'order3';
+            }
+        }
         if (!condi) {
             condis.condi = 'and';
             condi = 'and';
@@ -278,7 +289,6 @@ get.delete = promise.promisify(async function (condis, cb) {
             data = JSON.stringify(data);
             // 删除数据
             await client.lrem(tName, 0, data);
-            i--;
         }
         cb(null, 'success')
     } catch (err) {
@@ -500,6 +510,8 @@ function getVar(tName) {
             return role;
         case 'state_detail':
             return state_detail;
+        case 'chatroom':
+            return chatroom;
         default:
             break;
     }
@@ -590,6 +602,9 @@ function setVar(data, tName) {
             role = data;
         case 'state_detail':
             state_detail = data;
+            break;
+        case 'chatroom':
+            chatroom = data;
             break;
         default:
             break;

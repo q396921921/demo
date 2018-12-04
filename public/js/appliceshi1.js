@@ -838,7 +838,8 @@ function deleteOrders(t) {
             url: "/users/deleteOrder",
             type: "post",
             data: {
-                order_id: order_id
+                order_id: order_id,
+                order_type: 1
             },
             async: false,
             dataType: "text",
@@ -968,9 +969,9 @@ function getOneOrders(t) {
         let line1 = '<td height="20px;" width="80px;"><y class="line"></y></td>'
         let line2 = '<td height="20px;" width="80px;"><y class="line" style="background:blue"></y></td>'
         let line3 = '<td height="20px;" width="80px;"><y class="line" style="display:none"></y></td>';
-        let circle1 = '<td height="100px;" width="100px;"><input type="hidden" name="' + flow_detail_id + '" value="' + val + '"><x class="circle" onclick="select(this)" ></x><input type="hidden" value="1"></td>'
-        let circle2 = '<td height="100px;" width="100px;"><input type="hidden" name="' + flow_detail_id + ' value="' + val + '"><x class="circle" onclick="select(this)" style="background:blue;"></x><input type="hidden" value="1"></td>'
-        let circle3 = '<td height="100px;" width="100px;"><input type="hidden" name="' + flow_detail_id + ' value="' + val + '"><x class="circle" onclick="select(this)" style="background:red;"></x><input type="hidden" value="1"></td>'
+        let circle1 = '<td height="100px" width="100px"><input type="hidden" name="' + flow_detail_id + '" value="' + val + '"><x class="circle" onclick="select(this)" ></x><input type="hidden" value="1"></td>'
+        let circle2 = '<td height="100px" width="100px"><input type="hidden" name="' + flow_detail_id + '" value="' + val + '"><x class="circle" onclick="select(this)" style="background:blue;"></x><input type="hidden" value="1"></td>'
+        let circle3 = '<td height="100px" width="100px"><input type="hidden" name="' + flow_detail_id + '" value="' + val + '"><x class="circle" onclick="select(this)" style="background:red;"></x><input type="hidden" value="1"></td>'
         // 流程名
         let tdtext1 = '<td colspan="2" style="text-align: left;">' + val + '</td>';
         // 日期

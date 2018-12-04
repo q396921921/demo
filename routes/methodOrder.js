@@ -411,14 +411,26 @@ var md = {
       cb('error');
     }
   }),
-  // not update
+  // use
   /**
    * 后台通过订单id直接删除订单功能
    */
   deleteOrder: promise.promisify(async function (body, cb) {
     try {
+      let tName;
       let order_id = body.order_id;
-      await otherOrder.deleteOrderById([order_id]);
+      let order_type = body.order_type;
+      if (order_type == 1) {
+        tName = 'order1';
+      } else if (order_type == 2) {
+        tName = 'order2';
+      } else {
+        tName = 'order3';
+      }
+      // 管道
+      await get.delete({ tName: 'chatroom', chat_id: order });  // 删除与订单关联的聊天房间
+      await get.delete({ relation_order_state: 'relation_order_state', order_id: order_id }); // 删除与订单相关联的流程状态
+      await get.delete({ tName: tName, order_id: order_id }); // 删除此订单
       cb('success');
     } catch (err) {
       cb('error');
@@ -474,7 +486,7 @@ var md = {
           }
         }
       }
-      cb(null, count.toString());
+      cb(count.toString());
     } catch (err) {
       cb('error');
     }
@@ -516,14 +528,10 @@ var md = {
       let detail_file_type_id = body.detail_file_type_id;
       let files = await md.getRelation_file_type_detail({ detail_file_type_id: detail_file_type_id });
       if (files.length != 0) {
-        cb(null, "fileFail");
+        cb("fileFail");
       } else {
-        let condis = {
-          tName: 'detail_file_type',
-          detail_file_type_id: detail_file_type_id
-        };
-        await get.delete(condis);
-        cb(null, 'success');
+        await get.delete({ tName: 'detail_file_type', detail_file_type_id: detail_file_type_id });
+        cb('success');
       }
     } catch (err) {
       cb('error');
@@ -536,16 +544,15 @@ var md = {
    */
   deleteFileType: promise.promisify(async function (body, cb) {
     try {
+      let file_type_id = body.file_type_id;
       let product = await md.getProduct({ file_type_id: body.file_type_id });
       if (product.length != 0) {
-        cb(null, "productFail");
+        cb("productFail");
       } else {
-        let condis = {
-          tName: 'file_types_num',
-          file_type_id: body.file_type_id
-        };
-        await get.delete(condis);
-        cb(null, 'success')
+        // 管道
+        await get.delete({ tName: 'relation_file_type_detail', file_type_id: file_type_id }); // 删除与之关联的中间表
+        await get.delete({ tName: 'file_types_num', file_type_id: file_type_id }); // 删除材料
+        cb('success')
       }
     } catch (err) {
       cb('error');
@@ -945,7 +952,7 @@ var md = {
         let sDetal = await md.getState_detail({ state_detail_id: state_detail_id });
         arr2.push(sDetal[0]);
       }
-      cb(null, [arr1, arr2, flow_name]);
+      cb(JSON.stringify({ 'data': [arr1, arr2, flow_name] }));
     } catch (err) {
       cb('error');
     }
@@ -1046,8 +1053,8 @@ var md = {
               condis.flow_name = flow_arr[i].flow_name;
               let order = await get.insert(condis);
               detail_flow_id_arr.push(flow_detail_id);
-              cb2(null, 2);
             }
+            cb2(null, 2);
           } catch (err) {
             cb('error');
           }
@@ -1095,24 +1102,20 @@ var md = {
               flow_id: flow_id,
               flow_detail_id: detail_flow_id
             }
-            let rFlows = await get.insert(condis);
+            await get.insert(condis);
             let obj2 = {
               tName: 'relation_state_flow',
               flow_detail_id: detail_flow_id,
             }
-            for (let i = 0; i < arr.length; i++) {
-              const val = arr[i];
-              for (let j = 0; j < val.length; j++) {
-                const detail_state_id = val[j];
-                obj2.state_detail_id = detail_state_id;
-                await get.insert(obj2);
-                count++;
-              }
+            for (let i = 0; i < arr[count].length; i++) {
+              const detail_state_id = arr[count][i];
+              obj2.state_detail_id = detail_state_id;
+              await get.insert(obj2);
             }
+            count++;
           }
           cb('success');
         } catch (err) {
-          console.log(err);
           cb('error')
         }
       })()
@@ -1127,14 +1130,13 @@ var md = {
    * @returns {string} productFail(商品与该流程关联)/orderFail(订单状态与该流程关联)/success(删除成功)/error
    */
   deleteFlow: promise.promisify(async function (body, cb) {
-    let obj = {};
     let flow_id = body.flow_id;
     let flow_arr;
     let state_arr;
 
     let products = await md.getProduct({ flow_id: flow_id });
     if (products.length != 0) {
-      cb(null, "productFail");
+      cb("productFail");
     } else {
       let sFlows = await getsortFlow(flow_id);
       flow_arr = sFlows;
@@ -1150,7 +1152,7 @@ var md = {
                   let state_detail_id = rt2.state_detail_id;
                   let oState = await md.getRelation_order_state({ state_detail_id: state_detail_id });
                   if (oState.length != 0) {
-                    cb(null, "orderFail");
+                    cb("orderFail");
                   } else {
                     cb3();
                   }
@@ -1168,6 +1170,7 @@ var md = {
       }, function (err) {
         (async function () {
           try {
+            // 管道
             // 删除中间表流程与具体流程的关联
             await get.delete({ tName: 'relation_flow_detail', flow_id: flow_id });
             // 删除流程表的流程
@@ -1182,9 +1185,9 @@ var md = {
             for (let i = 0; i < state_arr.length; i++) {
               const val = state_arr[i];
               // 删除具体状态详细表
-              await get.delete({ tName: 'flow_detail', state_detail_id: val.state_detail_id })
+              await get.delete({ tName: 'state_detail', state_detail_id: val.state_detail_id })
             }
-            cb(null, 'success');
+            cb('success');
           } catch (err) {
             cb('error');
           }
@@ -1205,7 +1208,7 @@ var md = {
       let order2 = await md.getOrder({ order_type: 2, product_id: product_id });
       let order3 = await md.getOrder({ order_type: 3, product_id: product_id });
       if (order1 != 0 || order2 != 0 || order3 != 0) {
-        cb(null, "orderFail");
+        cb("orderFail");
       } else {
         let products = await md.getProduct({ product_id: product_id });
         let agoImgPath = products[0].imgPath;
@@ -1213,7 +1216,7 @@ var md = {
         agoImgPath = products[0].imgPathSmall;
         util.deleteFile(agoImgPath, uploadFile);
         await get.delete({ tName: 'product', product_id: product_id });
-        cb(null, "success");
+        cb("success");
       }
     } catch (err) {
       cb('error');
@@ -1239,10 +1242,7 @@ var md = {
         tName = 'order3';
       }
       let condis = { tName: tName, order_id: order_id }
-      let update = {
-        order_state: order_state
-      }
-      await get.update(condis, update);
+      await get.update(condis, { order_state: order_state });
       cb(null, "success");
     } catch (err) {
       cb("error");
@@ -1259,7 +1259,7 @@ var md = {
       let refund = body.refund;
       let order_id = body.order_id;
       await get.update({ tName: 'order1', order_id: order_id }, { refund: refund });
-      cb(null, "success");
+      cb("success");
     } catch (err) {
       cb("error");
     }
@@ -1279,12 +1279,13 @@ var md = {
       }
       await get.update({ tName: 'order1', order_id: order_id }, { failReason: failReason });
       if (failReason && failReason != "") {
-        await md.setOrder_state({ order_state: 4, order_id: order_id });
+        await md.setOrder_state({ order_state: 4, order_id: order_id, order_type: 1 });
       } else {
-        await md.setOrder_state({ order_state: 2, order_id: order_id });
+        await md.setOrder_state({ order_state: 2, order_id: order_id, order_type: 1 });
       }
-      cb(null, 'success');
+      cb('success');
     } catch (err) {
+      console.log(err);
       cb('error');
     }
   }),
@@ -1298,7 +1299,7 @@ var md = {
     try {
       let profit = body.profit;
       await get.update({ tName: 'total_profit' }, { profit: profit });
-      cb(null, 'success');
+      cb('success');
     } catch (err) {
       cb("error");
     }
@@ -1314,11 +1315,11 @@ var md = {
       let state_detail_id = body.state_detail_id;
       let order_id = body.order_id;
       let time = body.time;
-      await get.update({ tName: 'relation_order_state', order_id: order_id, state_detail_id: state_detail_id }, { time: time });
+      await get.update({ tName: 'relation_order_state', order_id: order_id, state_detail_id: state_detail_id }, { state_time: time });
       let oState = await md.getRelation_order_state({ state_detail_id: state_detail_id, order_id: order_id });
       let relation_state_id = oState[0].relation_state_id;
-      await get.update({ tName: 'order1', relation_state_id: relation_state_id }, { order_id: order_id });
-      cb(null, "success");
+      await get.update({ tName: 'order1', order_id: order_id }, { relation_state_id: relation_state_id });
+      cb("success");
     } catch (err) {
       cb("error");
     }
@@ -1335,14 +1336,14 @@ var md = {
       let flow_detail_id = body.flow_detail_id;
       let order_id = body.order_id;
       let flow_time = body.flow_time;
-      await get.update({ tName: 'order1', order_id: order_id }, { flow_detail_id: flow_detail_id });
+      await get.update({ tName: 'order1', order_id: order_id }, { flowState: flow_detail_id });
       let sFlows = await md.getRelation_state_flow({ flow_detail_id: flow_detail_id });
       for (let i = 0; i < sFlows.length; i++) {
         const rt = sFlows[i];
         let state_detail_id = rt.state_detail_id;
         await get.update({ tName: 'relation_order_state', order_id: order_id, state_detail_id: state_detail_id }, { flow_time: flow_time });
       }
-      cb(null, "success");
+      cb("success");
     } catch (err) {
       cb("error");
     }
@@ -1355,12 +1356,14 @@ var md = {
    */
   updateOneOrder: promise.promisify(async function (body, cb) {
     try {
+      let obj = {};
       let order_type = body.order_type;
       let name = body.name[0];
       let val = body.name[1];
+      obj[name] = val;
       let order_id = body.order_id;
-      await get.update({ tName: tName, order_id: order_id }, { name: val });
-      cb(null, "success");
+      await get.update({ tName: 'order', order_type: order_type, order_id: order_id }, obj);
+      cb("success");
     } catch (err) {
       cb("error");
     }
