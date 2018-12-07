@@ -3,51 +3,51 @@ const promise = require('bluebird');
 const get = {};
 const client = require('./async_redis');
 
-var chatroom = [];
-var total_profit = [];
-var data_business = [];
-var data_home_page = [];
-var data_partner = [];
-var data_zizhi = [];
-var dep = [];
-var detail_file_type = [];
-var emp = [];
-var file_types_num = [];
-var flow = [];
-var flow_detail = [];
-var order1 = [];
-var order2 = [];
-var order3 = [];
-var product = [];
-var product_type = [];
-var relation_emp_resource = [];
-var relation_emp_role = [];
-var relation_file_type_detail = [];
-var relation_flow_detail = [];
-var relation_order_state = [];
-var relation_product_dep = [];
-var relation_role_resource = [];
-var relation_state_flow = [];
-var resource = [];
-var role = [];
-var state_detail = [];
+// var chatroom = [];
+// var total_profit = [];
+// var data_business = [];
+// var data_home_page = [];
+// var data_partner = [];
+// var data_zizhi = [];
+// var dep = [];
+// var detail_file_type = [];
+// var emp = [];
+// var file_types_num = [];
+// var flow = [];
+// var flow_detail = [];
+// var order1 = [];
+// var order2 = [];
+// var order3 = [];
+// var product = [];
+// var product_type = [];
+// var relation_emp_resource = [];
+// var relation_emp_role = [];
+// var relation_file_type_detail = [];
+// var relation_flow_detail = [];
+// var relation_order_state = [];
+// var relation_product_dep = [];
+// var relation_role_resource = [];
+// var relation_state_flow = [];
+// var resource = [];
+// var role = [];
+// var state_detail = [];
 
 let getAllDate = promise.promisify(async function getDate(obj, cb) {
     try {
         let tName = obj.tName;
-        let arr = getVar(tName);
-        if (arr.length != 0) {
-            cb(null, arr);
-        } else {
-            let ret = await client.lrange(tName, 0, -1);
-            arr = [];
-            for (let i = 0; i < ret.length; i++) {
-                const data = JSON.parse(ret[i]);
-                arr.push(data);
-            }
-            setVar(arr, tName);
-            cb(null, arr);
+        // let arr = getVar(tName);
+        // if (arr.length != 0) {
+        //     cb(null, arr);
+        // } else {
+        let ret = await client.lrange(tName, 0, -1);
+        arr = [];
+        for (let i = 0; i < ret.length; i++) {
+            const data = JSON.parse(ret[i]);
+            arr.push(data);
         }
+        setVar(arr, tName);
+        cb(null, arr);
+        // }
     } catch (err) {
         cb(err)
     }
@@ -92,7 +92,10 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
         let arr2 = [];  // 用于存储or规则下，复合条件的数据
         let and = rule.and;
         let or = rule.or;
-        let id = or.id;
+        let id = "";
+        if (or) {
+            id = or.id;
+        }
         let not = rule.not;
         let bigEqual = rule.bigEqual;
         let smallEqual = rule.smallEqual;
@@ -106,7 +109,7 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
                 for (let j = 0; j < keys.length; j++) {
                     const k = keys[j];
                     if (k != 'id') {
-                        if (val.data[k] == or[k]) {
+                        if (val[k] == or[k]) {
                             flag = true;
                             break;
                         }
@@ -125,7 +128,7 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
                 let flag = true;
                 for (let j = 0; j < keys.length; j++) {
                     const k = keys[j];
-                    if (val.data[k] == and[k]) {
+                    if (val[k] == and[k]) {
                         flag = false;
                         break;
                     }
@@ -144,7 +147,7 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
                 let flag = true;
                 for (let j = 0; j < keys.length; j++) {
                     const k = keys[j];
-                    if (val.data[k] != not[k]) {
+                    if (val[k] != not[k]) {
                         flag = false;
                         break;
                     }
@@ -163,7 +166,7 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
                 let flag = true;
                 for (let j = 0; j < keys.length; j++) {
                     const k = keys[j];
-                    if (val.data[k] >= bigEqual[k]) {
+                    if (val[k] >= bigEqual[k]) {
                         flag = false;
                         break;
                     }
@@ -182,7 +185,7 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
                 let flag = true;
                 for (let j = 0; j < keys.length; j++) {
                     const k = keys[j];
-                    if (val.data[k] <= smallEqual[k]) {
+                    if (val[k] <= smallEqual[k]) {
                         flag = false;
                         break;
                     }
@@ -250,8 +253,8 @@ get.update = promise.promisify(async function (condis, update, cb) {
                 data[k] = val;
             }
             // 将服务器保存的数据也修改了
-            let arr = getVar(tName);
-            arr[row] = data;
+            // let arr = getVar(tName);
+            // arr[row] = data;
             data = JSON.stringify(data);
             // 将更改好的源数据，通过索引修改回去
             await client.lset(tName, row, data);
@@ -283,8 +286,8 @@ get.delete = promise.promisify(async function (condis, cb) {
             let data = obj.data;
             let row = obj.row;
             // 将服务器保存的数据也修改了
-            let arr = getVar(tName);
-            arr.splice(row, 1);
+            // let arr = getVar(tName);
+            // arr.splice(row, 1);
             // 传回redis一定是字符串
             data = JSON.stringify(data);
             // 删除数据
@@ -308,8 +311,8 @@ get.insert = promise.promisify(async function (condis, cb) {
                 obj[key] = condis[key]
             }
         }
-        let arr = getVar(tName);
-        arr.push(obj);
+        // let arr = getVar(tName);
+        // arr.push(obj);
         obj = JSON.stringify(obj);
         await client.rpush(tName, obj);
         cb(null, 'success');
@@ -449,7 +452,7 @@ function getOrDate(condi, data) {
     return arr;
 }
 /**
- * 
+ * not use
  * 获得与此表名相同的变量的值，返回其中储存的数据
  * @param {string} tName 表名
  * @returns {Array} [json1,json2,...]
@@ -517,6 +520,7 @@ function getVar(tName) {
     }
 }
 /**
+ * not use
  * 通过传入表名，将传入的数据赋值给正确的变量
  * @param {Array} data [json1,json2...];
  * @param {string} tName 表名

@@ -340,6 +340,7 @@ function submitForm(t) {
         async: false,
         dataType: "text",
         success: function (result) {
+            console.log(result);
             if (result == 'success') {
                 alert('修改成功')
             } else {

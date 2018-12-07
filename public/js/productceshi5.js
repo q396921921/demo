@@ -121,7 +121,7 @@ function detailPt(t) {
             result = JSON.parse(result).data;
             let trtd = "";
             for (let i = 0; i < result.length; i++) {
-                let ret = result[i].data;
+                let ret = result[i];
                 let dep_id = ret.dep_id;
                 let off_id = ret.off_id;
                 let dep_emp_id = ret.dep_emp_id;
@@ -186,7 +186,7 @@ function getAllDeps(dep_id) {
         async: false,
         dataType: "text",
         success: function (result) {
-            let data = JSON.parse(result).result;
+            let data = JSON.parse(result).data;
             text = data;
             $("#allDep").val(JSON.stringify(data));
         }
@@ -389,19 +389,23 @@ function getTypes() {
 }
 // 筛选全部商品         ✔
 function getScreenProduct() {
+    let limit = 1;
     let product_type_id = $("#types").val();
     $.ajax({
-        url: "/users/getProduct",
+        url: "/users/getLimitProduct",
         type: "post",
         data: {
             product_type_id: product_type_id,
+            limit: limit
         },
         async: false,
         dataType: "text",
         success: function (result) {
             let data = JSON.parse(result).data
-            $("#totalPage").val(Math.ceil(data.length / 15));
-            $("#totalNum").val(data.length)
+            let totalPage = data[1];
+            let totalNum = data[2];
+            $("#totalPage").val(totalPage);
+            $("#totalNum").val(totalNum)
             getSplitPage()
         }
     })
@@ -410,7 +414,7 @@ function getSplitPage() {
     let limit = $("#pageNo").val();
     let product_type_id = $("#types").val();
     $.ajax({
-        url: "/users/getProduct",
+        url: "/users/getLimitProduct",
         type: "post",
         data: {
             product_type_id: product_type_id,
@@ -423,7 +427,7 @@ function getSplitPage() {
             $("#pages").val(limit);
             $("#lstd span:first").html(limit);
             $("#lstd span:last").html($("#totalPage").val());
-            printProducts(data)
+            printProducts(data[0])
         }
     })
 }

@@ -16,26 +16,25 @@ var mdOrder = require('./methodOrder');
 var mdEmp = require('./methodEmp');
 var mdData = require('./methodData');
 
+// use
 // 创建一个订单
 router.post('/createOrder', function (req, res, next) {
-    (async function () {
-        try {
-            let body = req.body
-            let data = await mdOrder.createOrder(body);
-            res.send(JSON.stringify({ data: data }));
-        } catch (err) {
-            res.send('error');
+    let body = req.body
+    mdOrder.createOrder(body, (ret, ret2) => {
+        if (ret) {
+            res.send(ret);
+        } else {
+            res.send(ret2);
         }
-    })()
+    });
 });
 // use
 // 如果此订单指定内容为空，删除此订单
 router.post('/deleteOrder', function (req, res, next) {
     let body = req.body
-    mdOrder.deleteOrderById(body, (ret) => {
-        res.send(ret)
-    })
+    mdOrder.deleteOrderById(body)
 });
+// use
 // 为刚才创建的订单赋值
 router.post('/updateOrder', function (req, res, next) {
     let body = req.body
@@ -43,6 +42,7 @@ router.post('/updateOrder', function (req, res, next) {
         res.send(ret)
     })
 });
+// use
 // 创建此订单的所有状态
 router.post('/createOrderFlow', function (req, res, next) {
     let body = req.body;
@@ -50,12 +50,17 @@ router.post('/createOrderFlow', function (req, res, next) {
         res.send(ret)
     })
 });
+// use
 router.post('/getEmpByUsername', function (req, res, next) {
     let body = req.body;
     body = JSON.parse(Object.keys(body));
     if (body.username && body.username != '') {
-        mdEmp.getEmp(body, (ret) => {
-            res.send(ret);
+        mdEmp.getEmp(body, (ret, ret2) => {
+            if (ret) {
+                res.send(ret);
+            } else {
+                res.send(JSON.stringify({ data: ret2 }));
+            }
         })
     }
 })
@@ -65,15 +70,20 @@ router.post('/getEmpByUsername', function (req, res, next) {
 
 
 
-
+// use
 // getProductByOther与此路由合并为一个
-router.post('/getProduct', function (req, res, next) {
+router.post('/getProductById', function (req, res, next) {
     let body = req.body;
     body = JSON.parse(Object.keys(body));
-    mdOrder.getProduct(body, (ret) => {
-        res.send(ret)
+    mdOrder.getProduct(body, (ret, ret2) => {
+        if (ret) {
+            res.send(ret);
+        } else {
+            res.send(ret2);
+        }
     })
 })
+// use
 // 前端给客户所有订单信息
 router.post('/getOrders', function (req, res, next) {
     let body = req.body;
@@ -99,12 +109,17 @@ router.post('/getProductTypes', function (req, res, next) {
         res.send(ret)
     })
 })
+// use
 // 获得产品类型，通过商品id
-router.post('/getProductTypeByProduct_id', function (req, res, next) {
+router.post('/getProductByOther', function (req, res, next) {
     let body = req.body;
     body = JSON.parse(Object.keys(body));
-    mdOrder.getProduct(body, (ret) => {
-        res.send(ret)
+    mdOrder.getProduct(body, (ret, ret2) => {
+        if (ret) {
+            res.send(ret);
+        } else {
+            res.send(JSON.stringify({ data: ret2 }));
+        }
     })
 });
 // 前端通过订单id获得其所对应的所有流程时间
@@ -132,16 +147,20 @@ router.post('/setRefund_state', function (req, res, next) {
     //     })
     // })
 })
-
+// use
 // 获得公司资质介绍
 router.get('/getzizhiInfo', function (req, res, next) {
     let body = req.body;
-    mdData.getData_zizhi(body, (ret) => {
-        res.send(JSON.stringify({ 'data': ret }));
+    mdData.getData_zizhi(body, (ret, ret2) => {
+        if (ret) {
+            res.send(ret);
+        } else {
+            res.send(JSON.stringify({ 'data': ret2 }));
+        }
     })
 })
 
-
+// use
 // 订单的基本信息的
 function getTime(ret, cb) {
     let data = JSON.parse(ret).result;
@@ -151,13 +170,13 @@ function getTime(ret, cb) {
             let loanTime = data[i].loanTime;
             let seeTime = data[i].seeTime;
             if (appliTime) {
-                data[i].appliTime = timestampToTime(appliTime);
+                data[i].appliTime = new Date(appliTime).toLocaleTimeString();
             }
             if (loanTime) {
-                data[i].loanTime = timestampToTime(loanTime);
+                data[i].loanTime = new Date(loanTime).toLocaleTimeString();
             }
             if (seeTime) {
-                data[i].seeTime = timestampToTime(seeTime);
+                data[i].seeTime = new Date(seeTime).toLocaleTimeString();
             }
             if (i == data.length - 1) {
                 cb(JSON.stringify({ 'result': data }));
@@ -166,34 +185,6 @@ function getTime(ret, cb) {
     } else {
         cb(ret);
     }
-}
-function timestampToTime(timestamp) {
-    let text;
-    if (timestamp) {
-        var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
-        Y = date.getFullYear() + '-';
-        M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
-        D = date.getDate();
-        if (D < 10) {
-            D = '0' + D + ' '
-        } else {
-            D = D + ' '
-        }
-        h = date.getHours();
-        if (h < 10) {
-            h = '0' + h + ':'
-        } else {
-            h = h + ':'
-        }
-        m = date.getMinutes();
-        if (m < 10) {
-            m = '0' + m;
-        }
-        text = Y + M + D + h + m;
-    } else {
-        text = '';
-    }
-    return text;
 }
 function getPostData(req, res, callback) {
     var body = "";

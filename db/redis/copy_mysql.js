@@ -13,9 +13,7 @@ const client = db.client
  */
 copy.product = async function (cb) {
     try {
-        let obj = {};
-        obj.arr = [];
-        let ret = await queryOrder.getProduct(obj);
+        let ret = await queryOrder.getProduct("");
         async.each(ret, function (rt, cb2) {
             rt = JSON.stringify(rt);
             client.lpush('product', rt, (err, ret) => {

@@ -204,7 +204,7 @@ const me = {
         async.each(emp_id_arr, function (emp_id, cb2) {
             (async function () {
                 try {
-                    awaitget.delete({ tName: 'emp', emp_id: emp_id });
+                    await get.update({ tName: 'emp', emp_id: emp_id }, { dep_id: 'null' });
                     cb2();
                 } catch (err) {
                     cb('error');
@@ -549,7 +549,6 @@ const me = {
      */
     getAllResourcesChecked: async function (body, cb) {
         try {
-            console.log(body);
             let id = body.id;
             let rslt = await me.getResource("");
             let type = body.type;

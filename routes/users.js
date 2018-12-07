@@ -47,7 +47,6 @@ router.post('/log', function (req, res, next) {
       res.render('login', { "mes": '用户账户无法登录后台管理系统' });
     } else {
       let sessionStore = req.sessionStore.sessions;
-      console.log(sessionStore);
 
       let keys = Object.keys(sessionStore);
 
@@ -296,6 +295,7 @@ router.post('/screen', function (req, res, next) {
     res.send(ret)
   });
 })
+// use
 router.post('/getDep', function (req, res, next) {
   let body = req.body;
   mdEmp.getDep(body, (ret, ret2) => {
@@ -637,11 +637,13 @@ router.get('/getDetail_file_type', function (req, res, next) {
     }
   })
 })
+
 router.post('/updateProductInfo', function (req, res, next) {
   mdOrder.updateProductInfo(req, (ret) => {
     res.send(ret);
   })
 })
+// use
 router.post('/insertProduct', function (req, res, next) {
   mdOrder.insertProduct(req, (ret) => {
     res.send(ret);
@@ -660,6 +662,7 @@ router.post('/createFlow', function (req, res, next) {
     res.send(ret);
   })
 })
+// use
 router.post('/deleteFlow', function (req, res, next) {
   let body = req.body;
   mdOrder.deleteFlow(body, (ret) => {
@@ -708,6 +711,7 @@ router.post('/updateFileType', function (req, res, next) {
     res.send(ret);
   })
 })
+// use
 // 分配给内勤商品
 router.post('/allotProduct', function (req, res, next) {
   let body = req.body;
@@ -715,12 +719,18 @@ router.post('/allotProduct', function (req, res, next) {
     res.send(ret);
   })
 })
+// use
 router.post('/getRelation_product_dep', function (req, res, next) {
   let body = req.body;
-  mdOrder.getRelation_product_dep(body, (ret) => {
-    res.send(ret);
+  mdOrder.getRelation_product_dep(body, (ret, ret2) => {
+    if (ret) {
+      res.send(ret);
+    } else {
+      res.send(JSON.stringify({ 'data': ret2 }))
+    }
   })
 })
+// use
 // 删除这个商品对应的内勤
 router.post('/deleteOffPro', function (req, res, next) {
   let body = req.body;
@@ -743,42 +753,49 @@ router.get('/dep/ceshi*', function (req, res, next) {
 
   res.render(ulstr, { "username": req.session.username, "menu": menu })
 });
+// use
 router.post('/createDep', function (req, res, next) {
   let body = req.body;
   mdEmp.createDep(body, (ret) => {
     res.send(ret);
   })
 })
+// use
 router.post('/getAllEmpNotAllot', function (req, res, next) {
   let body = req.body;
   mdEmp.getAllEmpNotAllot(body, (ret) => {
     res.send(ret)
   })
 })
+// use
 router.post('/allotUser', function (req, res, next) {
   let body = req.body;
   mdEmp.allotUser(body, (ret) => {
     res.send(ret)
   })
 })
+// use
 router.post('/allotManager', function (req, res, next) {
   let body = req.body;
   mdEmp.allotManager(body, (ret) => {
     res.send(ret)
   })
 })
+// use
 router.post('/deleteDepUser', function (req, res, next) {
   let body = req.body;
   mdEmp.deleteDepUser(body, (ret) => {
     res.send(ret)
   })
 })
+// use
 router.post('/deleteManager', function (req, res, next) {
   let body = req.body;
   mdEmp.deleteManager(body, (ret) => {
     res.send(ret)
   })
 })
+// use
 router.post('/deleteDep', function (req, res, next) {
   let body = req.body;
   mdEmp.deleteDep(body, (ret) => {
@@ -820,13 +837,6 @@ router.get('/phone/screen', function (req, res, next) {
 });
 
 
-
-
-
-
-
-
-
 router.get('/css/*', function (req, res, next) {
   let ul = url.parse(req.url)
   let ulstr = ul.pathname
@@ -837,25 +847,5 @@ router.get('/js/*', (function (req, res, next) {
   let ulstr = ul.pathname
   fs.createReadStream('./views' + ulstr).pipe(res);
 }))
-
-
-router.get('/text', function (req, res, next) {
-  res.render('te')
-})
-
-function getPostData(req, res, callback) {
-  var body = "";
-  req.on('data', function (chunk) {
-    body += chunk;
-  });
-  req.on('end', function () {
-    if (body == '' || !body) {
-      res.send(JSON.stringify({ "body": "null" }));
-    }
-    else {
-      callback(JSON.parse(body));
-    }
-  });
-}
 
 module.exports = router;

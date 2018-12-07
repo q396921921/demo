@@ -379,15 +379,19 @@ function detailPt(t) {
                                 $(this).next().val('');
                             }
                         } else if (name1 == 'flow_id') {
-                            $(this).val(flow_id)
-                            getFlows($(this));
-                            $(this).next().val(flow_id);
-                            $(this).next().trigger('onchange');
+                            if (flow_id) {
+                                $(this).val(flow_id)
+                                getFlows($(this));
+                                $(this).next().val(flow_id);
+                                $(this).next().trigger('onchange');
+                            }
                         } else if (name1 == 'file_type_id') {
-                            $(this).val(file_type_id);
-                            getFile_type($(this));
-                            $(this).next().val(file_type_id);
-                            $(this).next().trigger('onchange');
+                            if(file_type_id) {
+                                $(this).val(file_type_id);
+                                getFile_type($(this));
+                                $(this).next().val(file_type_id);
+                                $(this).next().trigger('onchange');
+                            }
                         }
                     })
                     let url1 = '/' + uploadFolde + '/' + imgPathSmall;

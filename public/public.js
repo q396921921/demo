@@ -8,25 +8,27 @@ const excelFile = 'excelFile';
 
 var symbol = '\\';  // 这个是决定window系统\\与linux下的/的;
 
-const port = '1236';
+const port = '1238';
 var http = 'http://192.168.1.238:' + port + '/';
 
 const platform = 'window';
 // const platform = 'linux';
-if (platform == 'linux') {
-    symbol = '/';
-    http = 'https://oh5.daotongkeji.com/';
-}
+// if (platform == 'linux') {
+//     symbol = '/';
+//     http = 'https://oh5.daotongkeji.com/';
+// }
 const all = {
     otherpath: otherpath,
-    
+
     // 服务器端口
     httpport: port,
     // 针对websocket长连接监听的端口
-    wsport: { port: 1235 },
+    wsport: { port: 1237 },
     // 修改后台导出文件存储位置的
 
     symbol: symbol,
+
+    path2: http + 'head/',
 
     // // excelFile读取文件路径
     // excelFileCreate: 'public' + symbol + excelFile,
