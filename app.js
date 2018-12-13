@@ -1,59 +1,100 @@
 var createError = require('http-errors');
-var express = require('express');   // 导框架用的
-var path = require('path');   // 路径模块
-var cookieParser = require('cookie-parser');  // 操作cookie
-var logger = require('morgan');     // 打日志用的
-var cors = require('cors');   // 跨域的
-var bodyParser = require('body-parser');  // 解析传过来的数据的
+var express = require('express');   // import frame
+var path = require('path');   // path module
+var cookieParser = require('cookie-parser');  // cookie
+var log4js = require('log4js');     // write logs
+var cors = require('cors');   // cross domain
 var session = require('express-session')
-// var copy_mysql = require('./db_redis/copy_mysql');
-// var source = require('source-map-support/register'); // 源映射
 var ejs = require('ejs');
 
-// 引进router文件夹下的路由文件
+// import routers file
 var usersRouter = require('./routes/users');
 var headRouter = require('./routes/head');
 
-// 创建框架
+// create frame
 var app = express();
-// 添加中间件的
-app.engine('html', ejs.__express);  // 使用html做为项目模版
+// insert middleware
+
+// view
+app.engine('html', ejs.__express);  // use html as engine
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));  // set default path such as view file html or ejs
 
-app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'jade');   // 默认使用jade模版
+// var accessLog = fs.createWriteStream('./log/access.log', { flags: 'a' });  // margan
+// var errorLog = fs.createWriteStream('./log/error.log', { flags: 'a' });  // margan
+// app.use(logger('dev')); // the middleware of log,this can print to console
+// app.use(logger('combined', { stream: accessLog }));  // morgan print to logs file
 
-// app.use(bodyParser.raw({"limit":'30mb'}))
+// parse data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());    // 跨域
-app.use(logger('dev'));
+
+// cross-domain
+app.use(cors());
+
+log4js.configure({
+  replaceConsole: true,
+  appenders: {
+    stdout: {//控制台输出
+      type: 'stdout'
+    },
+    req: {//请求日志
+      type: 'dateFile',
+      filename: 'logs/reqlog/',
+      pattern: 'req-mm.log',
+      alwaysIncludePattern: true
+    },
+    err: {//错误日志
+      type: 'dateFile',
+      filename: 'logs/errlog/',
+      pattern: 'err-yyyy-MM-dd.log',
+      alwaysIncludePattern: true
+    },
+    oth: {//其他日志
+      type: 'dateFile',
+      filename: 'logs/othlog/',
+      pattern: 'oth-yyyy-MM-dd.log',
+      alwaysIncludePattern: true
+    }
+  },
+  categories: {
+    default: { appenders: ['stdout', 'req'], level: 'debug' },//appenders:采用的appender,取appenders项,level:设置级别
+    err: { appenders: ['stdout', 'err'], level: 'error' },
+    oth: { appenders: ['stdout', 'oth'], level: 'info' }
+  }
+})
+const logger = log4js.getLogger()
+const errlogger = log4js.getLogger('err')
+const othlogger = log4js.getLogger('oth')
+
+logger.info('默认的日志信息');
+
+errlogger.error('错误的日志信息');
+othlogger.info('其他的日志信息')
+
+
+
 app.use(cookieParser());
 
-
-// 使用 session 中间件
+// session middleware
 app.use(session({
-  secret: 'secret', // 对session id 相关的cookie 进行签名
+  secret: 'secret', // signing sessionId-related cookies
   resave: true,
-  name: 'oh2', // 保存在前端的cookie的name
-  saveUninitialized: false, // 是否保存未初始化的会话
+  name: 'oh2', // the name of the cookie saved at the front end
+  saveUninitialized: false, // whether to save not initialization session
   cookie: {
-    maxAge: 1000 * 60 * 30, // 设置 session 的有效时间，单位毫秒
+    maxAge: 1000 * 60 * 30, // set up session's effective time
   },
 }));
 
-// 默认可以通过url直接访问到当前路径下的所有资源文件, '/'指定的是url中需要添加的前戳
+// public static path, you can get all resources in this folder by adding resourse name to the root path
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-
-
-// 添加路由的
+// insert router
 app.use('/users', usersRouter);
 app.use('/head', headRouter);
 
-
-
-// 捕获404错误与500错误的
+// capture 404 error
 app.use(function (req, res, next) {
   next(createError(404));
 });
@@ -62,29 +103,8 @@ app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
   // render the error page
   res.status(err.status || 500);
   res.render('error');
 });
-
 module.exports = app;
-
-
-
-
-
-// // 上传文件
-// var multer = require('multer');
-// var storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, 'D:/upload');
-//   },
-//   filename: function (req, file, cb) {
-//     var name = file.mimetype.split('/')[1];
-//     cb(null, file.fieldname + '-' + Date.now() + '.' + name);
-//   }
-// })
-// var upload = multer({ storage: storage });
-
-// app.use(upload.array('fil', 3));

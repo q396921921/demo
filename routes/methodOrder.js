@@ -276,11 +276,13 @@ var md = {
    */
   allotProduct: promise.promisify(async function (body, cb) {
     try {
+      let maxId = get.tbMaxId({ tName: 'relation_product_dep' }, 'id');
       let condis = {
         tName: 'relation_product_dep',
         product_id: body.product_id,
         off_id: body.off_id,
         dep_id: body.dep_id,
+        id: maxId
       }
       // 查询之前与此商品相关联的内勤,然后删掉
       await get.delete(condis);
@@ -464,9 +466,11 @@ var md = {
       if (typeof (detail_file_type_id_arr) != "object") {
         detail_file_type_id_arr = [detail_file_type_id_arr];
       }
+      let maxId = await get.tbMaxId({ tName: 'relation_file_type_detail' }, 'id');
       let condis = {
         tName: 'relation_file_type_detail',
         file_type_id: file_type_id,
+        id: maxId
       }
       await get.delete(condis);
       for (let i = 0; i < detail_file_type_id_arr.length; i++) {
@@ -1059,15 +1063,19 @@ var md = {
         try {
           for (let i = 0; i < detail_flow_id_arr.length; i++) {
             const detail_flow_id = detail_flow_id_arr[i];
+            let maxId1 = await get.tbMaxId({ tName: 'relation_flow_detail' }, 'id');
             let condis = {
               tName: 'relation_flow_detail',
               flow_id: flow_id,
-              flow_detail_id: detail_flow_id
+              flow_detail_id: detail_flow_id,
+              id: maxId1
             }
             await get.insert(condis);
+            let maxId2 = await get.tbMaxId({ tName: 'relation_state_flow' }, 'id');
             let obj2 = {
               tName: 'relation_state_flow',
               flow_detail_id: detail_flow_id,
+              id: maxId2
             }
             for (let i = 0; i < arr[count].length; i++) {
               const detail_state_id = arr[count][i];

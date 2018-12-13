@@ -305,7 +305,7 @@ get.delete = promise.promisify(async function (condis, cb) {
 get.insert = promise.promisify(async function (condis, cb) {
     try {
         let tName = condis.tName;
-        let obj = {};
+        let obj = getObj(tName);
         for (const key in condis) {
             if (key != 'tName' && key != 'condi') {
                 obj[key] = condis[key]
@@ -615,4 +615,284 @@ function setVar(data, tName) {
     }
 }
 
+
+
+// get mysql db every table's colums
+function getObj(tName, cb) {
+    let obj = {};
+    switch (tName) {
+        case 'total_profit':
+            obj = {
+                profit: null,
+                count: null,
+                loanA: null,
+                loanB: null,
+                dealA: null,
+                dealB: null,
+                callA: null,
+                callB: null,
+                empA: null,
+                empB: null,
+            }
+            return obj;
+        case 'data_business':
+            obj = {
+                bus_id: "",
+                bus_name: null,
+            }
+            return obj;
+        case 'data_home_page':
+            obj = {
+                home_id: "",
+                text: null,
+                imgPath: null,
+                product_id: null,
+                imgPath2: null,
+            }
+            return obj;
+        case 'data_partner':
+            obj = {
+                partner_id: "",
+                bus_id: null,
+                name: null,
+                big_text: null,
+                imgPath: null,
+                small_text: null,
+                bank_imgPath: null,
+                twoLine: null,
+            }
+            return obj;
+        case 'data_zizhi':
+            obj = {
+                zizhi_id: "",
+                text: null,
+                imgPath: null,
+            }
+            return obj;
+        case 'dep':
+            obj = {
+                dep_id: "",
+                manager_id: null,
+                manager2_id: null,
+                manager3_id: null,
+                managerName: null,
+            }
+            return obj;
+        case 'detail_file_type':
+            obj = {
+                detail_file_type_id: "",
+                name: null,
+                text: null,
+            }
+            return obj;
+        case 'emp':
+            obj = {
+                emp_id: "",
+                dep_id: null,
+                username: null,
+                password: null,
+                tel: null,
+                gender: null,
+                type: null,
+                iiuv: null,
+                idCard: null,
+                registTime: null,
+                logTime: null,
+                submitTime: null,
+                power_type: 1,
+            }
+            return obj;
+        case 'file_types_num':
+            obj = {
+                file_type_id: "",
+                name: null,
+            }
+            return obj;
+        case 'flow':
+            obj = {
+                flow_id: "",
+                flow_name: null,
+            }
+            return obj;
+        case 'flow_detail':
+            obj = {
+                flow_detail_id: "",
+                flow_name: null,
+                leavl: null
+            }
+            return obj;
+        case 'order1':
+            return getOrderObj();
+        case 'order2':
+            return getOrderObj();
+        case 'order3':
+            return getOrderObj();
+        case 'product':
+            obj = {
+                flow_id: null,
+                product_id: "",
+                product_type_id: null,
+                name: null,
+                product_intro: null,
+                product_detail: null,
+                imgPathSmall: null,
+                imgPath: null,
+                imgPath2: null,
+                file_type_id: null,
+                threeText: null,
+                isNum: 0,
+                isBourse: 0,
+                putaway: 0
+            }
+            return obj;
+        case 'product_type':
+            obj = {
+                product_type_id: "",
+                name: null
+            }
+            return obj;
+        case 'relation_emp_resource':
+            obj = {
+                emp_id: null,
+                resource_id: null,
+                id: "",
+            }
+            return obj;
+        case 'relation_emp_role':
+            obj = {
+                role_id: null,
+                resource_id: null,
+                id: "",
+            }
+            return obj;
+        case 'relation_file_type_detail':
+            obj = {
+                file_type_id: null,
+                detail_file_type_id: null,
+                id: "",
+            }
+            return obj;
+        case 'relation_flow_detail':
+            obj = {
+                flow_id: null,
+                flow_detail_id: null,
+                id: "",
+            }
+            return obj;
+        case 'relation_order_state':
+            obj = {
+                relation_state_id: "",
+                order_id: null,
+                state_detail_id: null,
+                state_time: null,
+                flow_time: null,
+                failReason: null
+            }
+            return obj;
+        case 'relation_product_dep':
+            obj = {
+                dep_id: null,
+                product_id: null,
+                off_id: null,
+                dep_emp_id: null,
+                failReason: ""
+            }
+            return obj;
+        case 'relation_role_resource':
+            obj = {
+                role_id: null,
+                resource_id: null,
+                id: "",
+            }
+            return obj;
+        case 'relation_state_flow':
+            obj = {
+                flow_detail_id: null,
+                state_detail_id: null,
+                id: "",
+            }
+            return obj;
+        case 'resource':
+            obj = {
+                resource_id: "",
+                url: null,
+                name: null,
+                type: null
+            }
+            return obj;
+        case 'role':
+            obj = {
+                role_id: "",
+                name: null,
+                code: null,
+                leavl: null
+            }
+            return obj;
+        case 'state_detail':
+            obj = {
+                state_detail_id: "",
+                state_name: null,
+                leavl: null,
+            }
+            return obj;
+        case 'chatroom':
+            obj = {
+                chat_id: "",
+                appli_id: null,
+                clientName: null,
+                productName: null,
+                Uname: null,
+                Utel: null,
+                Bname: null,
+                Btel: null,
+                Oname: null,
+                Otel: null,
+                Mname: null,
+                Mtel: null,
+                chatfile: null
+            }
+            return obj;
+        default:
+            break;
+    }
+}
+
+function getOrderObj() {
+    obj = {
+        order_id: "",
+        product_id: null,
+        flowState: null,
+        relation_state_id: null,
+        appli_id: null,
+        channel_id: null,
+        business_id: null,
+        office_id: null,
+        clientName: null,
+        type: null,
+        inmoney: null,
+        money: null,
+        appliTime: null,
+        loanTime: null,
+        seeTime: null,
+        failReason: null,
+        userComment: null,
+        empComment: null,
+        orderFile: null,
+        order_type: 1,
+        order_state: 1,
+        bank_name: null,
+        bank_id: null,
+        card_name: null,
+        refund: null,
+        commend1: null,
+        commend2: null,
+        commend3: null,
+        commend4: null,
+        interest: 0.000,
+        call_message: null,
+        refund_date: null,
+        color: null
+    }
+    return obj;
+}
 module.exports = get;

@@ -13,10 +13,10 @@ const client = db.client
  */
 copy.product = async function (cb) {
     try {
-        let ret = await queryOrder.getProduct("");
+        let ret = await queryOrder.getProduct({ data: "", arr: "" });
         async.each(ret, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('product', rt, (err, ret) => {
+            client.rpush('product', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -42,7 +42,7 @@ copy.chatroom = async function (cb) {
         let data = await queryEmp.getChatroom();
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('chatroom', rt, (err, ret) => {
+            client.rpush('chatroom', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -66,7 +66,7 @@ copy.data_business = async function (cb) {
         let data = await queryData.getbusiness({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('data_business', rt, (err, ret) => {
+            client.rpush('data_business', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -90,7 +90,7 @@ copy.data_home_page = async function (cb) {
         let data = await queryData.gethome_page({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('data_home_page', rt, (err, ret) => {
+            client.rpush('data_home_page', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -114,7 +114,7 @@ copy.data_partner = async function (cb) {
         let data = await queryData.getpartner({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('data_partner', rt, (err, ret) => {
+            client.rpush('data_partner', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -138,7 +138,7 @@ copy.data_zizhi = async function (cb) {
         let data = await queryData.getzizhi({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('data_zizhi', rt, (err, ret) => {
+            client.rpush('data_zizhi', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -162,7 +162,7 @@ copy.dep = async function (cb) {
         let data = await queryEmp.getDep({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('dep', rt, (err, ret) => {
+            client.rpush('dep', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -186,7 +186,7 @@ copy.detail_file_type = async function (cb) {
         let data = await queryOrder.getDetailFileType();
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('detail_file_type', rt, (err, ret) => {
+            client.rpush('detail_file_type', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -211,7 +211,7 @@ copy.emp = async function (cb) {
         let data = await queryEmp.getEmp(obj);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('emp', rt, (err, ret) => {
+            client.rpush('emp', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -236,7 +236,7 @@ copy.file_types_num = async function (cb) {
         let data = await queryOrder.getFile_typeNameId({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('file_types_num', rt, (err, ret) => {
+            client.rpush('file_types_num', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -263,7 +263,7 @@ copy.flow = async function (cb) {
         let data = await queryOrder.getFlowNameId({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('flow', rt, (err, ret) => {
+            client.rpush('flow', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -287,7 +287,7 @@ copy.flow_detail = async function (cb) {
         let data = await queryOrder.getFlow({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('flow_detail', rt, (err, ret) => {
+            client.rpush('flow_detail', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -311,7 +311,7 @@ copy.message = async function (cb) {
         let data = await queryOrder.getAllMessage({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('message', rt, (err, ret) => {
+            client.rpush('message', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -346,7 +346,7 @@ copy.order = async function (cb) {
                 key = 'order3';
             }
             rt = JSON.stringify(rt);
-            client.lpush(key, rt, (err, ret) => {
+            client.rpush(key, rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -370,7 +370,7 @@ copy.product_type = async function (cb) {
         let data = await queryOrder.getProductType({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('product_type', rt, (err, ret) => {
+            client.rpush('product_type', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -396,7 +396,7 @@ copy.relation_emp_resource = async function (cb) {
         let data = await queryEmp.getEmpResource({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('relation_emp_resource', rt, (err, ret) => {
+            client.rpush('relation_emp_resource', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -421,7 +421,7 @@ copy.relation_emp_role = async function (cb) {
         let data = await queryEmp.getRoleResource({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('relation_emp_role', rt, (err, ret) => {
+            client.rpush('relation_emp_role', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -446,7 +446,7 @@ copy.relation_file_type_detail = async function (cb) {
         let data = await queryOrder.getrelation_file_type_detail({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('relation_file_type_detail', rt, (err, ret) => {
+            client.rpush('relation_file_type_detail', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -472,7 +472,7 @@ copy.relation_flow_detail = async function (cb) {
         let data = await queryOrder.getRelationFlow({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('relation_flow_detail', rt, (err, ret) => {
+            client.rpush('relation_flow_detail', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -496,7 +496,7 @@ copy.relation_order_state = async function (cb) {
         let data = await queryOrder.getOrderState({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('relation_order_state', rt, (err, ret) => {
+            client.rpush('relation_order_state', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -520,7 +520,7 @@ copy.relation_product_dep = async function (cb) {
         let data = await queryOrder.getOffByProduct_id({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('relation_product_dep', rt, (err, ret) => {
+            client.rpush('relation_product_dep', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -544,7 +544,7 @@ copy.relation_role_resource = async function (cb) {
         let data = await queryEmp.getRoleResource({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('relation_role_resource', rt, (err, ret) => {
+            client.rpush('relation_role_resource', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -568,7 +568,7 @@ copy.relation_state_flow = async function (cb) {
         let data = await queryOrder.getStateFlow({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('relation_state_flow', rt, (err, ret) => {
+            client.rpush('relation_state_flow', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -592,7 +592,7 @@ copy.resource = async function (cb) {
         let data = await queryEmp.getResource({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('resource', rt, (err, ret) => {
+            client.rpush('resource', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -616,7 +616,7 @@ copy.role = async function (cb) {
         let data = await queryEmp.getRole({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('role', rt, (err, ret) => {
+            client.rpush('role', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -640,7 +640,7 @@ copy.state_detail = async function (cb) {
         let data = await queryOrder.getStateDetail({}, []);
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('state_detail', rt, (err, ret) => {
+            client.rpush('state_detail', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -664,7 +664,7 @@ copy.total_profit = async function (cb) {
         let data = await queryOrder.getProfit();
         async.each(data, function (rt, cb2) {
             rt = JSON.stringify(rt);
-            client.lpush('total_profit', rt, (err, ret) => {
+            client.rpush('total_profit', rt, (err, ret) => {
                 if (err) {
                     console.log(err);
                     cb('error');
@@ -935,9 +935,6 @@ function copyAll(callback) {
         }
     })
 }
-// copy.chatroom((ret) => {
-//     console.log(ret);
-// })
 copyAll((ret) => {
     console.log(ret);
 })

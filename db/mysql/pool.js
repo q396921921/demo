@@ -31,5 +31,4 @@ let getConn = function getConn(sql, arr, cb) {
         })
     })
 }
-
 module.exports.getConn = getConn;

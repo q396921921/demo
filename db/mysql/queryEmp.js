@@ -28,7 +28,7 @@ module.exports = {
         let sql = "select * from emp t where 1=1";
         arr = isEmpty(obj.arr);
         sql = isExist(sql, obj.data);
-        sql += ' order by registTime desc';
+        // sql += ' order by registTime desc';
         if (limit && limit != "") {
             sql += ' limit ' + (limit - 1) * 15 + ',15';
         }

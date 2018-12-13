@@ -613,7 +613,8 @@ const me = {
             await get.delete({ tName: 'relation_role_resource', role_id: role_id });
             async.each(resource_id_arr, function (resource_id, cb2) {
                 (async function () {
-                    await get.insert({ tName: 'relation_role_resource', role_id: role_id, resource_id: resource_id });
+                    let maxId = await get.tbMaxId({ tName: 'relation_role_resource' }, 'id');
+                    await get.insert({ tName: 'relation_role_resource', role_id: role_id, resource_id: resource_id, id: maxId });
                     cb2();
                 })()
             }, function (err) {
@@ -690,7 +691,8 @@ const me = {
                         async.each(resource_id_arr, function (resource_id, cb4) {
                             (async function () {
                                 try {
-                                    await get.insert({ tName: 'relation_emp_resource', emp_id: emp_id, resource_id: resource_id });
+                                    let maxId = await get.tbMaxId({ tName: 'relation_emp_resource' }, 'id');
+                                    await get.insert({ tName: 'relation_emp_resource', emp_id: emp_id, resource_id: resource_id, id: maxId });
                                     cb4();
                                 } catch (err) {
                                     cb('error');
@@ -721,7 +723,8 @@ const me = {
             async.each(resource_id_arr, function (resource_id, cb2) {
                 (async function () {
                     try {
-                        await get.insert({ tName: 'relation_emp_resource', emp_id: emp_id, resource_id: resource_id });
+                        let maxId = await get.tbMaxId({ tName: 'relation_emp_resource' }, 'id');
+                        await get.insert({ tName: 'relation_emp_resource', emp_id: emp_id, resource_id: resource_id, id: maxId });
                         cb2()
                     } catch (err) {
                         cb('error');

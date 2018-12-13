@@ -38,6 +38,7 @@ router.get('/login', function (req, res, next) {
 // 通过账户名与密码判断用户是否合法
 // 如果合法判断是否已经有其他用户登录此账户，有就将之前的session删除，使账户失效
 router.post('/log', function (req, res, next) {
+  console.log(123456);
   var body = req.body;
   let username = body.username;
   mdEmp.getUserByUserPass(body, (ret) => {

@@ -14,7 +14,7 @@ module.exports = {
         let sql = "select * from order2 t where 1=1";
         arr = isEmpty(arr);
         sql = isExist(sql, data);
-        sql += ' order by appliTime desc';
+        // sql += ' order by appliTime desc';
         conn.getConn(sql, arr, cb);
     }),
     /**
@@ -130,7 +130,7 @@ module.exports = {
         let limit = obj.limit;
         let arr = isEmpty(obj.arr);
         sql = isExist(sql, obj.data);
-        sql += ' order by product_id desc'
+        // sql += ' order by product_id desc'
         if (limit && limit != '') {
             sql += ' limit ' + (limit - 1) * 15 + ',15';
         }
@@ -186,7 +186,7 @@ module.exports = {
         let sql = "select * from flow_detail t where 1=1"
         arr = isEmpty(arr);
         sql = isExist(sql, data);
-        sql += ' order by leavl asc'
+        // sql += ' order by leavl asc'
         conn.getConn(sql, arr, cb);
     }),
     /**
