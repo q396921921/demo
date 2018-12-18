@@ -1,4 +1,5 @@
 ﻿var express = require('express');
+var log = require('./log');
 var router = express.Router();
 var fs = require('fs');
 var url = require('url')
@@ -8,7 +9,6 @@ var momoent = require('moment');
 var public = require("./../public/public");
 var UUID = require('uuid');
 var path = public.path;
-
 
 var multer = require('multer');
 var storage = multer.diskStorage({
@@ -29,8 +29,15 @@ var mdOrder = require('./methodOrder');
 var mdEmp = require('./methodEmp');
 var mdData = require('./methodData');
 
+var log = require('./log');
+
+
 router.get('/favicon.ico', function (req, res, next) {
   res.send('');
+})
+router.get('/getProssesId', function (req, res, next) {
+  // process.exit();
+  res.send(process.pid + "");
 })
 router.get('/login', function (req, res, next) {
   res.render('login', { "mes": "" })
@@ -38,10 +45,8 @@ router.get('/login', function (req, res, next) {
 // 通过账户名与密码判断用户是否合法
 // 如果合法判断是否已经有其他用户登录此账户，有就将之前的session删除，使账户失效
 router.post('/log', function (req, res, next) {
-  console.log(123456);
-  var body = req.body;
-  let username = body.username;
-  mdEmp.getUserByUserPass(body, (ret) => {
+  let username = req.body.username;
+  mdEmp.getUserByUserPass(req, (ret) => {
     if (ret.indexOf("error") != -1) {
       res.render('login', { "mes": '您所输入的用户名或者密码错误' });
     } else if (ret.indexOf("isusers") != -1) {
@@ -130,7 +135,7 @@ router.get('/appli/ceshi*', function (req, res, next) {
 router.post('/getOrders', function (req, res, next) {
   (async function () {
     try {
-      let data = await mdOrder.getOrders(req.body);
+      let data = await mdOrder.getOrders(req);
       res.send(JSON.stringify({ data: data }));
     } catch (err) {
       res.send('error');
@@ -139,8 +144,7 @@ router.post('/getOrders', function (req, res, next) {
 })
 // 获得当前人物权限所有未被处理的订单
 router.post('/getNoHandleOrders', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getNoHandleOrders(body, (ret) => {
+  mdOrder.getNoHandleOrders(req, (ret) => {
     res.send(ret)
   })
 })
@@ -148,7 +152,7 @@ router.post('/getNoHandleOrders', function (req, res, next) {
 router.post('/getFlow_detail', function (req, res, next) {
   (async function () {
     try {
-      let data = await mdOrder.getFlow_detail(req.body);
+      let data = await mdOrder.getFlow_detail(req);
       res.send(JSON.stringify({ data: data }));
     } catch (err) {
       res.send('error');
@@ -159,7 +163,7 @@ router.post('/getFlow_detail', function (req, res, next) {
 router.get('/getType', function (req, res, next) {
   (async function () {
     try {
-      let data = await mdOrder.getProduct_type(req.body);
+      let data = await mdOrder.getProduct_type(req);
       res.send(JSON.stringify({ data: data }));
     } catch (err) {
       res.send('error');
@@ -170,7 +174,7 @@ router.get('/getType', function (req, res, next) {
 router.post('/getStates', function (req, res, next) {
   (async function () {
     try {
-      let data = await mdOrder.getStates(req.body);
+      let data = await mdOrder.getStates(req);
       res.send(data);
     } catch (err) {
       res.send('error');
@@ -181,7 +185,7 @@ router.post('/getStates', function (req, res, next) {
 router.post('/getFlows', function (req, res, next) {
   (async function () {
     try {
-      let data = await mdOrder.getFlows(req.body);
+      let data = await mdOrder.getFlows(req);
       res.send(JSON.stringify({ data: data }));
     } catch (err) {
       res.send('error');
@@ -189,8 +193,7 @@ router.post('/getFlows', function (req, res, next) {
   })()
 })
 router.post('/deleteOrder', function (req, res, next) {
-  let body = req.body;
-  mdOrder.deleteOrder(body, (ret) => {
+  mdOrder.deleteOrder(req, (ret) => {
     res.send(ret)
   });
 })
@@ -198,7 +201,7 @@ router.post('/deleteOrder', function (req, res, next) {
 router.post('/getState', function (req, res, next) {
   (async function () {
     try {
-      let data = await mdOrder.getOrder(req.body);
+      let data = await mdOrder.getOrder(req);
       if (data[0].flowState) {
         res.send(data[0].flowState);
       } else {
@@ -211,28 +214,26 @@ router.post('/getState', function (req, res, next) {
 })
 // use
 router.post('/getStatess', function (req, res, next) {
-  mdOrder.getStatess(req.body, (ret) => {
+  mdOrder.getStatess(req, (ret) => {
     res.send(ret);
   });
 })
 // use
 router.post('/setFailReason', function (req, res, next) {
-  let body = req.body;
-  mdOrder.setFailReason(body, (ret) => {
+  mdOrder.setFailReason(req, (ret) => {
     res.send(ret)
   })
 })
 // use
 router.post('/updateProfit', function (req, res, next) {
-  let body = req.body;
-  mdOrder.updateProfit(body, (ret) => {
+  mdOrder.updateProfit(req, (ret) => {
     res.send(ret);
   })
 })
 router.get('/getTotal_profit', function (req, res, next) {
   (async function () {
     try {
-      let data = await mdOrder.getTotal_profit(req.body);
+      let data = await mdOrder.getTotal_profit(req);
       res.send(JSON.stringify({ data: data }));
     } catch (err) {
       res.send('error');
@@ -248,22 +249,19 @@ router.post('/setState', function (req, res, next) {
 })
 // use
 router.post('/setFlow', function (req, res, next) {
-  let body = req.body;
-  mdOrder.setFlowTime(body, (ret) => {
+  mdOrder.setFlowTime(req, (ret) => {
     res.send(ret)
   });
 })
 // use
 router.post('/updateOrder', function (req, res, next) {
-  let body = req.body;
-  mdOrder.updateOneOrder(body, (ret) => {
+  mdOrder.updateOneOrder(req, (ret) => {
     res.send(ret)
   })
 })
 // use
 router.post('/setOrder_state2', function (req, res, next) {
-  let body = req.body;
-  mdOrder.setOrder_state(body, (ret, ret2) => {
+  mdOrder.setOrder_state(req, (ret, ret2) => {
     if (ret) {
       res.send(ret);
     } else {
@@ -273,8 +271,7 @@ router.post('/setOrder_state2', function (req, res, next) {
 })
 // use
 router.post('/setRefund_state', function (req, res, next) {
-  let body = req.body;
-  mdOrder.setRefund_state(body, (ret) => {
+  mdOrder.setRefund_state(req, (ret) => {
     res.send(ret)
   })
 })
@@ -282,8 +279,7 @@ router.post('/setRefund_state', function (req, res, next) {
 
 
 router.post('/getScreen', function (req, res, next) {
-  let body = req.body;
-  mdOrder.screenOrder(body, (ret) => {
+  mdOrder.screenOrder(req, (ret) => {
     res.send(ret)
   })
 })
@@ -291,15 +287,13 @@ router.get('/public/images/true.jpg', (req, res, next) => {
   res.sendfile('public/images/true.jpg')
 })
 router.post('/screen', function (req, res, next) {
-  let body = req.body;
-  mdOrder.screen(body, (ret) => {
+  mdOrder.screen(req, (ret) => {
     res.send(ret)
   });
 })
 // use
 router.post('/getDep', function (req, res, next) {
-  let body = req.body;
-  mdEmp.getDep(body, (ret, ret2) => {
+  mdEmp.getDep(req, (ret, ret2) => {
     if (ret) {
       res.send(ret);
     } else {
@@ -333,7 +327,7 @@ router.get('/user/ceshi*', function (req, res, next) {
 })
 // use
 router.get('/getRoles', function (req, res, next) {
-  mdEmp.getRole(null, (ret, ret2) => {
+  mdEmp.getRole(req, (ret, ret2) => {
     if (ret) {
       res.send(ret);
     } else {
@@ -343,15 +337,13 @@ router.get('/getRoles', function (req, res, next) {
 })
 // use
 router.post('/getRole', function (req, res, next) {
-  let body = req.body;
-  mdEmp.getRoleInfo(body, (ret) => {
+  mdEmp.getRoleInfo(req, (ret) => {
     res.send(ret);
   })
 })
 // use
 router.post('/createUsers', function (req, res, next) {
-  let body = req.body;
-  mdEmp.createUser(body, (ret) => {
+  mdEmp.createUser(req, (ret) => {
     res.send(ret)
   })
 })
@@ -361,21 +353,18 @@ router.post('/createUsers', function (req, res, next) {
 
 // ///////�˻�,������ҳ
 router.post('/selectUsers', function (req, res, next) {
-  let body = req.body;
-  mdEmp.getEmpByType2(body, (ret) => {
+  mdEmp.getEmpByType2(req, (ret) => {
     res.send(ret)
   })
 })
 router.post('/outputUser', function (req, res, next) {
-  let body = req.body;
-  mdEmp.selectAndOutUsers(body, (ret) => {
+  mdEmp.selectAndOutUsers(req, (ret) => {
     res.send(ret)
   })
 })
 // use
 router.post('/getResource', function (req, res, next) {
-  let body = req.body;
-  mdEmp.getAllResourcesChecked(body, (ret) => {
+  mdEmp.getAllResourcesChecked(req, (ret) => {
     res.send(ret)
   })
 })
@@ -385,41 +374,35 @@ router.get('/recoverAllreource', function (req, res, next) {
   })
 })
 router.post('/updateRoleResource', function (req, res, next) {
-  let body = req.body;
-  mdEmp.updateRoleResource(body, (ret) => {
+  mdEmp.updateRoleResource(req, (ret) => {
     res.send(ret)
   })
 })
 // use
 router.post('/updateRoleToUser', function (req, res, next) {
-  let body = req.body;
-  mdEmp.updateRoleToUser(body, (ret) => {
+  mdEmp.updateRoleToUser(req, (ret) => {
     res.send(ret)
   })
 })
 // use
 router.post('/recoverPower', function (req, res, next) {
-  let body = req.body;
-  mdEmp.recoverPower(body, (ret) => {
+  mdEmp.recoverPower(req, (ret) => {
     res.send(ret);
   })
 })
 // use
 router.post('/updateUserResource', function (req, res, next) {
-  let body = req.body;
-  mdEmp.updateUserResource(body, (ret) => {
+  mdEmp.updateUserResource(req, (ret) => {
     res.send(ret)
   })
 })
 router.post('/getOneUserResource', function (req, res, next) {
-  let body = req.body;
-  mdEmp.getOneUserResource(body, (ret) => {
+  mdEmp.getOneUserResource(req, (ret) => {
     res.send(ret)
   })
 })
 router.post('/deleteUser', function (req, res, next) {
-  let body = req.body;
-  mdEmp.deleteUser(body, (ret) => {
+  mdEmp.deleteUser(req, (ret) => {
     res.send(ret)
   })
 })
@@ -428,8 +411,7 @@ router.post('/deleteUser', function (req, res, next) {
 
 // ///////�˻�,�޸���Ϣ��ҳ
 router.post('/getUser', function (req, res, next) {
-  let body = req.body;
-  mdEmp.getEmp(body, (ret, ret2) => {
+  mdEmp.getEmp(req, (ret, ret2) => {
     if (ret) {
       res.send(ret);
     } else {
@@ -438,15 +420,13 @@ router.post('/getUser', function (req, res, next) {
   })
 })
 router.post('/getUserByUserPass', function (req, res, next) {
-  let body = req.body;
-  mdEmp.getUserByUserPass(body, (ret) => {
+  mdEmp.getUserByUserPass(req, (ret) => {
     res.send(ret)
   })
 })
 router.post('/updateUserInfo', function (req, res, next) {
-  let body = req.body;
-  let exist = body.exist;
-  mdEmp.updateUserInfo(body, (ret) => {
+  let exist = req.body.exist;
+  mdEmp.updateUserInfo(req, (ret) => {
     if (exist && ret == 'success') {
 
     }
@@ -454,14 +434,12 @@ router.post('/updateUserInfo', function (req, res, next) {
   })
 })
 router.post('/updateUser6', function (req, res, next) {
-  let body = req.body;
-  mdEmp.updateUser6(body, (ret) => {
+  mdEmp.updateUser6(req, (ret) => {
     res.send(ret)
   })
 })
 router.post('/getUser6', function (req, res, next) {
-  let body = req.body;
-  mdEmp.getEmpByType2(body, (ret) => {
+  mdEmp.getEmpByType2(req, (ret) => {
     res.send(ret)
   })
 })
@@ -484,8 +462,7 @@ router.get('/other/ceshi*', function (req, res, next) {
 });
 // use
 router.get('/getzizhiInfo', function (req, res, next) {
-  let body = req.body;
-  mdData.getData_zizhi(body, (ret, ret2) => {
+  mdData.getData_zizhi(req, (ret, ret2) => {
     if (ret) {
       res.send(ret);
     } else {
@@ -495,15 +472,13 @@ router.get('/getzizhiInfo', function (req, res, next) {
 })
 // use
 router.get('/gethome_page', function (req, res, next) {
-  let body = req.body;
-  mdData.get_home_page(body, (ret) => {
+  mdData.get_home_page(req, (ret) => {
     res.send(ret)
   })
 })
 // use
 router.get('/getbusiness', function (req, res, next) {
-  let body = req.body;
-  mdData.getData_business(body, (ret, ret2) => {
+  mdData.getData_business(req, (ret, ret2) => {
     if (ret) {
       res.send(ret);
     } else {
@@ -513,8 +488,7 @@ router.get('/getbusiness', function (req, res, next) {
 })
 // use
 router.post('/getPartnerBankOrOrgan', function (req, res, next) {
-  let body = req.body;
-  mdData.getData_partner(body, (ret, ret2) => {
+  mdData.getData_partner(req, (ret, ret2) => {
     if (ret) {
       res.send(ret);
     } else {
@@ -569,7 +543,7 @@ router.get('/product/ceshi*', function (req, res, next) {
 router.post('/getProduct', function (req, res, next) {
   (async function () {
     try {
-      let data = await mdOrder.getProduct(req.body);
+      let data = await mdOrder.getProduct(req);
       res.send(JSON.stringify({ data: data }));
     } catch (err) {
       res.send('error');
@@ -578,15 +552,13 @@ router.post('/getProduct', function (req, res, next) {
 })
 // use
 router.post('/getLimitProduct', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getLimitProduct(body, (ret) => {
+  mdOrder.getLimitProduct(req, (ret) => {
     res.send(ret);
   })
 })
 // use
 router.post('/getSortFlowState', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getSortFlowState(body, (ret, ret2) => {
+  mdOrder.getSortFlowState(req, (ret, ret2) => {
     if (ret) {
       res.send(ret);
     } else {
@@ -596,8 +568,7 @@ router.post('/getSortFlowState', function (req, res, next) {
 })
 // use
 router.post('/getDetailFile_types', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getDetailFile_types(body, (ret, ret2) => {
+  mdOrder.getDetailFile_types(req, (ret, ret2) => {
     if (ret) {
       res.send(ret);
     } else {
@@ -607,8 +578,7 @@ router.post('/getDetailFile_types', function (req, res, next) {
 })
 // use
 router.get('/getFlow', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getFlow(body, (ret, ret2) => {
+  mdOrder.getFlow(req, (ret, ret2) => {
     if (ret) {
       res.send(ret);
     } else {
@@ -618,8 +588,7 @@ router.get('/getFlow', function (req, res, next) {
 })
 // use
 router.get('/getFile_types_num', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getFile_types_num(body, (ret, ret2) => {
+  mdOrder.getFile_types_num(req, (ret, ret2) => {
     if (ret) {
       res.send(ret);
     } else {
@@ -629,8 +598,7 @@ router.get('/getFile_types_num', function (req, res, next) {
 })
 // use
 router.get('/getDetail_file_type', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getDetail_file_type(body, (ret, ret2) => {
+  mdOrder.getDetail_file_type(req, (ret, ret2) => {
     if (ret) {
       res.send(ret);
     } else {
@@ -658,72 +626,62 @@ router.post('/insertProductType', function (req, res, next) {
 })
 // use
 router.post('/createFlow', function (req, res, next) {
-  let body = req.body;
-  mdOrder.createFlow(body, (ret) => {
+  mdOrder.createFlow(req, (ret) => {
     res.send(ret);
   })
 })
 // use
 router.post('/deleteFlow', function (req, res, next) {
-  let body = req.body;
-  mdOrder.deleteFlow(body, (ret) => {
+  mdOrder.deleteFlow(req, (ret) => {
     res.send(ret);
   })
 })
 router.post('/deleteProduct', function (req, res, next) {
-  let body = req.body;
-  mdOrder.deleteProduct(body, (ret) => {
+  mdOrder.deleteProduct(req, (ret) => {
     res.send(ret);
   })
 })
 // use
 router.post('/createFileType', function (req, res, next) {
-  let body = req.body;
-  mdOrder.insertFileType(body, (ret) => {
+  mdOrder.insertFileType(req, (ret) => {
     res.send(ret);
   })
 })
 // use
 router.post('/createDetailFileType', function (req, res, next) {
-  let body = req.body;
-  mdOrder.insertDetailFileType(body, (ret) => {
+  mdOrder.insertDetailFileType(req, (ret) => {
     res.send(ret);
   })
 
 })
 // use
 router.post('/deleteFileType', function (req, res, next) {
-  let body = req.body;
-  mdOrder.deleteFileType(body, (ret) => {
+  mdOrder.deleteFileType(req, (ret) => {
     res.send(ret);
   })
 })
 // use
 router.post('/deleteDetailFileType', function (req, res, next) {
-  let body = req.body;
-  mdOrder.deleteDetailFileType(body, (ret) => {
+  mdOrder.deleteDetailFileType(req, (ret) => {
     res.send(ret);
   })
 })
 // use
 router.post('/updateFileType', function (req, res, next) {
-  let body = req.body;
-  mdOrder.updateFileType(body, (ret) => {
+  mdOrder.updateFileType(req, (ret) => {
     res.send(ret);
   })
 })
 // use
 // 分配给内勤商品
 router.post('/allotProduct', function (req, res, next) {
-  let body = req.body;
-  mdOrder.allotProduct(body, (ret) => {
+  mdOrder.allotProduct(req, (ret) => {
     res.send(ret);
   })
 })
 // use
 router.post('/getRelation_product_dep', function (req, res, next) {
-  let body = req.body;
-  mdOrder.getRelation_product_dep(body, (ret, ret2) => {
+  mdOrder.getRelation_product_dep(req, (ret, ret2) => {
     if (ret) {
       res.send(ret);
     } else {
@@ -734,8 +692,7 @@ router.post('/getRelation_product_dep', function (req, res, next) {
 // use
 // 删除这个商品对应的内勤
 router.post('/deleteOffPro', function (req, res, next) {
-  let body = req.body;
-  mdOrder.deleteOffPro(body, (ret) => {
+  mdOrder.deleteOffPro(req, (ret) => {
     res.send(ret);
   })
 })
@@ -756,50 +713,43 @@ router.get('/dep/ceshi*', function (req, res, next) {
 });
 // use
 router.post('/createDep', function (req, res, next) {
-  let body = req.body;
-  mdEmp.createDep(body, (ret) => {
+  mdEmp.createDep(req, (ret) => {
     res.send(ret);
   })
 })
 // use
 router.post('/getAllEmpNotAllot', function (req, res, next) {
-  let body = req.body;
-  mdEmp.getAllEmpNotAllot(body, (ret) => {
+  mdEmp.getAllEmpNotAllot(req, (ret) => {
     res.send(ret)
   })
 })
 // use
 router.post('/allotUser', function (req, res, next) {
-  let body = req.body;
-  mdEmp.allotUser(body, (ret) => {
+  mdEmp.allotUser(req, (ret) => {
     res.send(ret)
   })
 })
 // use
 router.post('/allotManager', function (req, res, next) {
-  let body = req.body;
-  mdEmp.allotManager(body, (ret) => {
+  mdEmp.allotManager(req, (ret) => {
     res.send(ret)
   })
 })
 // use
 router.post('/deleteDepUser', function (req, res, next) {
-  let body = req.body;
-  mdEmp.deleteDepUser(body, (ret) => {
+  mdEmp.deleteDepUser(req, (ret) => {
     res.send(ret)
   })
 })
 // use
 router.post('/deleteManager', function (req, res, next) {
-  let body = req.body;
-  mdEmp.deleteManager(body, (ret) => {
+  mdEmp.deleteManager(req, (ret) => {
     res.send(ret)
   })
 })
 // use
 router.post('/deleteDep', function (req, res, next) {
-  let body = req.body;
-  mdEmp.deleteDep(body, (ret) => {
+  mdEmp.deleteDep(req, (ret) => {
     res.send(ret)
   })
 })
@@ -848,5 +798,4 @@ router.get('/js/*', (function (req, res, next) {
   let ulstr = ul.pathname
   fs.createReadStream('./views' + ulstr).pipe(res);
 }))
-
 module.exports = router;

@@ -200,6 +200,7 @@ function deleteEmp() {
                 url: "/users/deleteDepUser",
                 type: "post",
                 data: {
+                    dep_id: $("#dep_id").val(),
                     emp_id_arr: emp_id_arr,
                 },
                 async: false,

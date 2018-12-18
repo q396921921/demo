@@ -2,7 +2,6 @@ var createError = require('http-errors');
 var express = require('express');   // import frame
 var path = require('path');   // path module
 var cookieParser = require('cookie-parser');  // cookie
-var log4js = require('log4js');     // write logs
 var cors = require('cors');   // cross domain
 var session = require('express-session')
 var ejs = require('ejs');
@@ -31,48 +30,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // cross-domain
 app.use(cors());
-
-log4js.configure({
-  replaceConsole: true,
-  appenders: {
-    stdout: {//控制台输出
-      type: 'stdout'
-    },
-    req: {//请求日志
-      type: 'dateFile',
-      filename: 'logs/reqlog/',
-      pattern: 'req-mm.log',
-      alwaysIncludePattern: true
-    },
-    err: {//错误日志
-      type: 'dateFile',
-      filename: 'logs/errlog/',
-      pattern: 'err-yyyy-MM-dd.log',
-      alwaysIncludePattern: true
-    },
-    oth: {//其他日志
-      type: 'dateFile',
-      filename: 'logs/othlog/',
-      pattern: 'oth-yyyy-MM-dd.log',
-      alwaysIncludePattern: true
-    }
-  },
-  categories: {
-    default: { appenders: ['stdout', 'req'], level: 'debug' },//appenders:采用的appender,取appenders项,level:设置级别
-    err: { appenders: ['stdout', 'err'], level: 'error' },
-    oth: { appenders: ['stdout', 'oth'], level: 'info' }
-  }
-})
-const logger = log4js.getLogger()
-const errlogger = log4js.getLogger('err')
-const othlogger = log4js.getLogger('oth')
-
-logger.info('默认的日志信息');
-
-errlogger.error('错误的日志信息');
-othlogger.info('其他的日志信息')
-
-
 
 app.use(cookieParser());
 

@@ -1,22 +1,25 @@
-var websocket = {};
-var WebSocketServer = require('ws').Server;
-var fs = require('fs')
-var mdOrder = require('./routes/methodOrder');
-var request = require('request');
-var async = require('async');
-var pathUrl = require('path');
-var UUID = require('uuid');
-var debug = require('debug')('app:server');
+const websocket = {};
+const WebSocketServer = require('ws').Server;
+const fs = require('fs')
+const mdOrder = require('./routes/methodOrder');
+const request = require('request');
+const async = require('async');
+const pathUrl = require('path');
+const UUID = require('uuid');
+const debug = require('debug')('app:server');
+const log4js = require('log4js');
+const log = require('./routes/log');
 
-var public = require("./public/public");
-var symbol = public.symbol;
-var path = public.path2;
+const public = require("./public/public");
+const symbol = public.symbol;
+const path = public.path2;
 
 // 此方法开启长连接服务器，只需要在任意js文件调用即可
 websocket.getSocketio = function (port) {
     var wss = new WebSocketServer(port);
     console.log(`端口为${port.port}的长连接服务器已开启`);
     var count = 1;
+    useLog4jsConfig();
     let t1 = new Date();
     let hours = 23 - t1.getHours();
     let minute = 59 - t1.getMinutes();
@@ -25,6 +28,7 @@ websocket.getSocketio = function (port) {
     let totalMillisecods = (hours * 60 * 60 + minute * 60 + second) * 1000;
     let resetTime = setInterval(function () {
         count = 1;
+        useLog4jsConfig();
         clearInterval(resetTime)
         // 将订单编号尾部id重置为1
         setInterval(function () {
@@ -35,11 +39,12 @@ websocket.getSocketio = function (port) {
                     console.log('此时订单尾号值为:' + count);
                 }
             })
+            useLog4jsConfig();
         }, 86400000)
         // 同步redis到数据库
         setTimeout(() => {
             setInterval(function () {
-                
+
             }, 86400000)
         }, 7200000);
     }, totalMillisecods)
@@ -103,12 +108,10 @@ websocket.getSocketio = function (port) {
                                         }
                                     }
                                 })
-                                console.log('我是询值订单');
                                 if (wsState) {
                                     ws.send(JSON.stringify({ 'event': 'orderOver' }));
                                 }
                             } else {
-                                console.log('我是推荐的订单');
                                 if (wsState) {
                                     ws.send(JSON.stringify({ 'event': 'orderOver' }));
                                 }
@@ -146,7 +149,6 @@ websocket.getSocketio = function (port) {
                             fs.writeFile(filePath, buf, { encoding: 'utf8' }, (err) => {
                                 if (err) throw err
                                 else {
-                                    debug('传完一张图片');
                                     cb();
                                 }
                             })
@@ -157,7 +159,6 @@ websocket.getSocketio = function (port) {
                         fs.writeFile(filePath, buf, { encoding: 'utf8' }, (err) => {
                             if (err) throw err
                             else {
-                                debug('传完一张图片');
                                 cb();
                             }
                         })
@@ -211,4 +212,37 @@ websocket.getSocketio = function (port) {
     });
 }
 
+function useLog4jsConfig() {
+    log4js.configure({
+        replaceConsole: true,
+        appenders: {
+            stdout: {//控制台输出
+                type: 'stdout'
+            },
+            control: { //操作日志
+                type: 'dateFile',
+                filename: 'logs/controlLog/',
+                pattern: 'control-yyyy-MM-dd.log',
+                alwaysIncludePattern: true
+            },
+            login: {
+                type: 'dateFile',
+                filename: 'logs/loginLog/',
+                pattern: 'login-yyyy-MM-dd.log',
+                alwaysIncludePattern: true
+            },
+            err: {  //错误日志
+                type: 'dateFile',
+                filename: 'logs/errLog/',
+                pattern: 'err-yyyy-MM-dd.log',
+                alwaysIncludePattern: true
+            }
+        },
+        categories: {
+            default: { appenders: ['stdout', 'control'], level: 'info' },//appenders:采用的appender,取appenders项,level:设置级别
+            err: { appenders: ['stdout', 'err'], level: 'error' },
+            login: { appenders: ['stdout', 'login'], level: 'info' },
+        }
+    })
+}
 module.exports = websocket;

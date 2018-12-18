@@ -189,103 +189,17 @@ writable.on('error', function (err) {
 // readable.on('error', function (err) {
 //     console.log('error occured: %s', err.message);
 // });
-var pool = require('./db/mysql/pool');
-var promise = require('bluebird');
-async function sync(mysql, redis, IdName, tName, cb) {
-    try {
-        if (redis) {
-            let count = 0;
-            async.eachSeries(redis, function (rds, cb2) {
-                count = await judge(mysql, rds, count, IdName, tName);
-                cb2();
-            }, function (err) {
-                cb(null, 'success');
-            })
-        } else {
-            cb(null, 'success');
-        }
-    } catch (err) {
-        cb('error');
-    }
-}
-// repet this function
-var judge = promise.promisify(async function (mysql, rds, count, IdName, tName, cb) {
-    try {
-        let Id1 = rds[IdName];
-        let keys = Object.keys(rds);
-        let vals = Object.values(rds);
-        if (mysql.length >= (count + 1)) {
-            // update or not change
-            let Id2 = mysql[count][IdName];
-            if (Id1 === Id2) {
-                if (JSON.stringify(rds) === JSON.stringify(mysql[count])) {
-                    cb(null, ++count);
-                } else {
-                    let ret = await update(keys, vals, IdName, tName);
-                    cb(null, ++count);
-                }
-            } else {
-                // delete this mysql data and insert
-                let arr = [Id1];
-                let sql = "delete from " + tName + ' where ' + IdName + '=?';
-                let ret = await db(sql, arr);
-                judge(mysql, rds, count, IdName, tName, cb);
-            }
-        } else {
-            // insert
-            let ret = await insert(keys, vals, tName);
-            cb(null, ++count);
-        }
-    } catch (err) {
-        cb('error');
-    }
-})
-var update = promise.promisify(async function (keys, vals, IdName, tName, cb) {
-    try {
-        let set = "";
-        for (let i = 0; i < keys.length; i++) {
-            const k = keys[i];
-            if (i != keys.length - 1) {
-                set += ' ' + k + '=?,';
-            } else {
-                set += ' ' + k + '=?';
-            }
-        }
-        let arr = vals.concat([Id1]);
-        let sql = 'update ' + tName + ' set' + set + ' where ' + IdName + '=?';
-        let ret = await db(sql, arr);
-        cb(null, ret);
-    } catch (err) {
-        cb('error');
-    }
-})
-var insert = promise.promisify(async function (keys, vals, tName, cb) {
-    try {
-        let circle1 = "";
-        let circle2 = "";
-        for (let i = 0; i < keys.length; i++) {
-            const k = keys[i];
-            if (i != keys.length - 1) {
-                circle1 += k + ',';
-                circle2 += '?,';
-            } else {
-                circle1 += k;
-                circle2 += '?';
-            }
-        }
-        let sql = "insert into " + tName + "(" + circle1 + ") values (" + circle2 + ")";
-        let ret = await db(sql, vals);
-        cb(null, ret)
-    } catch (err) {
-        cb('error');
-    }
-})
-const db = promise.promisify(function (sql, arr, cb) {
-    pool.getConn(sql, arr, (err, ret) => {
-        if (err) {
-            cb('error');
-        } else {
-            cb(null, ret);
-        }
-    })
-})
+// let req = "";
+// let a = { "ip": req.ip, "userAgent": req.headers.user - agent, }
+
+// var request = require('request');
+// request({ url: 'https://oh2.daotongkeji.com/management/rmChatroom', method: "post", body: { order_id: 2519 }, json: true }, (err, res, body) => {
+//     if (err) {
+//         console.log(err);
+//     } else {
+//         console.log(body);
+//     }
+// })
+// console.log(process.argv);
+let refund = 1;
+console.log(`${refund = refund == 0 ? '未还款' : '还款'}`);

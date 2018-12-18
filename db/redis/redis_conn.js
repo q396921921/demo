@@ -3,17 +3,19 @@ var option = {
     host: '47.92.215.175', // default 
     // host: 'localhost', // default 
     port: 6379, //default 
+    auth_pass: 'chaiyang44554454554464',
     max_clients: 30, // defalut 
     perform_checks: false, // checks for needed push/pop functionality 
     database: 0, // database number to use 
-    options: {
-        auth_pass: ''
-    } //options for createClient of node-redis, optional 
+    // options: {
+    //     auth_pass: 'shaoshi123'
+    // } //options for createClient of node-redis, optional 
 }
 /**
  * 获得一个redis连接
  */
 const db_client = db2.createClient(option);
+
 db_client.on('error', function (err) {
     console.log('连接出现错误');
     console.log(err);
@@ -21,6 +23,7 @@ db_client.on('error', function (err) {
         console.log('error');
     }
 })
+
 db_client.on('connect', function () {
     console.log('Redis连接成功');
 })

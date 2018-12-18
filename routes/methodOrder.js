@@ -8,16 +8,15 @@ const path = require("path");
 const timer = require("./timer");
 const promise = require('bluebird');
 const moment = require('moment');
+const log = require('./log');
 
 const me = require('./methodEmp');
 
-var debug = require("debug")("app:server");
 let public = require("./../public/public");
 const uploadFile = public.uploadFolde; // 后台修改上传图片文件的文件夹名字
 const excelFile = public.excelFile;
 const symbol = public.symbol;
 const util = require('./util');
-
 
 const get = require('./../db/redis/get_redis');
 
@@ -26,14 +25,16 @@ var md = {
    * total_profit表
    * @param {JSON} body 查询条件
    */
-  getTotal_profit: promise.promisify(async function (body, cb) {
+  getTotal_profit: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let condis = { tName: 'total_profit' };
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data);
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -41,14 +42,16 @@ var md = {
    * detail_file_type表
    * @param {JSON} body 查询条件
    */
-  getDetail_file_type: promise.promisify(async function (body, cb) {
+  getDetail_file_type: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let condis = { tName: 'detail_file_type' }
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -56,14 +59,16 @@ var md = {
    * file_types_num表
    * @param {JSON} body 查询条件
    */
-  getFile_types_num: promise.promisify(async function (body, cb) {
+  getFile_types_num: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let condis = { tName: 'file_types_num' }
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -71,14 +76,16 @@ var md = {
    * flow表
    * @param {JSON} body 查询条件
    */
-  getFlow: promise.promisify(async function (body, cb) {
+  getFlow: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let condis = { tName: 'flow' }
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -86,14 +93,16 @@ var md = {
    * flow_detail表
    * @param {JSON} body 查询条件
    */
-  getFlow_detail: promise.promisify(async function (body, cb) {
+  getFlow_detail: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let condis = { tName: 'flow_detail' }
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -101,8 +110,9 @@ var md = {
    * order表
    * @param {JSON} body 查询条件
    */
-  getOrder: promise.promisify(async function (body, cb) {
+  getOrder: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let order_type = body.order_type;
       let tName = getOrderTName(order_type);
       let data;
@@ -124,6 +134,7 @@ var md = {
       }
       cb(null, data)
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -131,14 +142,16 @@ var md = {
    * product表
    * @param {JSON} body 查询条件
    */
-  getProduct: promise.promisify(async function (body, cb) {
+  getProduct: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let condis = { tName: 'product' }
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -146,14 +159,16 @@ var md = {
    * product_type表
    * @param {JSON} body 查询条件
    */
-  getProduct_type: promise.promisify(async function (body, cb) {
+  getProduct_type: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let condis = { tName: 'product_type' }
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -161,14 +176,16 @@ var md = {
    * relation_file_type_detail表
    * @param {JSON} body 查询条件
    */
-  getRelation_file_type_detail: promise.promisify(async function (body, cb) {
+  getRelation_file_type_detail: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let condis = { tName: 'relation_file_type_detail' }
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -176,14 +193,16 @@ var md = {
    * relation_flow_detail表
    * @param {JSON} body 查询条件
    */
-  getRelation_flow_detail: promise.promisify(async function (body, cb) {
+  getRelation_flow_detail: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let condis = { tName: 'relation_flow_detail' }
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -191,14 +210,16 @@ var md = {
    * relation_order_state表
    * @param {JSON} body 查询条件
    */
-  getRelation_order_state: promise.promisify(async function (body, cb) {
+  getRelation_order_state: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let condis = { tName: 'relation_order_state' }
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -206,14 +227,16 @@ var md = {
    * relation_product_dep表
    * @param {JSON} body 查询条件
    */
-  getRelation_product_dep: promise.promisify(async function (body, cb) {
+  getRelation_product_dep: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let condis = { tName: 'relation_product_dep' };
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -221,14 +244,16 @@ var md = {
    * relation_state_flow表
    * @param {JSON} body 查询条件
    */
-  getRelation_state_flow: promise.promisify(async function (body, cb) {
+  getRelation_state_flow: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let condis = { tName: 'relation_state_flow' }
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -236,14 +261,16 @@ var md = {
    * state_detail表
    * @param {JSON} body 查询条件
    */
-  getState_detail: promise.promisify(async function (body, cb) {
+  getState_detail: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let condis = { tName: 'state_detail' }
       condis = util.spliceCode(condis, body);
       let ret = await get.myData(condis);
       let data = util.getData(ret);
       cb(null, data)
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -256,17 +283,20 @@ var md = {
    * 通过商品id，删除对应的内勤
    * @returns {string} success
    */
-  deleteOffPro: promise.promisify(async function (body, cb) {
+  deleteOffPro: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let product_id = body.product_id;
       let condis = {
         tName: 'relation_product_dep',
         product_id: product_id
       }
       await get.delete(condis);
+      let pname = await md.getProduct(body);
+      log.controlLog(req, { outData: 'success', control: `删除了商品：${pname[0].name}对应的内勤` });
       cb('success');
     } catch (err) {
-      debug("删除商品对应的内勤错误");
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -274,8 +304,9 @@ var md = {
    * 传入商品id，部门id，内勤id，为内勤分配产品
    * @returns {string} success
    */
-  allotProduct: promise.promisify(async function (body, cb) {
+  allotProduct: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let maxId = get.tbMaxId({ tName: 'relation_product_dep' }, 'id');
       let condis = {
         tName: 'relation_product_dep',
@@ -292,9 +323,10 @@ var md = {
         condis[dep_emp_id] = dep_emp_id;
         await get.insert(condis);
       }
+      log.controlLog(req, { outData: 'success', control: `为内勤分配产品` });
       cb('success')
     } catch (err) {
-      debug("删除内勤商品对应业务错误");
+      log.errLog(req);
       cb('error');
     }
 
@@ -304,13 +336,14 @@ var md = {
    * 传入商品id以及订单id，创建这个商品的所有状态
    * @returns {string} success
    */
-  createOrderFlow: promise.promisify(async function (body, cb) {
+  createOrderFlow: promise.promisify(async function (req, cb) {
     try {
-      let product = await md.getProduct({ product_id: body.product_id })
+      let body = req.body;
+      let product = await md.getProduct({ body: { product_id: body.product_id } })
       let flow_id = product[0].flow_id;
       let sortFlow = await getsortFlow(flow_id);
       for (let i = 0; i < sortFlow.length; i++) {
-        let state_detail_id_arr = await md.getRelation_state_flow({ flow_detail_id: sortFlow[i].flow_detail_id });
+        let state_detail_id_arr = await md.getRelation_state_flow({ body: { flow_detail_id: sortFlow[i].flow_detail_id } });
         for (let j = 0; j < state_detail_id_arr.length; j++) {
           let maxId = await get.tbMaxId({ tName: 'relation_order_state' }, 'relation_state_id');
           let obj3 = {
@@ -325,9 +358,10 @@ var md = {
           await get.insert(obj3);
         }
       }
+      log.controlLog(req, { outData: 'success', control: `为新生成的订单创建流程` });
       cb('success');
     } catch (err) {
-      debug("创建这个商品的所有状态错误");
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -335,8 +369,9 @@ var md = {
   /**
    * 传入订单id，修改订单信息
    */
-  updateOrder: promise.promisify(async function (body, cb) {
+  updateOrder: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let order_id = body.or_id;
       let product_id = body.product_id;
       let channel_id = body.channel_id;
@@ -350,13 +385,13 @@ var md = {
       let clientName = body.clientName;
       let userComment = body.userComment; // 用户备注
 
-      let emps = await me.getEmp({ emp_id: channel_id });
+      let emps = await me.getEmp({ body: { emp_id: channel_id } });
       let dep_emp = await get.myDataAndOrNot({ tName: 'emp' }, { and: { emp_id: channel_id }, not: { 'type': 6 } });
       let dep_emp_id;
       if (emps.length != 0) {
         dep_emp_id = dep_emp[0].emp_id;
       }
-      let office = await md.getRelation_product_dep({ product_id: product_id, dep_emp_id: dep_emp_id });
+      let office = await md.getRelation_product_dep({ body: { product_id: product_id, dep_emp_id: dep_emp_id } });
       let office_id;
       if (office.length != 0) {
         office_id = office[0].data.off_id;
@@ -373,8 +408,12 @@ var md = {
       obj = util.spliceCode({}, obj);
       let tName = getOrderTName(order_type)
       await get.update({ tName: tName, order_id: order_id }, obj);
+      log.controlLog(req, {
+        outData: 'success', control: `修改订单内勤：${channel_id},状态:${order_type},申请金额:${inmoney},客户姓名:${clientName},用户备注:${userComment}`
+      });
       cb('success');
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -382,8 +421,9 @@ var md = {
   /**
    * 后台通过订单id直接删除订单功能
    */
-  deleteOrder: promise.promisify(async function (body, cb) {
+  deleteOrder: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let order_id = body.order_id;
       let order_type = body.order_type;
       let tName = getOrderTName(order_type);
@@ -391,8 +431,10 @@ var md = {
       await get.delete({ tName: 'chatroom', chat_id: order_id });  // 删除与订单关联的聊天房间
       await get.delete({ tName: 'relation_order_state', order_id: order_id }); // 删除与订单相关联的流程状态
       await get.delete({ tName: tName, order_id: order_id }); // 删除此订单
+      log.controlLog(req, { outData: 'success', control: `删除此订单聊天房间即对应流程` });
       cb('success');
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -402,8 +444,9 @@ var md = {
    * @param {JSON} body {order_id:x }
    * @returns {number} count 删除的订单数量
    */
-  deleteOrderById: promise.promisify(async function (body, cb) {
+  deleteOrderById: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let order_arr = body.order_arr;
       order_arr = JSON.parse(order_arr);
       let counts = body.count; // 删除了几个订单
@@ -413,7 +456,7 @@ var md = {
         const order = order_arr[i];
         let order_id = order.order_id;
         let order_type = order.order_type;
-        let orders = await md.getOrder({ order_type: order_type, order_id: order_id });
+        let orders = await md.getOrder({ body: { order_type: order_type, order_id: order_id } });
         if (orders.length != 0) {
           let product_id = orders[0].product_id;
           let channel_id = orders[0].channel_id;
@@ -427,6 +470,7 @@ var md = {
               continue;
             } else {
               await get.delete({ tName: 'order1', order_id: order_id });
+              log.controlLog(req, { outData: 'success', control: `自动删除了错误订单` });
               count++;
             }
           } else if (order_type == "2") {
@@ -435,6 +479,7 @@ var md = {
               continue;
             } else {
               await get.delete({ tName: 'order2', order_id: order_id });
+              log.controlLog(req, { outData: 'success', control: `自动删除了错误订单` });
               count++;
             }
           } else if (order_type == "3") {
@@ -443,6 +488,7 @@ var md = {
               continue;
             } else {
               await get.delete({ tName: 'order3', order_id: order_id });
+              log.controlLog(req, { outData: 'success', control: `自动删除了错误订单` });
               count++;
             }
           }
@@ -451,6 +497,7 @@ var md = {
       counts = counts - count;
       md.setCount({ "count": counts })
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -459,8 +506,9 @@ var md = {
    * 传入材料id与具体材料id数组，指定中间表
    * @returns {string} success
    */
-  updateFileType: promise.promisify(async function (body, cb) {
+  updateFileType: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let file_type_id = body.file_type_id;
       let detail_file_type_id_arr = body.detail_file_type_id;
       if (typeof (detail_file_type_id_arr) != "object") {
@@ -478,8 +526,10 @@ var md = {
         condis.detail_file_type_id = detail_file_type_id;
         await get.insert(condis);
       }
+      log.controlLog(req, { outData: 'success', control: `为材料分配具体材料` });
       cb('success');
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -488,17 +538,22 @@ var md = {
    * 传入具体材料id，删除一个具体材料
    * @returns {string} fileFail/success
    */
-  deleteDetailFileType: promise.promisify(async function (body, cb) {
+  deleteDetailFileType: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let detail_file_type_id = body.detail_file_type_id;
-      let files = await md.getRelation_file_type_detail({ detail_file_type_id: detail_file_type_id });
+      let files = await md.getRelation_file_type_detail({ body: { detail_file_type_id: detail_file_type_id } });
       if (files.length != 0) {
+        log.controlLog(req, { outData: 'success', control: `删除具体材料失败，材料不存在` });
         cb("fileFail");
       } else {
         await get.delete({ tName: 'detail_file_type', detail_file_type_id: detail_file_type_id });
+        let dName = await md.getDetail_file_type(body);
+        log.controlLog(req, { outData: 'success', control: `删除具体材料${dName[0].name}` });
         cb('success');
       }
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -507,19 +562,23 @@ var md = {
    * 传入材料表id，删除一个材料
    * @returns {string} productFail/success
    */
-  deleteFileType: promise.promisify(async function (body, cb) {
+  deleteFileType: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let file_type_id = body.file_type_id;
-      let product = await md.getProduct({ file_type_id: body.file_type_id });
+      let product = await md.getProduct({ body: { file_type_id: body.file_type_id } });
       if (product.length != 0) {
         cb("productFail");
       } else {
         // 管道
         await get.delete({ tName: 'relation_file_type_detail', file_type_id: file_type_id }); // 删除与之关联的中间表
         await get.delete({ tName: 'file_types_num', file_type_id: file_type_id }); // 删除材料
+        let dName = await md.getFile_types_num(body);
+        log.controlLog(req, { outData: 'success', control: `删除具体材料${dName[0].name}` });
         cb('success')
       }
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -528,8 +587,9 @@ var md = {
    * 创建申请材料
    * @returns {string} success
    */
-  insertFileType: promise.promisify(async function (body, cb) {
+  insertFileType: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let bus_name = body.bus_name;
       let maxId = await get.tbMaxId({ tName: 'file_types_num' }, 'file_type_id');
       let condis = {
@@ -538,8 +598,10 @@ var md = {
         name: bus_name,
       }
       await get.insert(condis);
+      log.controlLog(req, { outData: 'success', control: `创建了申请材料${name}` });
       cb('success')
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -548,8 +610,9 @@ var md = {
    * 创建具体的申请材料
    * @returns {string} success
    */
-  insertDetailFileType: promise.promisify(async function (body, cb) {
+  insertDetailFileType: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let name_arr = body.name;
       let text_arr = body.text;
       if (typeof name_arr != "object") {
@@ -567,8 +630,10 @@ var md = {
         condis.text = text_arr[count++];
         await get.insert(condis);
       }
+      log.controlLog(req, { outData: 'success', control: `创建了具体材料${name_arr.toString()}` });
       cb('success');
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -588,8 +653,10 @@ var md = {
       condis.putaway = 0;
       await get.insert(condis);
       req.body.product_id = maxId;
+      log.controlLog(req, { outData: 'success', control: `创建了一个新商品${body.name}` });
       md.updateProductInfo(req, cb);
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -608,6 +675,7 @@ var md = {
       await get.insert(condis);
       cb('success');
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -645,7 +713,7 @@ var md = {
           count++;
           continue;
         } else if (exist == 1) {
-          let product = await md.getProduct({ product_id: product_id });
+          let product = await md.getProduct({ body: { product_id: product_id } });
           imgPath = req.files[count2].path;
           count2++;
           let imgAgoPath = "";
@@ -671,8 +739,10 @@ var md = {
       }
       obj3 = util.spliceCode({}, obj3);
       await get.update(obj2, obj3);
+      log.controlLog(req, { outData: 'success', control: `修改了商品的具体信息` });
       cb('success');
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -681,14 +751,15 @@ var md = {
    * 传入具体的文件类型数表id，查询出对应的数据条数，以及名字，id
    * @returns {Array} [json1,json2...]
    */
-  getDetailFile_types: promise.promisify(async function (body, cb) {
+  getDetailFile_types: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       if (body.file_type_id) {
-        let data = await md.getRelation_file_type_detail({ file_type_id: body.file_type_id });
+        let data = await md.getRelation_file_type_detail({ body: { file_type_id: body.file_type_id } });
         let data2 = [];
         for (let i = 0; i < data.length; i++) {
           const val = data[i];
-          let val2 = await md.getDetail_file_type({ detail_file_type_id: val.detail_file_type_id });
+          let val2 = await md.getDetail_file_type({ body: { detail_file_type_id: val.detail_file_type_id } });
           data2.push(val2[0]);
         }
         cb(null, data2);
@@ -696,6 +767,7 @@ var md = {
         cb(null, [])
       }
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -705,8 +777,9 @@ var md = {
    * 得到具体的各个流程与各个状态
    * @returns {Array} [sortFlows([json1,json2...]),state_details_arr([json1,json2...])]
    */
-  getSortFlowState: promise.promisify(async function (body, cb) {
+  getSortFlowState: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let sortFlows = await getsortFlow(body.flow_id);
       let state_details_arr = [];
       // 遍历多个具体的流程信息，获得每个具体流程下对应的多个具体状态信息
@@ -717,6 +790,7 @@ var md = {
       }
       cb(null, [sortFlows, state_details_arr]);
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -726,8 +800,9 @@ var md = {
    * @param {JSON} body {order_type:x && userdep_id:x && busoff_id:x && role_type:x || order_state }
    * @returns {Array} [json1,json2...] || {number} data.length
    */
-  getOrders: promise.promisify(async function (body, cb) {
+  getOrders: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       // let order_id = body.order_id;
       // let appli_id = body.appli_id;
       // let type = body.type;
@@ -748,6 +823,7 @@ var md = {
         cb(null, data);
       }
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -756,14 +832,16 @@ var md = {
    * @param {JSON} body {limit:x, 其他字段:x }
    * @returns {string} "{'data':'[p1,p2...]'}"
    */
-  getLimitProduct: async function (body, cb) {
+  getLimitProduct: async function (req, cb) {
     try {
+      let body = req.body;
       let product_type_id = body.product_type_id;
       let limit = body.limit;
-      let data = await md.getProduct({ product_type_id: product_type_id });
+      let data = await md.getProduct({ body: { product_type_id: product_type_id } });
       data = util.splitPage({ tName: 'product', limit: limit }, data);
       cb(JSON.stringify({ 'data': data }));
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   },
@@ -772,17 +850,19 @@ var md = {
    * 获得这张订单的所有信息
    * @returns {Array} [allFlowState,allState,flowTime]
    */
-  getAllOrderInfo: function (body, cb) {
+  getAllOrderInfo: function (req, cb) {
+    let body = req.body;
     let arr = [];
     async.parallel([
       function (cb2) {
         (async function () {
           try {
-            let product = await md.getProduct({ product_id: body.product_id });
+            let product = await md.getProduct({ body: { product_id: body.product_id } });
             let data = await md.getSortFlowState({ flow_id: product[0].flow_id });
             arr.push({ allFlowState: data });
             cb2();
           } catch (err) {
+            log.errLog(req);
             cb('error');
           }
         })()
@@ -790,11 +870,12 @@ var md = {
       function (cb2) {
         (async function () {
           try {
-            let ret = await md.getRelation_order_state({ order_id: order_id });
+            let ret = await md.getRelation_order_state({ body: { order_id: order_id } });
             let data = util.dataFormat(['state_time', 'flow_time'], ret);
             arr.push({ allState: data });
             cb2();
           } catch (err) {
+            log.errLog(req);
             cb('error');
           }
         })()
@@ -802,12 +883,14 @@ var md = {
       function (cb2) {
         (async function () {
           try {
-            let ret = await md.getFlows(body);
+            console.log(426985798799789);
+            let ret = await md.getFlows({ body: body });
             ret = JSON.parse(ret)[3];
             let data = util.dataFormat(['state_time', 'flow_time'], ret);
             arr.push({ flowTime: rt });
             cb2();
           } catch (err) {
+            log.errLog(req);
             cb('error');
           }
         })()
@@ -823,15 +906,17 @@ var md = {
    * 返回具体的流程的字符串值
    * @returns {string} state_name
    */
-  getStates: promise.promisify(async function (body, cb) {
+  getStates: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let relation_state_id = body.state_id;
-      let oStates = await md.getRelation_order_state({ relation_state_id: relation_state_id });
+      let oStates = await md.getRelation_order_state({ body: { relation_state_id: relation_state_id } });
       let state_detail_id = oStates[0].state_detail_id;
-      let sDetal = await md.getState_detail({ state_detail_id: state_detail_id });
+      let sDetal = await md.getState_detail({ body: { state_detail_id: state_detail_id } });
       let state_name = sDetal[0].state_name;
       cb(null, state_name);
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -841,13 +926,14 @@ var md = {
    * 返回流程id，大流程对应各小流程的时间，订单id, 
    * @returns {Array} [flow_id,[t1,t2,t3...],order_id]
    */
-  getFlows: promise.promisify(async function (body, cb) {
+  getFlows: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let order_id = body.order_id;
-      let orders = await md.getOrder({ order_id: order_id, order_type: 1 });
+      let orders = await md.getOrder({ body: { order_id: order_id, order_type: 1 } });
       let product_id = orders[0].product_id;
       let flowState = orders[0].flowState;
-      let products = await md.getProduct({ product_id: product_id });
+      let products = await md.getProduct({ body: { product_id: product_id } });
       let flow_id = products[0].flow_id;
       let flows = await getsortFlow(flow_id);
       let arr = [];
@@ -862,12 +948,12 @@ var md = {
         } else {
           count++;
         }
-        let stateFlow = await md.getRelation_state_flow({ flow_detail_id: flow_detail_id });
+        let stateFlow = await md.getRelation_state_flow({ body: { flow_detail_id: flow_detail_id } });
         let state_detail_id;
         if (stateFlow[0]) {
           state_detail_id = stateFlow[0].state_detail_id;
         }
-        let oState = await md.getRelation_order_state({ order_id: order_id, state_detail_id: state_detail_id });
+        let oState = await md.getRelation_order_state({ body: { order_id: order_id, state_detail_id: state_detail_id } });
         arr2.push(oState[0]);
       }
       arr.push(flow_id);
@@ -877,6 +963,8 @@ var md = {
       arr.push(count2);
       cb(null, arr);
     } catch (err) {
+      log.errLog(req);
+      console.log(err);
       cb('error');
     }
   }),
@@ -886,9 +974,10 @@ var md = {
    * 返回这个订单，当前流程的id值，以及流程按leavl级别升序排序的所有数据
    * @returns {string} flowState/""
    */
-  getState: promise.promisify(async function (body, cb) {
+  getState: promise.promisify(async function (req, cb) {
     try {
-      let orders = await md.getOrder({ order_id: body.order_id, order_type: body.order_type });
+      let body = req.body;
+      let orders = await md.getOrder({ body: { order_id: body.order_id, order_type: body.order_type } });
       orders = util.sortArr(oreders, 'leavl', 'asc');
       if (orders[0].flowState) {
         cb(orders[0].flowState);
@@ -896,6 +985,7 @@ var md = {
         cb("");
       }
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -905,11 +995,12 @@ var md = {
    * 返回栏值所对应的流程的字符串值以及各个状态，json字符串格式
    *  @returns {Array} [[object,object...],string]
    */
-  getStatess: promise.promisify(async function (body, cb) {
+  getStatess: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let order_id = body.order_id;
       let flow_detail_id = body.flow_id;
-      let flows = await md.getFlow_detail({ flow_detail_id: flow_detail_id });
+      let flows = await md.getFlow_detail({ body: { flow_detail_id: flow_detail_id } });
       let flow_name = flows[0].flow_name;
       let sortSates = await getsortSate(flow_detail_id);
       let arr1 = [];
@@ -917,13 +1008,14 @@ var md = {
       for (let i = 0; i < sortSates.length; i++) {
         const rst = sortSates[i];
         let state_detail_id = rst.state_detail_id;
-        let oState = await md.getRelation_order_state({ state_detail_id: state_detail_id, order_id: order_id });
+        let oState = await md.getRelation_order_state({ body: { state_detail_id: state_detail_id, order_id: order_id } });
         arr1.push(oState[0]);
-        let sDetal = await md.getState_detail({ state_detail_id: state_detail_id });
+        let sDetal = await md.getState_detail({ body: { state_detail_id: state_detail_id } });
         arr2.push(sDetal[0]);
       }
       cb(JSON.stringify({ 'data': [arr1, arr2, flow_name] }));
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -932,8 +1024,9 @@ var md = {
    * 无须传入东西，创建一个空订单，返回订单id,json格式
    * @returns {string} order_id 新创建空订单的主键id
    */
-  createOrder: promise.promisify(async function (body, cb) {
+  createOrder: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let order_type = body.order_type;
       if (typeof order_type != "string" && order_type) {
         order_type = order_type.toString();
@@ -945,8 +1038,10 @@ var md = {
       let order_id = await get.tbMaxId({ tName: 'order' }, 'order_id');
       let tName = getOrderTName(order_type);
       await get.insert({ tName: tName, order_id: order_id, appli_id: appli_id, appliTime: appliTime, order_type, order_type });
+      log.controlLog(req, { outData: 'success', control: `创建了一张空订单` });
       cb(null, order_id.toString());
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -955,7 +1050,8 @@ var md = {
    * 传入创建流程所需要的数据
    * 创建一个完整的流程
    */
-  createFlow: promise.promisify(async function (body, cb) {
+  createFlow: promise.promisify(async function (req, cb) {
+    let body = req.body;
     let flow_name = body.flow_name;
     let detail_flow_name = body.detail_flow_name;
     let flow_leavl = body.flow_leavl;
@@ -1004,6 +1100,7 @@ var md = {
             await get.insert(condis);
             cb2(null, 1);
           } catch (err) {
+            log.errLog(req);
             cb('error');
           }
         })();
@@ -1022,6 +1119,7 @@ var md = {
             }
             cb2(null, 2);
           } catch (err) {
+            log.errLog(req);
             cb('error');
           }
         })();
@@ -1041,6 +1139,7 @@ var md = {
             }
             cb2(null, 3);
           } catch (err) {
+            log.errLog(req);
             cb('error');
           }
         })();
@@ -1084,8 +1183,10 @@ var md = {
             }
             count++;
           }
+          log.controlLog(req, { outData: 'success', control: `创建了一个完成的流程${flow_name}` });
           cb('success');
         } catch (err) {
+          log.errLog(req);
           cb('error')
         }
       })()
@@ -1099,13 +1200,16 @@ var md = {
    * @param {JSON} body flow_id流程的主键id
    * @returns {string} productFail(商品与该流程关联)/orderFail(订单状态与该流程关联)/success(删除成功)/error
    */
-  deleteFlow: promise.promisify(async function (body, cb) {
+  deleteFlow: promise.promisify(async function (req, cb) {
+    let body = req.body;
     let flow_id = body.flow_id;
     let flow_arr;
     let state_arr;
 
-    let products = await md.getProduct({ flow_id: flow_id });
+    let products = await md.getProduct({ body: { flow_id: flow_id } });
+    let fName = await md.getFlow({ flow_id: flow_id });
     if (products.length != 0) {
+      log.controlLog(req, { outData: 'success', control: `删除流程${fName[0].flow_name}失败，有商品与之关联` });
       cb("productFail");
     } else {
       let sFlows = await getsortFlow(flow_id);
@@ -1120,13 +1224,15 @@ var md = {
               (async function () {
                 try {
                   let state_detail_id = rt2.state_detail_id;
-                  let oState = await md.getRelation_order_state({ state_detail_id: state_detail_id });
+                  let oState = await md.getRelation_order_state({ body: { state_detail_id: state_detail_id } });
                   if (oState.length != 0) {
+                    log.controlLog(req, { outData: 'success', control: `删除流程${fName[0].flow_name}失败，有订单仍在使用` });
                     cb("orderFail");
                   } else {
                     cb3();
                   }
                 } catch (err) {
+                  log.errLog(req);
                   cb('error')
                 }
               })()
@@ -1134,6 +1240,7 @@ var md = {
               cb2();
             })
           } catch (err) {
+            log.errLog(req);
             cb('error');
           }
         })()
@@ -1157,8 +1264,10 @@ var md = {
               // 删除具体状态详细表
               await get.delete({ tName: 'state_detail', state_detail_id: val.state_detail_id })
             }
+            log.controlLog(req, { outData: 'success', control: `删除了一个完成的流程${flow_name}` });
             cb('success');
           } catch (err) {
+            log.errLog(req);
             cb('error');
           }
         })()
@@ -1171,24 +1280,29 @@ var md = {
    * @param {JSON} body {product: x}
    * @returns {string} orderFail(该商品与订单有关联)/success/eror
    */
-  deleteProduct: promise.promisify(async function (body, cb) {
+  deleteProduct: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let product_id = body.product_id;
-      let order1 = await md.getOrder({ order_type: 1, product_id: product_id });
-      let order2 = await md.getOrder({ order_type: 2, product_id: product_id });
-      let order3 = await md.getOrder({ order_type: 3, product_id: product_id });
+      let order1 = await md.getOrder({ body: { order_type: 1, product_id: product_id } });
+      let order2 = await md.getOrder({ body: { order_type: 2, product_id: product_id } });
+      let order3 = await md.getOrder({ body: { order_type: 3, product_id: product_id } });
+      let pName = await md.getProduct(body);
       if (order1 != 0 || order2 != 0 || order3 != 0) {
+        log.controlLog(req, { outData: 'success', control: `删除商品${pName[0].name}失败，有订单与之关联` });
         cb("orderFail");
       } else {
-        let products = await md.getProduct({ product_id: product_id });
+        let products = await md.getProduct({ body: { product_id: product_id } });
         let agoImgPath = products[0].imgPath;
         util.deleteFile(agoImgPath, uploadFile);
         agoImgPath = products[0].imgPathSmall;
         util.deleteFile(agoImgPath, uploadFile);
         await get.delete({ tName: 'product', product_id: product_id });
+        log.controlLog(req, { outData: 'success', control: `删除商品${pName[0].name}成功` });
         cb("success");
       }
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -1198,16 +1312,19 @@ var md = {
    * @param {JSON} body {order_type:x, order_state:x, order_id:x}
    * @returns {string} success
    */
-  setOrder_state: promise.promisify(async function (body, cb) {
+  setOrder_state: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let order_type = body.order_type;
       let order_state = body.order_state;
       let order_id = body.order_id;
       let tName = getOrderTName(order_type);
       let condis = { tName: tName, order_id: order_id }
       await get.update(condis, { order_state: order_state });
+      log.controlLog(req, { outData: 'success', control: `设置订单id：${order_id}的状态为：${getRelation_order_state(order_state)}` });
       cb(null, "success");
     } catch (err) {
+      log.errLog(req);
       cb("error");
     }
   }),
@@ -1217,13 +1334,16 @@ var md = {
    * @param {JSON} body {refund:x, order_id:x };
    * @returns {string} success
    */
-  setRefund_state: promise.promisify(async function (body, cb) {
+  setRefund_state: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let refund = body.refund;
       let order_id = body.order_id;
       await get.update({ tName: 'order1', order_id: order_id }, { refund: refund });
+      log.controlLog(req, { outData: 'success', control: `设置还款状态：${refund = refund == 0 ? '未还款' : '还款'}` });
       cb("success");
     } catch (err) {
+      log.errLog(req);
       cb("error");
     }
   }),
@@ -1233,8 +1353,9 @@ var md = {
    * @param {JSON} body {failReason:x, order_id:x };
    * @returns {string} success
    */
-  setFailReason: promise.promisify(async function (body, cb) {
+  setFailReason: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let order_id = body.order_id;
       let failReason = body.failReason;
       if (failReason == "") {
@@ -1242,13 +1363,14 @@ var md = {
       }
       await get.update({ tName: 'order1', order_id: order_id }, { failReason: failReason });
       if (failReason && failReason != "") {
-        await md.setOrder_state({ order_state: 4, order_id: order_id, order_type: 1 });
+        await md.setOrder_state({ body: { order_state: 4, order_id: order_id, order_type: 1 } });
       } else {
-        await md.setOrder_state({ order_state: 2, order_id: order_id, order_type: 1 });
+        await md.setOrder_state({ body: { order_state: 2, order_id: order_id, order_type: 1 } });
       }
+      log.controlLog(req, { outData: 'success', control: `设置失败原因：${failReason}` });
       cb('success');
     } catch (err) {
-      console.log(err);
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -1258,12 +1380,15 @@ var md = {
    * @param {JSON} body {profit:x };
    * @returns {string} success
    */
-  updateProfit: promise.promisify(async function (body, cb) {
+  updateProfit: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let profit = body.profit;
       await get.update({ tName: 'total_profit' }, { profit: profit });
+      log.controlLog(req, { outData: 'success', control: `修改总利润为：${profit}` });
       cb('success');
     } catch (err) {
+      log.errLog(req);
       cb("error");
     }
   }),
@@ -1273,17 +1398,19 @@ var md = {
    * @param {JSON} body {state_detail_id:x, order_id:x, time:x };
    * @returns {string} success
    */
-  setState: promise.promisify(async function (body, cb) {
+  setState: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let state_detail_id = body.state_detail_id;
       let order_id = body.order_id;
       let time = body.time;
       await get.update({ tName: 'relation_order_state', order_id: order_id, state_detail_id: state_detail_id }, { state_time: time });
-      let oState = await md.getRelation_order_state({ state_detail_id: state_detail_id, order_id: order_id });
+      let oState = await md.getRelation_order_state({ body: { state_detail_id: state_detail_id, order_id: order_id } });
       let relation_state_id = oState[0].relation_state_id;
       await get.update({ tName: 'order1', order_id: order_id }, { relation_state_id: relation_state_id });
       cb("success");
     } catch (err) {
+      log.errLog(req);
       cb("error");
     }
   }),
@@ -1294,20 +1421,23 @@ var md = {
    * @param {JSON} body {flow_id:x, order_id:x, flow_time:x }
    * @returns {string} success
    */
-  setFlowTime: promise.promisify(async function (body, cb) {
+  setFlowTime: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let flow_detail_id = body.flow_detail_id;
       let order_id = body.order_id;
       let flow_time = body.flow_time;
       await get.update({ tName: 'order1', order_id: order_id }, { flowState: flow_detail_id });
-      let sFlows = await md.getRelation_state_flow({ flow_detail_id: flow_detail_id });
+      let sFlows = await md.getRelation_state_flow({ body: { flow_detail_id: flow_detail_id } });
       for (let i = 0; i < sFlows.length; i++) {
         const rt = sFlows[i];
         let state_detail_id = rt.state_detail_id;
         await get.update({ tName: 'relation_order_state', order_id: order_id, state_detail_id: state_detail_id }, { flow_time: flow_time });
       }
+      log.controlLog(req, { outData: 'success', control: `设置流程时间：${flow_time}` });
       cb("success");
     } catch (err) {
+      log.errLog(req);
       cb("error");
     }
   }),
@@ -1317,8 +1447,9 @@ var md = {
    * @param {JSON} body {字段名:值};
    * @returns {string} success
    */
-  updateOneOrder: promise.promisify(async function (body, cb) {
+  updateOneOrder: promise.promisify(async function (req, cb) {
     try {
+      let body = req.body;
       let obj = {};
       let order_type = body.order_type;
       let name = body.name[0];
@@ -1326,13 +1457,16 @@ var md = {
       obj[name] = val;
       let order_id = body.order_id;
       await get.update({ tName: 'order', order_type: order_type, order_id: order_id }, obj);
+      log.controlLog(req, { outData: 'success', control: `修改订单信息${name}为：${val}` });
       cb("success");
     } catch (err) {
+      log.errLog(req);
       cb("error");
     }
   }),
 
-  screenOrder: function (body, cb2) {
+  screenOrder: function (req, cb2) {
+    let body = req.body;
     let userdep_id = body.userdep_id;
     let role_type = body.role_type;
     let emp_id = body.emp_id;
@@ -1341,9 +1475,10 @@ var md = {
         // 获取筛选的所有类型
         (async function () {
           try {
-            let result = await md.getProduct_type(null);
+            let result = await md.getProduct_type({ body: null });
             cb(null, result);
           } catch (err) {
+            log.errLog(req);
             cb2('error')
           }
         })()
@@ -1353,17 +1488,18 @@ var md = {
             let arr = [];
             if (role_type == 3) {
               if (userdep_id) {
-                let ret = await me.getEmp({ type: "5", dep_id: userdep_id });
+                let ret = await me.getEmp({ body: { type: "5", dep_id: userdep_id } });
                 async.each(ret, function (rt, cb3) {
                   (async function () {
                     try {
                       let iiuv = rt.iiuv;
-                      let ret2 = await me.getEmp({ iiuv: iiuv, type: 6 });
+                      let ret2 = await me.getEmp({ body: { iiuv: iiuv, type: 6 } });
                       if (ret2.length != 0) {
                         arr = arr.concat(ret2)
                       }
                       cb3();
                     } catch (err) {
+                      log.errLog(req);
                       cb2('error');
                     }
                   })()
@@ -1379,12 +1515,13 @@ var md = {
               async.each(ret, function (rt, cb3) {
                 (async function () {
                   try {
-                    ret2 = await me.getEmp({ iiuv: rt.iiuv, type: 6 });
+                    ret2 = await me.getEmp({ body: { iiuv: rt.iiuv, type: 6 } });
                     if (ret2.length != 0) {
                       arr = arr.concat(ret2)
                     }
                     cb3();
                   } catch (err) {
+                    log.errLog(req);
                     cb2('error');
                   }
                 })();
@@ -1392,16 +1529,17 @@ var md = {
                 cb(null, arr);
               })
             } else if (role_type == 5) {
-              let emps = await me.getEmp({ emp_id: emp_id });
+              let emps = await me.getEmp({ body: { emp_id: emp_id } });
               let iiuv = emps[0].iiuv;
-              let users = await me.getEmp({ iiuv: iiuv, type: 6 });
+              let users = await me.getEmp({ body: { iiuv: iiuv, type: 6 } });
               cb(null, users)
             } else {
               // 获取筛选的所有渠道
-              let result = await me.getEmp({ type: 6 });
+              let result = await me.getEmp({ body: { type: 6 } });
               cb(null, result);
             }
           } catch (err) {
+            log.errLog(req);
             cb2('error');
           }
         })()
@@ -1412,7 +1550,7 @@ var md = {
             if (role_type == 3) {
               // 获取筛选的所有业务
               if (userdep_id) {
-                let ret = await me.getEmp({ type: "5", dep_id: userdep_id });
+                let ret = await me.getEmp({ body: { type: "5", dep_id: userdep_id } });
                 cb(null, ret);
               } else {
                 cb(null, [])
@@ -1421,13 +1559,14 @@ var md = {
               let arr = await getProduct_DepEmps({ off_id: emp_id }, 'dep_emp_id');
               cb(null, arr)
             } else if (role_type == 5) {
-              let ret = await me.getEmp({ type: "5", "emp_id": emp_id });
+              let ret = await me.getEmp({ body: { type: "5", "emp_id": emp_id } });
               cb(null, ret)
             } else {
-              let ret = await me.getEmp({ type: "5" });
+              let ret = await me.getEmp({ body: { type: "5" } });
               cb(null, ret);
             }
           } catch (err) {
+            log.errLog(req);
             cb2('error')
           }
         })()
@@ -1438,7 +1577,7 @@ var md = {
             if (role_type == 3) {
               // 获取筛选的所有业务
               if (userdep_id) {
-                let ret = await me.getEmp({ type: "5", dep_id: userdep_id });
+                let ret = await me.getEmp({ body: { type: "5", dep_id: userdep_id } });
                 cb(null, ret);
               } else {
                 cb(null, [])
@@ -1447,13 +1586,14 @@ var md = {
               let arr = await getProduct_DepEmps({ off_id: emp_id }, 'dep_emp_id');
               cb(null, arr)
             } else if (role_type == 5) {
-              let ret = await me.getEmp({ type: "5", "emp_id": emp_id });
+              let ret = await me.getEmp({ body: { type: "5", "emp_id": emp_id } });
               cb(null, ret)
             } else {
-              let ret = await me.getEmp({ type: "5" });
+              let ret = await me.getEmp({ body: { type: "5" } });
               cb(null, ret);
             }
           } catch (err) {
+            log.errLog(req);
             cb2('error')
           }
         })()
@@ -1464,7 +1604,7 @@ var md = {
             if (role_type == 3) {
               if (userdep_id) {
                 let arr = [];
-                let rets = await me.getEmp({ type: "5", dep_id: userdep_id });
+                let rets = await me.getEmp({ body: { type: "5", dep_id: userdep_id } });
                 for (let i = 0; i < rets.length; i++) {
                   const rts = rets[i];
                   arr = arr.concat(await getProduct_DepEmps({ dep_emp_id: rts.emp_id }, 'off_id'));
@@ -1483,17 +1623,18 @@ var md = {
                 cb(null, []);
               }
             } else if (role_type == 4) {
-              let ret = await me.getEmp({ "emp_id": emp_id });
+              let ret = await me.getEmp({ body: { "emp_id": emp_id } });
               cb(null, ret);
             } else if (role_type == 5) {
               let ret = await getProduct_DepEmps({ dep_emp_id: emp_id }, 'off_id');
               cb(null, ret);
             } else {
               // 获取筛选的所有内勤
-              let result = await me.getEmp({ type: "4" });
+              let result = await me.getEmp({ body: { type: "4" } });
               cb(null, result);
             }
           } catch (err) {
+            log.errLog(req);
             cb2('error')
           }
         })()
@@ -1502,9 +1643,10 @@ var md = {
         // 获取筛选的所有部门
         (async function () {
           try {
-            let ret = await me.getDep({});
+            let ret = await me.getDep({ body: "" });
             cb(null, ret);
           } catch (err) {
+            log.errLog(req);
             cb2('error')
           }
         })();
@@ -1519,7 +1661,8 @@ var md = {
    * 以及起始时间(time1)，截止时间(time2)[格式:'xxxx-xx-xx xx:xx']
    * 返回json字符串格式，{"result":result[Arrar]}
    */
-  screen: promise.promisify(async function (body, cb) {
+  screen: promise.promisify(async function (req, cb) {
+    let body = req.body;
     let timeType = body.timeType; // 申请时间还是放款时间
     let limit = body.limit; // 分页
     let time1 = body.time1; // 起始时间
@@ -1545,6 +1688,7 @@ var md = {
             arr.push(val);
           }
         } catch (err) {
+          log.errLog(req);
           cb('error');
         }
       });
@@ -1552,6 +1696,7 @@ var md = {
       b = util.splitPage({ limit: limit }, arr);
       cb(JSON.stringify({ data: b }))
     } catch (err) {
+      log.errLog(req);
       cb('error');
     }
   }),
@@ -1600,7 +1745,7 @@ var md = {
               }
               break;
             case "product_id":
-              val = await md.getProduct({ product_id: result[k] });
+              val = await md.getProduct({ body: { product_id: result[k] } });
               if (val.length != 0) {
                 arr.push(val[0].name);
               } else {
@@ -1608,7 +1753,7 @@ var md = {
               }
               break;
             case "order_state":
-              val = getRelation_order_state(result[k]);
+              val = getRelation_order_state({ body: result[k] });
               arr.push(val);
               break;
             case "seeTime":
@@ -1620,7 +1765,7 @@ var md = {
               arr.push(val);
               break;
             case "type":
-              val = await md.getProduct_type({ product_type_id: result[k] });
+              val = await md.getProduct_type({ body: { product_type_id: result[k] } });
               if (val.length != 0) {
                 arr.push(val[0].name);
               } else {
@@ -1646,7 +1791,7 @@ var md = {
             case "order_type":
               break;
             case "channel_id":
-              val = await me.getEmp({ emp_id: result[k] });
+              val = await me.getEmp({ body: { emp_id: result[k] } });
               if (val.length != 0) {
                 arr.push(val[0].name);
               } else {
@@ -1654,7 +1799,7 @@ var md = {
               }
               break;
             case "office_id":
-              val = await me.getEmp({ emp_id: result[k] });
+              val = await me.getEmp({ body: { emp_id: result[k] } });
               if (val.length != 0) {
                 arr.push(val[0].name);
               } else {
@@ -1662,7 +1807,7 @@ var md = {
               }
               break;
             case "business_id":
-              val = await me.getEmp({ emp_id: result[k] });
+              val = await me.getEmp({ body: { emp_id: result[k] } });
               if (val.length != 0) {
                 arr.push(val[0].name);
               } else {
@@ -1686,10 +1831,12 @@ var md = {
           callback("false", null);
         } else {
           timer.deleteExcel(pathStr);
+          log.controlLog(req, { outData: 'success', control: `导出了订单` });
           callback("true", pathStr);
         }
       });
     } catch (err) {
+      log.errLog(req);
       callback('error');
     }
   },
@@ -1698,12 +1845,13 @@ var md = {
    * 为total_profit表中的count赋值，也就是订单编号尾数
    * @param {JSON} body
    */
-  setCount: promise.promisify(async function (body, cb) {
+  setCount: promise.promisify(async function (req, cb) {
     try {
       let count = body.count;
       let counts = await get.update({ tName: 'total_profit' }, { count: count });
       cb(null, "success");
     } catch (err) {
+      log.errLog(req);
       cb("error");
     }
   })
@@ -1771,17 +1919,18 @@ function addZero(num) {
 let getsortFlow = promise.promisify(async function (flow_id, cb) {
   try {
     // 通过flow_id获得流程对应的多个具体流程（中间表）
-    let rFlow_details = await md.getRelation_flow_detail({ flow_id: flow_id });
+    let rFlow_details = await md.getRelation_flow_detail({ body: { flow_id: flow_id } });
     let flow_details_arr = [];
     // 获得具体流程的信息，并与流程信息拼接在一起
     for (let i = 0; i < rFlow_details.length; i++) {
-      let val = await md.getFlow_detail({ flow_detail_id: rFlow_details[i].flow_detail_id })
+      let val = await md.getFlow_detail({ body: { flow_detail_id: rFlow_details[i].flow_detail_id } })
       flow_details_arr.push(val[0]);
     }
     // 排序
     let sortFlows = util.sortArr(flow_details_arr, 'leavl', 'asc');
     cb(null, sortFlows);
   } catch (err) {
+    log.errLog(req);
     cb('error');
   }
 })
@@ -1792,15 +1941,16 @@ let getsortFlow = promise.promisify(async function (flow_id, cb) {
  */
 let getsortSate = promise.promisify(async function (flow_detail_id, cb) {
   try {
-    let state_detail_id_arr = await md.getRelation_state_flow({ flow_detail_id: flow_detail_id });
+    let state_detail_id_arr = await md.getRelation_state_flow({ body: { flow_detail_id: flow_detail_id } });
     let state_details = [];   // 一个具体流程，对应的多个具体状态
     for (let j = 0; j < state_detail_id_arr.length; j++) {
-      let state_detail = await md.getState_detail({ state_detail_id: state_detail_id_arr[j].state_detail_id });
+      let state_detail = await md.getState_detail({ body: { state_detail_id: state_detail_id_arr[j].state_detail_id } });
       state_details.push(state_detail[0]);
     }
     state_details = util.sortArr(state_details, 'leavl', 'asc');
     cb(null, state_details);
   } catch (err) {
+    log.errLog(req);
     cb('error');
   }
 })
@@ -1826,7 +1976,6 @@ let getPowerOrder = promise.promisify(async function (obj, cb) {
     let userdep_id = obj.userdep_id;
     let busoff_id = obj.busoff_id;
 
-
     let data;
     let jsBody = {
       order_type: order_type, type: type, channel_id: channel_id,
@@ -1835,29 +1984,29 @@ let getPowerOrder = promise.promisify(async function (obj, cb) {
     if (role_type == 1 || role_type == 2) {    // 管理员 与 董事长
       let arr = [];
       if (dep_id) {
-        let emps = await me.getEmp({ dep_id: dep_id });
+        let emps = await me.getEmp({ body: { dep_id: dep_id } });
         for (let i = 0; i < emps.length; i++) {
           const val = emps[i];
           let busId = val.emp_id;
           jsBody.business_id = busId;
-          let ret = await md.getOrder(jsBody);
+          let ret = await md.getOrder({ body: jsBody });
           if (ret.length != 0) {
             arr = arr.concat(ret);
           }
         }
         data = arr;
       } else {
-        data = await md.getOrder(jsBody);
+        data = await md.getOrder({ body: jsBody });
       }
     } else if (role_type == 3) {  // 经理
       if (dep_id) {
         if (dep_id == userdep_id) {
-          let ret1 = await me.getEmp({ dep_id: userdep_id });
+          let ret1 = await me.getEmp({ body: { dep_id: userdep_id } });
           let arr = [];
           for (let i = 0; i < ret1.length; i++) {
             const val = ret1[i];
             jsBody.business_id = val.emp_id;
-            let ret2 = await md.getOrder(jsBody);
+            let ret2 = await md.getOrder({ body: jsBody });
             arr = arr.concat(ret2);
           }
           data = arr;
@@ -1865,12 +2014,12 @@ let getPowerOrder = promise.promisify(async function (obj, cb) {
           data = [];
         }
       } else {
-        let ret1 = await me.getEmp({ dep_id: userdep_id });
+        let ret1 = await me.getEmp({ body: { dep_id: userdep_id } });
         let arr = [];
         for (let i = 0; i < ret1.length; i++) {
           const val = ret1[i];
           jsBody.business_id = val.emp_id;
-          let ret2 = await md.getOrder(jsBody);
+          let ret2 = await md.getOrder({ body: jsBody });
           arr = arr.concat(ret2);
         }
         data = arr;
@@ -1883,18 +2032,19 @@ let getPowerOrder = promise.promisify(async function (obj, cb) {
         for (let i = 0; i < emps.length; i++) {
           const val = emps[i];
           jsBody.business_id = val.emp_id;
-          arr = arr.concat(await md.getOrder(jsBody));
+          arr = arr.concat(await md.getOrder({ body: jsBody }));
         }
         data = arr;
       } else {
-        data = await md.getOrder(jsBody);
+        data = await md.getOrder({ body: jsBody });
       }
     } else if (role_type == 5) {  // 业务
       jsBody.business_id = busoff_id;
-      data = await md.getOrder(jsBody);
+      data = await md.getOrder({ body: jsBody });
     }
     cb(null, data);
   } catch (err) {
+    log.errLog(req);
     cb('error');
   }
 })
@@ -1908,7 +2058,7 @@ let getPowerOrder = promise.promisify(async function (obj, cb) {
 let getProduct_DepEmps = promise.promisify(async function (data, key, cb) {
   try {
     let arr = [];
-    let ret = await md.getRelation_product_dep(data);
+    let ret = await md.getRelation_product_dep({ body: data });
     let id_arr = [];
     for (let i = 0; i < ret.length; i++) {
       const val = ret[i];
@@ -1918,11 +2068,12 @@ let getProduct_DepEmps = promise.promisify(async function (data, key, cb) {
     }
     for (let i = 0; i < id_arr.length; i++) {
       const val = id_arr[i];
-      let emp = await me.getEmp({ emp_id: val });
+      let emp = await me.getEmp({ body: { emp_id: val } });
       arr.push(emp[0]);
     }
     cb(null, arr);
   } catch (err) {
+    log.errLog(req);
     cb('error');
   }
 })

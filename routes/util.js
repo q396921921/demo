@@ -143,6 +143,27 @@ var util = {
         }
         return arr;
     },
+    /**
+     * 获得当前的的根路径，文件名，以及行数
+     * @returns {string} "{'xx':'yy'}"
+     */
+    stackInfo: function () {
+        var path = require('path');
+        var stackReg = /at\s+(.*)\s+\((.*):(\d*):(\d*)\)/i;
+        var stackReg2 = /at\s+()(.*):(\d*):(\d*)/i;
+        var stacklist = (new Error()).stack.split('\n').slice(3);
+        var s = stacklist[0];
+        var sp = stackReg.exec(s) || stackReg2.exec(s);
+        var data = {};
+        if (sp && sp.length === 5) {
+            // data.method = sp[1];
+            data.path = sp[2];
+            data.line = sp[3];
+            // data.pos = sp[4];
+            data.file = path.basename(data.path);
+        }
+        return data;
+    }
 
 }
 

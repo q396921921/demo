@@ -1,12 +1,13 @@
 // 专门处理前端动态数据显示的模块
 
-var async = require('async')
+const async = require('async')
 const promise = require('bluebird');
 const get = require('../db/redis/get_redis');
-var public = require('../public/public');
-var symbol = public.symbol;
-var uploadFile = public.uploadFolde;      // 后台修改上传图片文件的文件夹名字
+const public = require('../public/public');
+const symbol = public.symbol;
+const uploadFile = public.uploadFolde;      // 后台修改上传图片文件的文件夹名字
 const util = require('./util');
+const log = require('./log');
 
 const mo = require('./methodOrder');
 const md = {
@@ -14,14 +15,16 @@ const md = {
      * data_business表
      * @param {JSON} body 查询条件
      */
-    getData_business: promise.promisify(async function (body, cb) {
+    getData_business: promise.promisify(async function (req, cb) {
         try {
+            let body = req.body;
             let obj = { tName: 'data_business' }
             obj = util.spliceCode(obj, body);
             let ret = await get.myData(obj);
             let data = util.getData(ret);
             cb(null, data);
         } catch (err) {
+            log.errLog(req)
             cb('error');
         }
     }),
@@ -29,17 +32,16 @@ const md = {
      * data_home_page表
      * @param {JSON} body 查询条件
      */
-    getData_home_page: promise.promisify(async function (body, cb) {
+    getData_home_page: promise.promisify(async function (req, cb) {
         try {
-            let obj = {
-                tName: 'data_home_page',
-                condi: 'and',
-            }
+            let body = req.body;
+            let obj = { tName: 'data_home_page', condi: 'and' }
             obj = util.spliceCode(obj, body);
             let ret = await get.myData(obj);
             let data = util.getData(ret);
             cb(null, data)
         } catch (err) {
+            log.errLog(req)
             cb('error');
         }
     }),
@@ -47,17 +49,16 @@ const md = {
      * data_partner表
      * @param {JSON} body 查询条件
      */
-    getData_partner: promise.promisify(async function (body, cb) {
+    getData_partner: promise.promisify(async function (req, cb) {
         try {
-            let obj = {
-                tName: 'data_partner',
-                condi: 'and',
-            }
+            let body = req.body;
+            let obj = { tName: 'data_partner', condi: 'and' }
             obj = util.spliceCode(obj, body);
             let ret = await get.myData(obj);
             let data = util.getData(ret);
             cb(null, data)
         } catch (err) {
+            log.errLog(req)
             cb('error');
         }
     }),
@@ -66,17 +67,16 @@ const md = {
      * @param {JSON} body 查询条件
      * @returns {Array} [json1,json2...]
      */
-    getData_zizhi: promise.promisify(async function (body, cb) {
+    getData_zizhi: promise.promisify(async function (req, cb) {
         try {
-            let obj = {
-                tName: 'data_zizhi',
-                condi: 'and',
-            }
+            let body = req.body;
+            let obj = { tName: 'data_zizhi', condi: 'and' }
             obj = util.spliceCode(obj, body);
             let ret = await get.myData(obj);
             let data = util.getData(ret);
             cb(null, data)
         } catch (err) {
+            log.errLog(req);
             cb('error');
         }
     }),
@@ -97,7 +97,7 @@ const md = {
             let zizhi_id = body.database_id;
             let text = body.text;
             let imgPath = req.files.length
-            let rt = await md.getData_zizhi("");
+            let rt = await md.getData_zizhi({ body: "" });
             async.parallel([
                 function (cb2) {
                     (async function () {
@@ -109,6 +109,7 @@ const md = {
                                 cb2(null, 'text')
                             }
                         } catch (err) {
+                            log.errLog(req)
                             cb('error');
                         }
                     })()
@@ -121,21 +122,24 @@ const md = {
                                 let imgAgoPath = rt[0].imgPath;
                                 util.deleteFile(imgAgoPath, uploadFile);
                                 imgPath = imgPath.split(uploadFile + symbol)[1];
-                                let ret = await md.getData_zizhi({ zizhi_id: zizhi_id });
+                                let ret = await md.getData_zizhi({ body: { zizhi_id: zizhi_id } });
                                 await get.update({ tName: 'data_zizhi', zizhi_id: zizhi_id }, { imgPath: imgPath });
                                 cb2(null, 'img');
                             } else {
                                 cb2(null, 'img')
                             }
                         } catch (err) {
+                            log.errLog(req)
                             cb('error');
                         }
                     })()
                 }
             ], function (err, result) {
+                log.controlLog(req, { outData: 'success', control: '修改了其他管理的资质' });
                 cb('success')
             })
         } catch (err) {
+            log.errLog(req);
             cb('error');
         }
     },
@@ -145,16 +149,16 @@ const md = {
      * @param {JSON} body
      * @returns {string} '{"data":"[json1,json2...]"}'
      */
-    get_home_page: async function (body, cb) {
+    get_home_page: async function (req, cb) {
         try {
-            let ret = await md.getData_home_page("");
+            let ret = await md.getData_home_page({ body: "" });
             let arr = [];
             for (let i = 0; i < ret.length; i++) {
                 const rt = ret[i];
                 let home_id = rt.home_id;
                 let product_id = rt.product_id;
                 if (product_id) {
-                    let products = await mo.getProduct({ product_id: product_id });
+                    let products = await mo.getProduct({ body: { product_id: product_id } });
                     arr.push({ "home_id": home_id, "product": products[0] })
                 } else {
                     arr.push(rt);
@@ -162,6 +166,7 @@ const md = {
             }
             cb(JSON.stringify({ "data": arr }))
         } catch (err) {
+            log.errLog(req);
             cb('error');
         }
     },
@@ -184,7 +189,7 @@ const md = {
                 let text = body.text;
                 let imgPathLength = req.files.length
                 let isUpdate = body.isUpdate;
-                let rt = await md.getData_home_page({ home_id: home_id });
+                let rt = await md.getData_home_page({ body: { home_id: home_id } });
                 async.parallel([
                     function (cb2) {
                         (async function () {
@@ -197,6 +202,7 @@ const md = {
                                 }
 
                             } catch (err) {
+                                log.errLog(req);
                                 cb('error')
                             }
                         })()
@@ -237,15 +243,18 @@ const md = {
                                     cb2(null, 'img')
                                 }
                             } catch (err) {
+                                log.errLog(req);
                                 cb('error');
                             }
                         })()
                     }
                 ], function (err, result) {
+                    log.controlLog(req, { outData: 'success', control: '修改了主页的详细数据' });
                     cb('success')
                 })
             }
         } catch (err) {
+            log.errLog(req);
             cb('error');
         }
     },
@@ -266,7 +275,7 @@ const md = {
                 let partner_id = partner_id_arr[count1];
                 let small_text = small_text_arr[count1];
                 if (select == 1) {
-                    let ret2 = await md.getData_partner({ "partner_id": partner_id });
+                    let ret2 = await md.getData_partner({ body: { "partner_id": partner_id } });
                     let imgAgoPath = ret2[0].bank_imgPath;
                     let bank_imgPath = req.files[count2].path;
                     if (imgAgoPath && imgAgoPath != "") {
@@ -281,8 +290,10 @@ const md = {
                     count1++;
                 }
             }
+            log.controlLog(req, { outData: 'success', control: '修改了详细合作伙伴的文本，银行图标' });
             cb('success')
         } catch (err) {
+            log.errLog(req);
             cb('error');
         }
     },
@@ -294,19 +305,22 @@ const md = {
             let name = body.name
             let big_text = body.text;
             let imgPath = req.files.length
-            let ret = await md.getData_partner({ "partner_id": partner_id });
+            let ret = await md.getData_partner({ body: { "partner_id": partner_id } });
             if (imgPath != 0) {
                 let imgAgoPath = ret[0].imgPath;
                 imgPath = req.files[0].path;
                 util.deleteFile(imgAgoPath, uploadFile);
                 imgPath = imgPath.split(uploadFile + symbol)[1];
                 await get.update({ tName: 'data_partner', "partner_id": partner_id }, { "name": name, "big_text": big_text, "imgPath": imgPath });
+                log.controlLog(req, { outData: 'success', control: '修改了简略合作伙伴的名字，文本，图片' });
                 cb('success')
             } else {
                 await get.update({ tName: 'data_partner', "partner_id": partner_id }, { "name": name, "big_text": big_text });
+                log.controlLog(req, { outData: 'success', control: '修改了简略合作伙伴的名字，文本' });
                 cb('success')
             }
         } catch (err) {
+            log.errLog(req);
             cb('error');
         }
     },

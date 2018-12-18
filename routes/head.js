@@ -20,7 +20,7 @@ var mdData = require('./methodData');
 // 创建一个订单
 router.post('/createOrder', function (req, res, next) {
     let body = req.body
-    mdOrder.createOrder(body, (ret, ret2) => {
+    mdOrder.createOrder(req, (ret, ret2) => {
         if (ret) {
             res.send(ret);
         } else {
@@ -31,22 +31,19 @@ router.post('/createOrder', function (req, res, next) {
 // use
 // 如果此订单指定内容为空，删除此订单
 router.post('/deleteOrder', function (req, res, next) {
-    let body = req.body
-    mdOrder.deleteOrderById(body)
+    mdOrder.deleteOrderById(req)
 });
 // use
 // 为刚才创建的订单赋值
 router.post('/updateOrder', function (req, res, next) {
-    let body = req.body
-    mdOrder.updateOrder(body, (ret) => {
+    mdOrder.updateOrder(req, (ret) => {
         res.send(ret)
     })
 });
 // use
 // 创建此订单的所有状态
 router.post('/createOrderFlow', function (req, res, next) {
-    let body = req.body;
-    mdOrder.createOrderFlow(body, (ret) => {
+    mdOrder.createOrderFlow(req, (ret) => {
         res.send(ret)
     })
 });
@@ -55,7 +52,7 @@ router.post('/getEmpByUsername', function (req, res, next) {
     let body = req.body;
     body = JSON.parse(Object.keys(body));
     if (body.username && body.username != '') {
-        mdEmp.getEmp(body, (ret, ret2) => {
+        mdEmp.getEmp({ body: body }, (ret, ret2) => {
             if (ret) {
                 res.send(ret);
             } else {
@@ -75,7 +72,7 @@ router.post('/getEmpByUsername', function (req, res, next) {
 router.post('/getProductById', function (req, res, next) {
     let body = req.body;
     body = JSON.parse(Object.keys(body));
-    mdOrder.getProduct(body, (ret, ret2) => {
+    mdOrder.getProduct({ body: body }, (ret, ret2) => {
         if (ret) {
             res.send(ret);
         } else {
@@ -88,7 +85,7 @@ router.post('/getProductById', function (req, res, next) {
 router.post('/getOrders', function (req, res, next) {
     let body = req.body;
     body = JSON.parse(Object.keys(body));   // 手机端数据接收
-    mdOrder.getOrders(body, (ret) => {
+    mdOrder.getOrders({ body: body }, (ret) => {
         getTime(ret, (rt) => {
             res.send(rt);
         })
@@ -104,8 +101,7 @@ router.post('/getOrders', function (req, res, next) {
 });
 // 获得所有的询值推荐订单信息
 router.post('/getProductTypes', function (req, res, next) {
-    let body = req.body;
-    mdOrder.getProductTypes(body, (ret) => {
+    mdOrder.getProductTypes(req, (ret) => {
         res.send(ret)
     })
 })
@@ -114,7 +110,7 @@ router.post('/getProductTypes', function (req, res, next) {
 router.post('/getProductByOther', function (req, res, next) {
     let body = req.body;
     body = JSON.parse(Object.keys(body));
-    mdOrder.getProduct(body, (ret, ret2) => {
+    mdOrder.getProduct({ body: body }, (ret, ret2) => {
         if (ret) {
             res.send(ret);
         } else {
@@ -126,7 +122,7 @@ router.post('/getProductByOther', function (req, res, next) {
 router.post('/getAllOrderInfo', function (req, res, next) {
     let body = req.body;
     body = JSON.parse(Object.keys(body));   // 手机端数据接收
-    mdOrder.getAllOrderInfo(body, (ret) => {
+    mdOrder.getAllOrderInfo({ body: body }, (ret) => {
         res.send(ret)
     })
     // getPostData(req, res, (body) => {
@@ -137,8 +133,7 @@ router.post('/getAllOrderInfo', function (req, res, next) {
 });
 // 修改订单是否已还完款的两个状态
 router.post('/setRefund_state', function (req, res, next) {
-    let body = req.body;
-    mdOrder.setRefund_state(body, (ret) => {
+    mdOrder.setRefund_state(req, (ret) => {
         res.send(ret)
     })
     // getPostData(req, res, (body) => {
@@ -150,8 +145,7 @@ router.post('/setRefund_state', function (req, res, next) {
 // use
 // 获得公司资质介绍
 router.get('/getzizhiInfo', function (req, res, next) {
-    let body = req.body;
-    mdData.getData_zizhi(body, (ret, ret2) => {
+    mdData.getData_zizhi(req, (ret, ret2) => {
         if (ret) {
             res.send(ret);
         } else {

@@ -1,0 +1,2 @@
+[2018-12-18T14:56:27.936] [INFO] default - {"ip":"::ffff:192.168.1.238","router":"/users/log","name":"我叫管理","inData":{"username":"guanli","password":"123"},"outData":"success","control":"登录了后台"}
+[2018-12-18T14:57:08.366] [INFO] default - {"ip":"::ffff:192.168.1.238","router":"/users/updateData","name":"我叫管理","inData":{"database":"zizhi","database_id":"1","text":" "},"outData":"success","control":"修改了其他管理的资质"}
