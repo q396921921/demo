@@ -3,6 +3,16 @@ const promise = require('bluebird');
 const db = require('./redis_conn.js').client;
 client = {};
 
+// 开启事务
+client.multi = promise.promisify(function (obj, cb) {
+    db.multi(obj).exec(function (err, replies) {
+        if (err) {
+            cb(err);
+        } else {
+            cb(null, replies);
+        }
+    })
+});
 // 通过索引进行修改
 client.lset = promise.promisify(function (key, index, value, cb) {
     db.lset(key, index, value, (err, ret) => {

@@ -44,9 +44,7 @@ ul {
 }
 
 
-#select tr td{
+tr td{
     border: 1px solid black;
-}
-#split tr td {
-    border: 1px solid black;
+    height: 50px;
 }

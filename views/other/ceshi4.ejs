@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>创建页面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/otherceshi4.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-form.js"></script>
+    <script src="/js/otherceshi4.js"></script>
+    <script>
+        var menu = "<%=menu%>"
+        var username = "<%=username%>";
+        $(function () {
+            bindEvents()
+            if (menu == "4") {
+                $("#li4").children().css("background", "#97C65E");
+                $("#c").attr('style', "display:none")
+            }
+            getDataAB();
+        })
+
+    </script>
+
+<body>
+    <div id="a">
+        <ul>
+            <li id="li1">
+                <input type="button" value="管理" class="canButton" name="head1" onclick="jump(1)">
+            </li>
+            <li id="li2">
+                <input type="button" value="新闻" class="canButton" name="head2" onclick="jump(2)">
+            </li>
+            <li id="li3">
+                <input type="button" value="公告" class="canButton" name="head3" onclick="jump(3)">
+            </li>
+            <li id="li4">
+                <input type="button" value="数据" class="canButton" name="head4" onclick="jump(4)">
+            </li>
+        </ul>
+    </div>
+    <div style="width: 100%;height: 100%;text-align: center">
+        <span><B>增长量公式：a+N*b（a：增长基数，N：实际增长量，b：增长指数）</B></span>
+        <form action="/users/getAllData" method="post">
+            <br>
+            由<input type="date" name="time1" value="1970-01-01">至<input type="date" name="time2" value="2100-01-01">
+            <input type="button" value="查询" onclick="ajaxSubmit(this)">
+            <br>
+            <br>
+            <span>（此处为查询xx日期到xx日期的虚拟与真实增长量）</span>
+        </form>
+        <form action="/users/updateDataAB" method="post">
+            <table width="60%" style="margin: 0 auto;margin-top: 10px;text-align: center" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>说明</td>
+                    <td>增长基数</td>
+                    <td>实际增长量</td>
+                    <td>增长指数</td>
+                    <td>虚拟增长总量</td>
+                </tr>
+                <tr>
+                    <td>放款总金额</td>
+                    <td><input type="text" id="loanA" name="loanA"></td>
+                    <td id="loans"></td>
+                    <td><input type="text" id="loanB" name="loanB"></td>
+                    <td id="total_loan"></td>
+                </tr>
+                <tr>
+                    <td>成交笔数</td>
+                    <td><input type="text" id="dealA" name="dealA"></td>
+                    <td id="deals"></td>
+                    <td><input type="text" id="dealB" name="dealB"></td>
+                    <td id="total_deal"></td>
+                </tr>
+                <tr>
+                    <td>询值笔数</td>
+                    <td><input type="text" id="callA" name="callA"></td>
+                    <td id="calls"></td>
+                    <td><input type="text" id="callB" name="callB"></td>
+                    <td id="total_call"></td>
+                </tr>
+                <tr>
+                    <td>用户注册量</td>
+                    <td><input type="text" id="empA" name="empA"></td>
+                    <td id="emps"></td>
+                    <td><input type="text" id="empB" name="empB"></td>
+                    <td id="total_emp"></td>
+                </tr>
+            </table>
+        </form>
+        <input type="button" value="修改数据" onclick="updateDataAB(this)">
+    </div>
+</body>
+
+</html>

@@ -446,6 +446,49 @@ router.post('/getUser6', function (req, res, next) {
 
 
 
+// 新闻
+router.post('/insertNew', function (req, res, next) {
+  mdData.insertNew(req, (ret) => {
+    res.send(ret)
+  })
+})
+router.post('/getNews', function (req, res, next) {
+  mdData.getNewsSplit(req, (ret) => {
+    res.send(ret)
+  })
+})
+router.post('/updateNew', function (req, res, next) {
+  mdData.updateNew(req, (ret) => {
+    res.send(ret);
+  })
+})
+router.post('/deleteNew', function (req, res, next) {
+  let body = req.body;
+  mdData.deleteNew(req, (ret) => {
+    res.send(ret);
+  })
+})
+
+// 获得所有的数据(实际增长量)
+router.post('/getAllData', function (req, res, next) {
+  mdData.getAllData(req, (ret) => {
+    res.send(ret);
+  })
+})
+// 获得增长基数与指数
+router.get('/getDataAB', function (req, res, next) {
+  mdData.getDataAB("", (ret) => {
+    res.send(ret);
+  })
+})
+// 修改增长基数与指数
+router.post('/updateDataAB', function (req, res, next) {
+  mdData.updateDataAB(req, (ret) => {
+    res.send(ret);
+  })
+})
+
+
 
 
 

@@ -291,7 +291,8 @@ var md = {
         tName: 'relation_product_dep',
         product_id: product_id
       }
-      await get.delete(condis);
+      let data = await get.delete(condis);
+      await get.multi(data);
       let pname = await md.getProduct(body);
       log.controlLog(req, { outData: 'success', control: `删除了商品：${pname[0].name}对应的内勤` });
       cb('success');
@@ -316,13 +317,15 @@ var md = {
         id: maxId
       }
       // 查询之前与此商品相关联的内勤,然后删掉
-      await get.delete(condis);
+      let data1 = await get.delete(condis);
+      let data2 = [];
       let emp_id_arr = body.emp_id_arr;
       for (let i = 0; i < emp_id_arr.length; i++) {
         let dep_emp_id = emp_id_arr[i];
         condis[dep_emp_id] = dep_emp_id;
-        await get.insert(condis);
+        data2 = data2.concat(await get.insert(condis));
       }
+      await get.multi(data1.concat(data2));
       log.controlLog(req, { outData: 'success', control: `为内勤分配产品` });
       cb('success')
     } catch (err) {
@@ -342,7 +345,9 @@ var md = {
       let product = await md.getProduct({ body: { product_id: body.product_id } })
       let flow_id = product[0].flow_id;
       let sortFlow = await getsortFlow(flow_id);
+      let data1 = [];
       for (let i = 0; i < sortFlow.length; i++) {
+        let data2 = [];
         let state_detail_id_arr = await md.getRelation_state_flow({ body: { flow_detail_id: sortFlow[i].flow_detail_id } });
         for (let j = 0; j < state_detail_id_arr.length; j++) {
           let maxId = await get.tbMaxId({ tName: 'relation_order_state' }, 'relation_state_id');
@@ -355,9 +360,11 @@ var md = {
           // let data = await otherOrder.getBigRealtionOrder_id();
           // let keys = Object.keys(data[0]);
           // let relation_state_id = data[0][keys[0]];
-          await get.insert(obj3);
+          data2 = data2.concat(await get.insert(obj3));
         }
+        data1 = data1.concat(data2);
       }
+      await get.multi(data1);
       log.controlLog(req, { outData: 'success', control: `为新生成的订单创建流程` });
       cb('success');
     } catch (err) {
@@ -404,10 +411,11 @@ var md = {
         channel_id: channel_id, clientName: clientName, inmoney: inmoney, orderFile: orderFile,
         userComment: userComment, type: type
       }; // 要修改的数据
-      await get.update({ tName: 'emp', emp_id: channel_id }, { 'submitTime': new Date().toLocaleString() });  // 将用户最后提交订单的时间赋值到用户表
       obj = util.spliceCode({}, obj);
       let tName = getOrderTName(order_type)
-      await get.update({ tName: tName, order_id: order_id }, obj);
+      let data1 = await get.update({ tName: 'emp', emp_id: channel_id }, { 'submitTime': new Date().toLocaleString() });  // 将用户最后提交订单的时间赋值到用户表
+      let data2 = await get.update({ tName: tName, order_id: order_id }, obj);
+      await get.multi(data1.concat(data2));
       log.controlLog(req, {
         outData: 'success', control: `修改订单内勤：${channel_id},状态:${order_type},申请金额:${inmoney},客户姓名:${clientName},用户备注:${userComment}`
       });
@@ -428,9 +436,10 @@ var md = {
       let order_type = body.order_type;
       let tName = getOrderTName(order_type);
       // 管道
-      await get.delete({ tName: 'chatroom', chat_id: order_id });  // 删除与订单关联的聊天房间
-      await get.delete({ tName: 'relation_order_state', order_id: order_id }); // 删除与订单相关联的流程状态
-      await get.delete({ tName: tName, order_id: order_id }); // 删除此订单
+      let data1 = await get.delete({ tName: 'chatroom', chat_id: order_id });  // 删除与订单关联的聊天房间
+      let data2 = await get.delete({ tName: 'relation_order_state', order_id: order_id }); // 删除与订单相关联的流程状态
+      let data3 = await get.delete({ tName: tName, order_id: order_id }); // 删除此订单
+      await get.multi(data1.concat(data2).concat(data3));
       log.controlLog(req, { outData: 'success', control: `删除此订单聊天房间即对应流程` });
       cb('success');
     } catch (err) {
@@ -469,7 +478,8 @@ var md = {
             if (product_id && channel_id && type && inmoney && orderFile && clientName) {
               continue;
             } else {
-              await get.delete({ tName: 'order1', order_id: order_id });
+              let data = await get.delete({ tName: 'order1', order_id: order_id });
+              await get.multi(data);
               log.controlLog(req, { outData: 'success', control: `自动删除了错误订单` });
               count++;
             }
@@ -478,7 +488,8 @@ var md = {
             if (product_id && channel_id && type && orderFile) {
               continue;
             } else {
-              await get.delete({ tName: 'order2', order_id: order_id });
+              let data = await get.delete({ tName: 'order2', order_id: order_id });
+              await get.multi(data);
               log.controlLog(req, { outData: 'success', control: `自动删除了错误订单` });
               count++;
             }
@@ -487,7 +498,8 @@ var md = {
             if (channel_id && clientName && type && orderFile) {
               continue;
             } else {
-              await get.delete({ tName: 'order3', order_id: order_id });
+              let data = await get.delete({ tName: 'order3', order_id: order_id });
+              await get.multi(data);
               log.controlLog(req, { outData: 'success', control: `自动删除了错误订单` });
               count++;
             }
@@ -520,12 +532,14 @@ var md = {
         file_type_id: file_type_id,
         id: maxId
       }
-      await get.delete(condis);
+      let data1 = await get.delete(condis);
+      let data2 = [];
       for (let i = 0; i < detail_file_type_id_arr.length; i++) {
         const detail_file_type_id = detail_file_type_id_arr[i];
         condis.detail_file_type_id = detail_file_type_id;
-        await get.insert(condis);
+        data2 = data2.concat(await get.insert(condis));
       }
+      await get.multi(data1.concat(data2));
       log.controlLog(req, { outData: 'success', control: `为材料分配具体材料` });
       cb('success');
     } catch (err) {
@@ -547,7 +561,8 @@ var md = {
         log.controlLog(req, { outData: 'success', control: `删除具体材料失败，材料不存在` });
         cb("fileFail");
       } else {
-        await get.delete({ tName: 'detail_file_type', detail_file_type_id: detail_file_type_id });
+        let data = await get.delete({ tName: 'detail_file_type', detail_file_type_id: detail_file_type_id });
+        await get.multi(data);
         let dName = await md.getDetail_file_type(body);
         log.controlLog(req, { outData: 'success', control: `删除具体材料${dName[0].name}` });
         cb('success');
@@ -571,8 +586,9 @@ var md = {
         cb("productFail");
       } else {
         // 管道
-        await get.delete({ tName: 'relation_file_type_detail', file_type_id: file_type_id }); // 删除与之关联的中间表
-        await get.delete({ tName: 'file_types_num', file_type_id: file_type_id }); // 删除材料
+        let data1 = await get.delete({ tName: 'relation_file_type_detail', file_type_id: file_type_id }); // 删除与之关联的中间表
+        let data2 = await get.delete({ tName: 'file_types_num', file_type_id: file_type_id }); // 删除材料
+        await get.multi(data1.concat(data2));
         let dName = await md.getFile_types_num(body);
         log.controlLog(req, { outData: 'success', control: `删除具体材料${dName[0].name}` });
         cb('success')
@@ -597,7 +613,8 @@ var md = {
         file_type_id: maxId,
         name: bus_name,
       }
-      await get.insert(condis);
+      let data = await get.insert(condis);
+      await get.multi(data);
       log.controlLog(req, { outData: 'success', control: `创建了申请材料${name}` });
       cb('success')
     } catch (err) {
@@ -623,13 +640,15 @@ var md = {
       }
       let count = 0;
       let condis = { tName: 'detail_file_type', }
+      let data = [];
       for (let i = 0; i < name_arr.length; i++) {
         const name = name_arr[i];
         condis.detail_file_type_id = await get.tbMaxId({ 'tName': 'detail_file_type', condi: 'or' }, 'detail_file_type_id');
         condis.name = name;
         condis.text = text_arr[count++];
-        await get.insert(condis);
+        data = data.concat(await get.insert(condis));
       }
+      await get.multi(data);
       log.controlLog(req, { outData: 'success', control: `创建了具体材料${name_arr.toString()}` });
       cb('success');
     } catch (err) {
@@ -651,7 +670,8 @@ var md = {
       condis.isNum = 0;
       condis.isBourse = 0;
       condis.putaway = 0;
-      await get.insert(condis);
+      let data = await get.insert(condis);
+      await get.multi(data);
       req.body.product_id = maxId;
       log.controlLog(req, { outData: 'success', control: `创建了一个新商品${body.name}` });
       md.updateProductInfo(req, cb);
@@ -672,7 +692,8 @@ var md = {
       let maxId = await get.tbMaxId(condis, 'product_type_id');
       condis.product_type_id = maxId;
       condis.name = body.product_type_name;
-      await get.insert(condis);
+      let data = await get.insert(condis);
+      await get.multi(data);
       cb('success');
     } catch (err) {
       log.errLog(req);
@@ -738,7 +759,8 @@ var md = {
         flow_id: flow_id, file_type_id: file_type_id, product_intro: product_intro
       }
       obj3 = util.spliceCode({}, obj3);
-      await get.update(obj2, obj3);
+      let data = await get.update(obj2, obj3);
+      await get.multi(data);
       log.controlLog(req, { outData: 'success', control: `修改了商品的具体信息` });
       cb('success');
     } catch (err) {
@@ -1037,7 +1059,8 @@ var md = {
       // 获得主键
       let order_id = await get.tbMaxId({ tName: 'order' }, 'order_id');
       let tName = getOrderTName(order_type);
-      await get.insert({ tName: tName, order_id: order_id, appli_id: appli_id, appliTime: appliTime, order_type, order_type });
+      let data = await get.insert({ tName: tName, order_id: order_id, appli_id: appli_id, appliTime: appliTime, order_type, order_type });
+      await get.multi(data);
       log.controlLog(req, { outData: 'success', control: `创建了一张空订单` });
       cb(null, order_id.toString());
     } catch (err) {
@@ -1089,7 +1112,9 @@ var md = {
     let flow_id;
     let detail_flow_id_arr = [];
     let detail_state_id_arr = [];
-
+    let data1 = [];
+    let data2 = [];
+    let data3 = [];
     // 这个for循环是用来将对应的具体状态的等级，拼接在一起.拼接格式为 [[detail_state_name, leavl], [detail_state_name, leavl], ......]
     async.parallel([
       function (cb2) {
@@ -1097,7 +1122,7 @@ var md = {
           try {
             flow_id = await get.tbMaxId({ tName: 'flow' }, 'flow_id');
             let condis = { tName: 'flow', flow_id: flow_id, flow_name: flow_name }
-            await get.insert(condis);
+            data1 = await get.insert(condis);
             cb2(null, 1);
           } catch (err) {
             log.errLog(req);
@@ -1114,7 +1139,7 @@ var md = {
               condis.flow_detail_id = flow_detail_id;
               condis.tName = 'flow_detail';
               condis.flow_name = flow_arr[i].flow_name;
-              let order = await get.insert(condis);
+              data2 = data2.concat(await get.insert(condis));
               detail_flow_id_arr.push(flow_detail_id);
             }
             cb2(null, 2);
@@ -1134,7 +1159,7 @@ var md = {
               condis.state_detail_id = state_detail_id;
               condis.tName = 'state_detail';
               condis.state_name = state_arr[i].state_name;
-              await get.insert(condis);
+              data3 = data3.concat(await get.insert(condis));
               detail_state_id_arr.push(state_detail_id);
             }
             cb2(null, 3);
@@ -1160,7 +1185,11 @@ var md = {
       let count = 0;
       (async function () {
         try {
+          data1 = data1.concat(data2).concat(data3);
+
+          let data4 = [];
           for (let i = 0; i < detail_flow_id_arr.length; i++) {
+            let data5 = [];
             const detail_flow_id = detail_flow_id_arr[i];
             let maxId1 = await get.tbMaxId({ tName: 'relation_flow_detail' }, 'id');
             let condis = {
@@ -1169,7 +1198,7 @@ var md = {
               flow_detail_id: detail_flow_id,
               id: maxId1
             }
-            await get.insert(condis);
+            data4 = data4.concat(await get.insert(condis));
             let maxId2 = await get.tbMaxId({ tName: 'relation_state_flow' }, 'id');
             let obj2 = {
               tName: 'relation_state_flow',
@@ -1179,10 +1208,12 @@ var md = {
             for (let i = 0; i < arr[count].length; i++) {
               const detail_state_id = arr[count][i];
               obj2.state_detail_id = detail_state_id;
-              await get.insert(obj2);
+              data5 = data5.concat(await get.insert(obj2));
             }
+            data4 = data4.concat(data5);
             count++;
           }
+          await get.multi(data1.concat(data4));
           log.controlLog(req, { outData: 'success', control: `创建了一个完成的流程${flow_name}` });
           cb('success');
         } catch (err) {
@@ -1249,21 +1280,25 @@ var md = {
           try {
             // 管道
             // 删除中间表流程与具体流程的关联
-            await get.delete({ tName: 'relation_flow_detail', flow_id: flow_id });
+            let data1 = await get.delete({ tName: 'relation_flow_detail', flow_id: flow_id });
             // 删除流程表的流程
-            await get.delete({ tName: 'flow', flow_id: flow_id });
+            let data2 = await get.delete({ tName: 'flow', flow_id: flow_id });
+            let data3 = [];
             for (let i = 0; i < flow_arr.length; i++) {
               const val = flow_arr[i];
               // 删除中间表具体流程与具体状态的关联
-              await get.delete({ tName: 'relation_state_flow', flow_detail_id: val.flow_detail_id });
+              data3 = data3.concat(await get.delete({ tName: 'relation_state_flow', flow_detail_id: val.flow_detail_id }));
               // 删除具体流程详细表
-              await get.delete({ tName: 'flow_detail', flow_detail_id: val.flow_detail_id });
+              data3 = data3.concat(await get.delete({ tName: 'flow_detail', flow_detail_id: val.flow_detail_id }));
             }
+            let data4 = [];
             for (let i = 0; i < state_arr.length; i++) {
               const val = state_arr[i];
               // 删除具体状态详细表
-              await get.delete({ tName: 'state_detail', state_detail_id: val.state_detail_id })
+              data4 = data4.concat(await get.delete({ tName: 'state_detail', state_detail_id: val.state_detail_id }));
             }
+            data1 = data1.concat(data2).concat(data3).concat(data4);
+            await get.multi(data1);
             log.controlLog(req, { outData: 'success', control: `删除了一个完成的流程${flow_name}` });
             cb('success');
           } catch (err) {
@@ -1320,7 +1355,8 @@ var md = {
       let order_id = body.order_id;
       let tName = getOrderTName(order_type);
       let condis = { tName: tName, order_id: order_id }
-      await get.update(condis, { order_state: order_state });
+      let data = await get.update(condis, { order_state: order_state });
+      await get.multi(data);
       log.controlLog(req, { outData: 'success', control: `设置订单id：${order_id}的状态为：${getRelation_order_state(order_state)}` });
       cb(null, "success");
     } catch (err) {
@@ -1339,7 +1375,8 @@ var md = {
       let body = req.body;
       let refund = body.refund;
       let order_id = body.order_id;
-      await get.update({ tName: 'order1', order_id: order_id }, { refund: refund });
+      let data = await get.update({ tName: 'order1', order_id: order_id }, { refund: refund });
+      await get.multi(data);
       log.controlLog(req, { outData: 'success', control: `设置还款状态：${refund = refund == 0 ? '未还款' : '还款'}` });
       cb("success");
     } catch (err) {
@@ -1361,12 +1398,13 @@ var md = {
       if (failReason == "") {
         failReason = null;
       }
-      await get.update({ tName: 'order1', order_id: order_id }, { failReason: failReason });
+      let data = await get.update({ tName: 'order1', order_id: order_id }, { failReason: failReason });
       if (failReason && failReason != "") {
-        await md.setOrder_state({ body: { order_state: 4, order_id: order_id, order_type: 1 } });
+        data = data.concat(await md.setOrder_state({ body: { order_state: 4, order_id: order_id, order_type: 1 } }));
       } else {
-        await md.setOrder_state({ body: { order_state: 2, order_id: order_id, order_type: 1 } });
+        data = data.concat(await md.setOrder_state({ body: { order_state: 2, order_id: order_id, order_type: 1 } }));
       }
+      await get.multi(data);
       log.controlLog(req, { outData: 'success', control: `设置失败原因：${failReason}` });
       cb('success');
     } catch (err) {
@@ -1384,7 +1422,8 @@ var md = {
     try {
       let body = req.body;
       let profit = body.profit;
-      await get.update({ tName: 'total_profit' }, { profit: profit });
+      let data = await get.update({ tName: 'total_profit' }, { profit: profit });
+      await get.multi(data);
       log.controlLog(req, { outData: 'success', control: `修改总利润为：${profit}` });
       cb('success');
     } catch (err) {
@@ -1404,10 +1443,11 @@ var md = {
       let state_detail_id = body.state_detail_id;
       let order_id = body.order_id;
       let time = body.time;
-      await get.update({ tName: 'relation_order_state', order_id: order_id, state_detail_id: state_detail_id }, { state_time: time });
+      let data1 = await get.update({ tName: 'relation_order_state', order_id: order_id, state_detail_id: state_detail_id }, { state_time: time });
       let oState = await md.getRelation_order_state({ body: { state_detail_id: state_detail_id, order_id: order_id } });
       let relation_state_id = oState[0].relation_state_id;
-      await get.update({ tName: 'order1', order_id: order_id }, { relation_state_id: relation_state_id });
+      let data2 = await get.update({ tName: 'order1', order_id: order_id }, { relation_state_id: relation_state_id });
+      await get.multi(data1.concat(data2));
       cb("success");
     } catch (err) {
       log.errLog(req);
@@ -1427,13 +1467,15 @@ var md = {
       let flow_detail_id = body.flow_detail_id;
       let order_id = body.order_id;
       let flow_time = body.flow_time;
-      await get.update({ tName: 'order1', order_id: order_id }, { flowState: flow_detail_id });
+      let data1 = await get.update({ tName: 'order1', order_id: order_id }, { flowState: flow_detail_id });
       let sFlows = await md.getRelation_state_flow({ body: { flow_detail_id: flow_detail_id } });
+      let data2 = [];
       for (let i = 0; i < sFlows.length; i++) {
         const rt = sFlows[i];
         let state_detail_id = rt.state_detail_id;
-        await get.update({ tName: 'relation_order_state', order_id: order_id, state_detail_id: state_detail_id }, { flow_time: flow_time });
+        data2 = data2.concat(await get.update({ tName: 'relation_order_state', order_id: order_id, state_detail_id: state_detail_id }, { flow_time: flow_time }));
       }
+      await get.multi(data1.concat(data2));
       log.controlLog(req, { outData: 'success', control: `设置流程时间：${flow_time}` });
       cb("success");
     } catch (err) {
@@ -1456,7 +1498,8 @@ var md = {
       let val = body.name[1];
       obj[name] = val;
       let order_id = body.order_id;
-      await get.update({ tName: 'order', order_type: order_type, order_id: order_id }, obj);
+      let data = await get.update({ tName: 'order', order_type: order_type, order_id: order_id }, obj);
+      await get.multi(data);
       log.controlLog(req, { outData: 'success', control: `修改订单信息${name}为：${val}` });
       cb("success");
     } catch (err) {
@@ -1848,7 +1891,8 @@ var md = {
   setCount: promise.promisify(async function (req, cb) {
     try {
       let count = body.count;
-      let counts = await get.update({ tName: 'total_profit' }, { count: count });
+      let data = await get.update({ tName: 'total_profit' }, { count: count });
+      await get.multi(data);
       cb(null, "success");
     } catch (err) {
       log.errLog(req);

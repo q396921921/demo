@@ -327,8 +327,30 @@ copy.message = async function (cb) {
         cb('error');
     }
 }
-
-
+/**
+ * 将mysql的news表的所有数据导入redis
+ */
+copy.news = async function (cb) {
+    try {
+        let data = await queryData.getNews({}, []);
+        async.each(data, function (rt, cb2) {
+            rt = JSON.stringify(rt);
+            client.rpush('news', rt, (err, ret) => {
+                if (err) {
+                    console.log(err);
+                    cb('error');
+                } else {
+                    cb2()
+                }
+            })
+        }, function (err) {
+            console.log('复制news表成功');
+            cb('success');
+        })
+    } catch (err) {
+        cb('error');
+    }
+}
 /**
  * 将mysql的order表的所有数据导入redis
  */
@@ -789,6 +811,15 @@ function copyAll(callback) {
                     cb();
                 } else if (ret == 'error') {
                     callback('message');
+                }
+            })
+        },
+        function (cb) {
+            copy.news((ret) => {
+                if (ret == 'success') {
+                    cb();
+                } else if (ret == 'error') {
+                    callback('news');
                 }
             })
         },

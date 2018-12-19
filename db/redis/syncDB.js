@@ -132,6 +132,15 @@ sync.message = async function (cb) {
         cb('error');
     }
 }
+sync.news = async function (cb) {
+    try {
+        let mysql = await queryData.getNews({}, []);
+        let redis = await md.getNews("");
+        await syncData(mysql, redis, 'new_id', 'news');
+    } catch (err) {
+        cb('error'); 
+    }
+}
 // xxxxxxxxxxxxx
 sync.product = async function (cb) {
     try {

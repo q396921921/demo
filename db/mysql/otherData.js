@@ -73,6 +73,80 @@ module.exports = {
         sql += ' where partner_id=?';
         conn.getConn(sql, arr, cb);
     }),
+
+
+    /**
+    * 增加一条新闻
+    */
+    insertNew: function (arr, callback) {
+        let sql = 'insert into news (title,time,title2,newsData,imgPath,imgPath2) values (?,?,?,?,?,?)';
+        conn.getConn(sql, arr, callback);
+    },
+    /**
+     * 获得新闻
+     */
+    getNews: function (otjs, arr, callback) {
+        let limit = otjs.limit;
+        let sql = "";
+        if (arr[0]) {
+            sql = 'select * from news where new_id=?';
+        } else {
+            sql = 'select * from news';
+        }
+        if (limit && limit != '') {
+            sql += ' limit ' + (limit - 1) * 15 + ',15';
+        }
+        conn.getConn(sql, arr, callback);
+    },
+    /**
+     * 修改一条新闻
+     */
+    updateNew: function (arr, callback) {
+        let sql = 'update news set title=?,time=?,title2=?,newsData=?,imgPath=?,imgPath2=? where new_id=?';
+        conn.getConn(sql, arr, callback);
+    },
+    /**
+     * 删除一条新闻
+     */
+    deleteNew: function (arr, callback) {
+        let sql = 'delete from news where new_id=?';
+        conn.getConn(sql, arr, callback);
+    },
+
+
+    /**
+     * 数据
+     */
+    selectLoanData: function (arr, callback) {
+        let sql = 'SELECT sum(money) FROM order2 where loanTime>=? and loanTime<=?';
+        conn.getConn(sql, arr, callback);
+    },
+    selectDealData: function (arr, callback) {
+        let sql = 'SELECT count(*) FROM order2 where order_type=1 and money is not null and loanTime is not null and loanTime>=? and loanTime<=?;'
+        conn.getConn(sql, arr, callback);
+    },
+    selectcallData: function (arr, callback) {
+        let sql = 'SELECT count(*) FROM order2 where order_type=2 and loanTime>=? and loanTime<=?';
+        conn.getConn(sql, arr, callback);
+    },
+    selectEmpData: function (arr, callback) {
+        let sql = 'SELECT count(*) FROM emp where type=6 and registTime>=? and registTime<=?';
+        conn.getConn(sql, arr, callback);
+    },
+    /**
+     * 获得增长基数与指数
+     */
+    getDataAB: function (callback) {
+        let sql = 'select * from total_profit';
+        conn.getConn(sql, [], callback);
+    },
+    /**
+     * 修改增长基数与指数
+     */
+    updateDataAB: function (arr, callback) {
+        let sql = 'update total_profit set loanA=?,loanB=?,dealA=?,dealB=?,callA=?,callB=?,empA=?,empB=?';
+        conn.getConn(sql, arr, callback);
+    }
 }
 
 function isEmpty(arr) {

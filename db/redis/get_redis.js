@@ -1,4 +1,3 @@
-const async = require('async');
 const promise = require('bluebird');
 const get = {};
 const client = require('./async_redis');
@@ -15,6 +14,7 @@ const client = require('./async_redis');
 // var file_types_num = [];
 // var flow = [];
 // var flow_detail = [];
+// var news = [];
 // var order1 = [];
 // var order2 = [];
 // var order3 = [];
@@ -32,7 +32,7 @@ const client = require('./async_redis');
 // var role = [];
 // var state_detail = [];
 
-let getAllDate = promise.promisify(async function getDate(obj, cb) {
+let getAllDate = promise.promisify(async function (obj, cb) {
     try {
         let tName = obj.tName;
         // let arr = getVar(tName);
@@ -48,6 +48,20 @@ let getAllDate = promise.promisify(async function getDate(obj, cb) {
         setVar(arr, tName);
         cb(null, arr);
         // }
+    } catch (err) {
+        cb(err)
+    }
+})
+
+/**
+ * 开启事务，其中一个失败就回滚
+ * @param {Array} obj [['lrange','key',0,-1],['get','key'],......]
+ * @returns {Array} [[data1],[data2]......] 
+ */
+get.multi = promise.promisify(async function (obj, cb) {
+    try {
+        let data = await client.multi(obj);
+        cb(null, data);
     } catch (err) {
         cb(err)
     }
@@ -99,7 +113,14 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
         let not = rule.not;
         let bigEqual = rule.bigEqual;
         let smallEqual = rule.smallEqual;
-
+        for (const key in not) {
+            if (not.hasOwnProperty(key)) {
+                const val = not[key];
+                if (val == 'null') {
+                    not[key] = null;
+                }
+            }
+        }
         if (or) {
             let keys = Object.keys(or);
             for (let i = 0; i < arr.length; i++) {
@@ -209,10 +230,10 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
     }
 })
 /**
- * 修改redis数据库数据
+ * 返回要修改的redis数据库的数据的可被multi直接调用的数组形式
  * @param {JSON} condis   查询条件，包括tName与condi
  * @param {JSON} update   修改条件
- * @returns {string} success
+ * @returns {Array} [[tName,row1,js1],['lset',tName,row2,js2]...];
  */
 get.update = promise.promisify(async function (condis, update, cb) {
     try {
@@ -241,6 +262,7 @@ get.update = promise.promisify(async function (condis, update, cb) {
         }
         // 查询出符合条件的数据
         let result = await get.myData(condis);
+        let result2 = [];
         let tName = condis.tName;
         // 遍历符合条件的数据，得到索引，与源数据
         for (let i = 0; i < result.length; i++) {
@@ -256,19 +278,20 @@ get.update = promise.promisify(async function (condis, update, cb) {
             // let arr = getVar(tName);
             // arr[row] = data;
             data = JSON.stringify(data);
+            result2.push(['lset', tName, row, data]);
             // 将更改好的源数据，通过索引修改回去
             await client.lset(tName, row, data);
         }
-        cb(null, 'success');
+        cb(null, result2);
     } catch (err) {
         cb(err);
     }
 })
 
 /**
- * 删除redis数据库数据
+ * 返回要删除的redis数据库的可被multi直接调用的数组形式
  * @param {JSON} condis   查询条件包括tName,condi
- * @returns {string} success
+ * @returns {Array} [['lrem', tName, 0, data1],['lrem', tName, 0, data2]...] 
  */
 get.delete = promise.promisify(async function (condis, cb) {
     try {
@@ -280,27 +303,30 @@ get.delete = promise.promisify(async function (condis, cb) {
         // 查询出符合条件的数据
         let result = await get.myData(condis);
         let tName = condis.tName;
+        let result2 = [];
         // 遍历符合条件的数据，得到索引，与源数据
         for (let i = 0; i < result.length; i++) {
             const obj = result[i];
             let data = obj.data;
-            let row = obj.row;
+            // let row = obj.row;
             // 将服务器保存的数据也修改了
             // let arr = getVar(tName);
             // arr.splice(row, 1);
             // 传回redis一定是字符串
             data = JSON.stringify(data);
+            result2.push(['lrem', tName, 0, data]);
             // 删除数据
-            await client.lrem(tName, 0, data);
+            // await client.lrem(tName, 0, data);
         }
-        cb(null, 'success')
+        cb(null, result2);
     } catch (err) {
         cb(err);
     }
 });
 /**
+ * 返回需要新增的数据的数组形式
  * @param {JSON} condis {tName:x, 主键id:x, 其他字段:x };
- * @returns {string} success
+ * @returns {Array} [['rpush', tName, data1],['rpush', tName, data2]...] 
  */
 get.insert = promise.promisify(async function (condis, cb) {
     try {
@@ -313,8 +339,10 @@ get.insert = promise.promisify(async function (condis, cb) {
         }
         // let arr = getVar(tName);
         // arr.push(obj);
+        let result = [];
         obj = JSON.stringify(obj);
-        await client.rpush(tName, obj);
+        // await client.rpush(tName, obj);
+        result.push(['rpush', tName, obj]);
         cb(null, 'success');
     } catch (err) {
         cb(err);
@@ -719,6 +747,18 @@ function getObj(tName, cb) {
                 flow_detail_id: "",
                 flow_name: null,
                 leavl: null
+            }
+            return obj;
+        case 'news':
+            obj = {
+                new_id: null,
+                title: null,
+                time: null,
+                name: null,
+                title2: null,
+                newsData: null,
+                imgPath: null,
+                imgPath2: null,
             }
             return obj;
         case 'order1':

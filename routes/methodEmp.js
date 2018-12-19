@@ -155,14 +155,16 @@ const me = {
             let emp_id = body.emp_id;
             let dep_id = body.dep_id;
             let name = body.name;
+            let data1 = [];
             if (name == 'manager_id') {
-                await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id: 'null' });
+                data1 = await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id: 'null' });
             } else if (name == 'manager2_id') {
-                await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id2: 'null' });
+                data1 = await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id2: 'null' });
             } else if (name == 'manager3_id') {
-                await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id3: 'null' });
+                data1 = await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id3: 'null' });
             }
-            await get.update({ tName: 'emp', emp_id: emp_id }, { dep_id: 'null' });
+            let data2 = await get.update({ tName: 'emp', emp_id: emp_id }, { dep_id: 'null' });
+            await get.multi(data1.concat(data2));
             let user = await this.getEmp({ body: { emp_id: emp_id } });
             log.controlLog(req, { outData: 'success', control: `将${user[0].name}从经理删除` });
             cb('success');
@@ -187,7 +189,8 @@ const me = {
                 log.controlLog(req, { outData: 'empExist', control: `将部门:${dep[0].managerName}删除失败,部门中还存在其他人员` });
                 cb('empExist')
             } else {
-                await get.delete({ tName: 'dep', dep_id: dep_id })
+                let data = await get.delete({ tName: 'dep', dep_id: dep_id })
+                await get.multi(data);
                 let dep = await this.getdep({ body: { dep_id: dep_id } });
                 log.controlLog(req, { outData: 'success', control: `将部门:${dep[0].managerName}删除成功` });
                 cb('success')
@@ -209,7 +212,8 @@ const me = {
         async.each(emp_id_arr, function (emp_id, cb2) {
             (async function () {
                 try {
-                    await get.update({ tName: 'emp', emp_id: emp_id }, { dep_id: 'null' });
+                    let data = await get.update({ tName: 'emp', emp_id: emp_id }, { dep_id: 'null' });
+                    await get.multi(data);
                     cb2();
                 } catch (err) {
                     log.errLog(req)
@@ -272,14 +276,15 @@ const me = {
             if (ret2.length == 0) {
                 cb('userexist');
             } else {
-                await get.update({ emp_id: emp_id }, { dep_id: dep_id });
+                let data = await get.update({ emp_id: emp_id }, { dep_id: dep_id });
                 if (num == 1) {
-                    await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id: emp_id });
+                    data.concat(await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id: emp_id }));
                 } else if (num == 2) {
-                    await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id2: emp_id });
+                    data.concat(await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id2: emp_id }));
                 } else if (num == 3) {
-                    await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id3: emp_id });
+                    data.concat(await get.update({ tName: 'dep', dep_id: dep_id }, { manager_id3: emp_id }));
                 }
+                await get.multi(data);
                 cb('success');
             }
         } catch (err) {
@@ -301,7 +306,8 @@ const me = {
             (async function () {
                 try {
                     let ret = await me.getEmp({ body: { emp_id, emp_id, dep_id: 'null' } });
-                    await get.update({ tName: 'emp', emp_id: emp_id }, { dep_id: dep_id });
+                    let data = await get.update({ tName: 'emp', emp_id: emp_id }, { dep_id: dep_id });
+                    await get.multi(data);
                     cb2();
                 } catch (err) {
                     log.errLog(req)
@@ -340,7 +346,8 @@ const me = {
             let body = req.body;
             let managerName = body.managerName;
             let maxId = get.tbMaxId({ tName: 'dep' }, 'dep_id');
-            await get.insert({ tName: 'dep', dep_id: maxId, managerName: managerName });
+            let data = await get.insert({ tName: 'dep', dep_id: maxId, managerName: managerName });
+            await get.multi(data);
             cb('success')
         } catch (err) {
             log.errLog(req)
@@ -357,8 +364,9 @@ const me = {
         try {
             let body = req.body;
             let emp_id = body.emp_id;
-            await get.delete({ tName: 'relation_emp_resource', emp_id: emp_id });
-            await get.delete({ tName: 'emp', emp_id: emp_id })
+            let data1 = await get.delete({ tName: 'relation_emp_resource', emp_id: emp_id });
+            let data2 = await get.delete({ tName: 'emp', emp_id: emp_id })
+            await get.multi(data1.concat(data2));
             cb('success')
         } catch (err) {
             log.errLog(req)
@@ -375,8 +383,9 @@ const me = {
         try {
             let body = req.body;
             let emp_id = body.emp_id;
-            await get.delete({ tName: 'relation_emp_resource', emp_id: emp_id });
-            await get.update({ tName: 'emp', emp_id: emp_id }, { power_type: 1 });
+            let data1 = await get.delete({ tName: 'relation_emp_resource', emp_id: emp_id });
+            let data2 = await get.update({ tName: 'emp', emp_id: emp_id }, { power_type: 1 });
+            await get.multi(data1.concat(data2));
             cb('success')
         } catch (err) {
             log.errLog(req)
@@ -432,7 +441,8 @@ const me = {
             let iiuv = body.iiuv;
             let ret = await me.getEmp({ body: { "iiuv": iiuv, "type": 5 } });
             if (ret.length == 1) {
-                await get.update({ tName: 'emp', emp_id: emp_id }, { iiuv: iiuv });
+                let data = await get.update({ tName: 'emp', emp_id: emp_id }, { iiuv: iiuv });
+                await get.multi(data);
                 log.controlLog(req, { outData: 'success', control: `修改用户推荐码为${iiuv}` });
                 cb('success')
             } else {
@@ -457,11 +467,13 @@ const me = {
             let repassword = body.repassword;
             let username = body.username;
             let tel = body.tel;
+            let data = [];
             if (password && password != "") {
-                await get.update({ tName: 'emp', username: username }, { name: name, tel: tel, tel, username: tel, password: repassword });
+                data = await get.update({ tName: 'emp', username: username }, { name: name, tel: tel, tel, username: tel, password: repassword });
             } else {
-                await get.update({ tName: 'emp', username: username }, { name: name, tel: tel, tel, username: tel });
+                data = await get.update({ tName: 'emp', username: username }, { name: name, tel: tel, tel, username: tel });
             }
+            await get.multi(data);
             log.controlLog(req, { outData: 'success', control: `修改用户姓名:${name},电话:${tel},登录名:${tel}` });
             cb('success')
         } catch (err) {
@@ -534,10 +546,11 @@ const me = {
                             // 如果没有，创建这个用户
                             let maxId = await get.tbMaxId({ tName: 'emp' }, 'emp_id');
                             userArr.push({ "username": username, "password": password, "iiuv": bigIIUV });
-                            await get.insert({
+                            let data = await get.insert({
                                 tName: 'emp', emp_id: maxId, username: username, password: password,
                                 type: code, iiuv: bigIIUV++, registTime: new Date()
                             })
+                            await get.multi(data);
                             break;
                         }
                     }
@@ -558,10 +571,11 @@ const me = {
                         } else {
                             // 如果没有，创建这个用户
                             let maxId = get.tbMaxId({ tName: 'emp' }, 'emp_id');
-                            await get.insert({
+                            let data = await get.insert({
                                 tName: 'emp', emp_id: maxId, username: username, password: password,
                                 type: code, registTime: new Date()
                             })
+                            await get.multi(data);
                             userArr.push({ "username": username, "password": password, "iiuv": '' });
                             break;
                         }
@@ -633,9 +647,10 @@ const me = {
     recoverAllreource: async function (req, cb) {
         try {
             let body = req.body;
-            // 管道
-            await get.delete({ tName: 'relation_emp_resource' });
-            await get.update({ tName: 'emp' }, { power_type: 1 });
+
+            let data1 = await get.delete({ tName: 'relation_emp_resource' });
+            let data2 = await get.update({ tName: 'emp' }, { power_type: 1 });
+            await get.multi(data1.concat(data2));
             log.controlLog(req, { outData: 'success', control: `恢复所有用户权限为角色权限` });
             cb('success')
         } catch (err) {
@@ -671,16 +686,25 @@ const me = {
             let body = req.body;
             let role_id = body.role_id;
             let resource_id_arr = body.resource_id
-            await get.delete({ tName: 'relation_role_resource', role_id: role_id });
+            let data1 = await get.delete({ tName: 'relation_role_resource', role_id: role_id });
+            let data2 = [];
             async.each(resource_id_arr, function (resource_id, cb2) {
                 (async function () {
                     let maxId = await get.tbMaxId({ tName: 'relation_role_resource' }, 'id');
-                    await get.insert({ tName: 'relation_role_resource', role_id: role_id, resource_id: resource_id, id: maxId });
+                    data2 = data2.concat(await get.insert({ tName: 'relation_role_resource', role_id: role_id, resource_id: resource_id, id: maxId }));
                     cb2();
                 })()
             }, function (err) {
-                log.controlLog(req, { outData: 'success', control: `修改多个用户的权限` });
-                cb('success')
+                (async function () {
+                    try {
+                        await get.multi(data1.concat(data2));
+                        log.controlLog(req, { outData: 'success', control: `修改多个用户的权限` });
+                        cb('success')
+                    } catch (err) {
+                        log.errLog(req)
+                        cb('error');
+                    }
+                })()
             })
         } catch (err) {
             log.errLog(req)
@@ -729,11 +753,14 @@ const me = {
         let emp_id_arr = body.emp_id;
         let resource_id_arr = body.resource_id
         async.each(emp_id_arr, function (emp_id, cb2) {
+            let data1 = [];
+            let data2 = [];
+            let data3 = [];
             async.auto({
                 deleteUserResource: function (cb3) {
                     (async function () {
                         try {
-                            await get.delete({ tName: 'relation_emp_resource', emp_id: emp_id });
+                            data1 = await get.delete({ tName: 'relation_emp_resource', emp_id: emp_id });
                             cb3(null, "1");
                         } catch (err) {
                             log.errLog(req)
@@ -744,7 +771,7 @@ const me = {
                 updatePower_type: function (cb3) {
                     (async function () {
                         try {
-                            await get.update({ tName: 'emp', emp_id: emp_id }, { power_type: 2 });
+                            data2 = await get.update({ tName: 'emp', emp_id: emp_id }, { power_type: 2 });
                             cb3(null, "2");
                         } catch (err) {
                             log.errLog(req)
@@ -758,7 +785,7 @@ const me = {
                             (async function () {
                                 try {
                                     let maxId = await get.tbMaxId({ tName: 'relation_emp_resource' }, 'id');
-                                    await get.insert({ tName: 'relation_emp_resource', emp_id: emp_id, resource_id: resource_id, id: maxId });
+                                    data3 = data3.concat(await get.insert({ tName: 'relation_emp_resource', emp_id: emp_id, resource_id: resource_id, id: maxId }));
                                     cb4();
                                 } catch (err) {
                                     log.errLog(req)
@@ -766,7 +793,15 @@ const me = {
                                 }
                             })()
                         }, function (err) {
-                            cb3(null, "3");
+                            (async function () {
+                                try {
+                                    await get.multi(data1.concat(data2).concat(data3));
+                                    cb3(null, "3");
+                                } catch (err) {
+                                    log.errLog(req)
+                                    cb('error');
+                                }
+                            })()
                         })
                     }]
             }, function (err, rst2) {
@@ -788,12 +823,13 @@ const me = {
             let body = req.body;
             let emp_id = body.emp_id;
             let resource_id_arr = body.resource_id
-            await get.delete({ tName: 'relation_emp_resource', emp_id: emp_id });
+            let data1 = await get.delete({ tName: 'relation_emp_resource', emp_id: emp_id });
+            let data2 = [];
             async.each(resource_id_arr, function (resource_id, cb2) {
                 (async function () {
                     try {
                         let maxId = await get.tbMaxId({ tName: 'relation_emp_resource' }, 'id');
-                        await get.insert({ tName: 'relation_emp_resource', emp_id: emp_id, resource_id: resource_id, id: maxId });
+                        data2 = data2.concat(await get.insert({ tName: 'relation_emp_resource', emp_id: emp_id, resource_id: resource_id, id: maxId }));
                         cb2()
                     } catch (err) {
                         log.errLog(req)
@@ -801,8 +837,16 @@ const me = {
                     }
                 })()
             }, function (err) {
-                log.controlLog(req, { outData: 'success', control: `修改个人权限` });
-                cb('success')
+                (async function () {
+                    try {
+                        await get.multi(data1.concat(data2));
+                        log.controlLog(req, { outData: 'success', control: `修改个人权限` });
+                        cb('success')
+                    } catch (err) {
+                        log.errLog(req)
+                        cb('error');
+                    }
+                })()
             })
         } catch (err) {
             log.errLog(req)

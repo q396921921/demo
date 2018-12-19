@@ -49,6 +49,22 @@ module.exports = {
     //     sql = isExist(sql, data);
     //     conn.getConn(sql, arr, cb);
     // }),
+    /**
+     * 获得新闻
+     */
+    getNews: Promise.promisify(function (otjs, arr, cb) {
+        let limit = otjs.limit;
+        let sql = "";
+        if (arr[0]) {
+            sql = 'select * from news where new_id=? order by new_id desc';
+        } else {
+            sql = 'select * from news order by new_id desc';
+        }
+        if (limit && limit != '') {
+            sql += ' limit ' + (limit - 1) * 15 + ',15';
+        }
+        conn.getConn(sql, arr, cb);
+    }),
 }
 
 function isEmpty(arr) {

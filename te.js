@@ -201,5 +201,82 @@ writable.on('error', function (err) {
 //     }
 // })
 // console.log(process.argv);
-let refund = 1;
-console.log(`${refund = refund == 0 ? '未还款' : '还款'}`);
+
+var db2 = require('redis');
+var option = {
+    host: '47.92.215.175', // default 
+    // host: 'localhost', // default 
+    port: 6379, //default 
+    auth_pass: 'chaiyang44554454554464',
+    max_clients: 30, // defalut 
+    perform_checks: false, // checks for needed push/pop functionality 
+    database: 0, // database number to use 
+    // options: {
+    //     auth_pass: 'shaoshi123'
+    // } //options for createClient of node-redis, optional 
+}
+/**
+ * 获得一个redis连接
+ */
+
+// db2.on('error', function (err) {
+//     console.log('连接出现错误');
+//     console.log(err);
+//     if (err) {
+//         console.log('error');
+//     }
+// })
+
+// db2.on('connect', function () {
+//     console.log('Redis连接成功');
+// })
+// var sub = db2.createClient(option), pub = db2.createClient(option);
+// var msg_count = 0;
+
+// sub.on("subscribe", function (channel, count) {
+//     pub.publish("a nice channel", "I am sending a message.");
+//     pub.publish("a nice channel", "I am sending a second message.");
+//     pub.publish("a nice channel", "I am sending my last message.");
+// });
+
+// sub.on("message", function (channel, message) {
+//     console.log("sub channel " + channel + ": " + message);
+//     msg_count += 1;
+//     if (msg_count === 3) {
+//         sub.unsubscribe();
+//         sub.quit();
+//         pub.quit();
+//     }
+// });
+// sub.subscribe("a nice channel");
+
+// var client  = require("redis").createClient(option);
+// client.monitor(function (err, res) {
+//     console.log("Entering monitoring mode.");
+// });
+// client.set('foo', 'bar');
+
+// client.on("monitor", function (time, args, raw_reply) {
+//     console.log(time + ": " + args); // 1458910076.446514:['set', 'foo', 'bar']
+// });
+
+var client = db2.createClient(option);
+// var clientBlocking = client.duplicate();
+
+// var get = function() {
+//     console.log("get called");
+//     client.get("any_key",function() { console.log("get returned"); });
+//     setTimeout( get, 1000 );
+// };
+// var brpop = function() {
+//     console.log("brpop called");
+//     clientBlocking.brpop("nonexistent", 5, function() {
+//         console.log("brpop return");
+//         setTimeout( brpop, 1000 );
+//     });
+// };
+// get();
+// brpop();
+let arr = [];
+arr.push(123);
+console.log(arr);
