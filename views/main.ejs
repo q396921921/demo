@@ -118,18 +118,20 @@
         function getNoHandleOrder(order_type) {
             let num = "";
             $.ajax({
-                url: "/users/getNoHandleOrders",
+                url: "/users/getOrders",
                 type: "post",
                 data: {
                     order_type: order_type,
                     role_type: role_type,
                     userdep_id: userdep_id,
-                    busoff_id: busoff_id
+                    busoff_id: busoff_id,
+                    order_state: 1,
                 },
                 async: false,
                 dataType: "text",
                 success: function (result) {
-                    num = result;
+                    result = JSON.parse(result).data;
+                    num = result ? result : 0;
                 }
             })
             return num;

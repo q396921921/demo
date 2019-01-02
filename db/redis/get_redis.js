@@ -1,53 +1,52 @@
 const promise = require('bluebird');
+let util = require('../../routes/util')
 const get = {};
 const client = require('./async_redis');
 
-// var chatroom = [];
-// var total_profit = [];
-// var data_business = [];
-// var data_home_page = [];
-// var data_partner = [];
-// var data_zizhi = [];
-// var dep = [];
-// var detail_file_type = [];
-// var emp = [];
-// var file_types_num = [];
-// var flow = [];
-// var flow_detail = [];
-// var news = [];
-// var order1 = [];
-// var order2 = [];
-// var order3 = [];
-// var product = [];
-// var product_type = [];
-// var relation_emp_resource = [];
-// var relation_emp_role = [];
-// var relation_file_type_detail = [];
-// var relation_flow_detail = [];
-// var relation_order_state = [];
-// var relation_product_dep = [];
-// var relation_role_resource = [];
-// var relation_state_flow = [];
-// var resource = [];
-// var role = [];
-// var state_detail = [];
+var chatroom = [];
+var total_profit = [];
+var data_business = [];
+var data_home_page = [];
+var data_partner = [];
+var data_zizhi = [];
+var dep = [];
+var detail_file_type = [];
+var emp = [];
+var file_types_num = [];
+var flow = [];
+var flow_detail = [];
+var news = [];
+var order1 = [];
+var order2 = [];
+var order3 = [];
+var product = [];
+var product_type = [];
+var relation_emp_resource = [];
+var relation_emp_role = [];
+var relation_file_type_detail = [];
+var relation_flow_detail = [];
+var relation_order_state = [];
+var relation_product_dep = [];
+var relation_role_resource = [];
+var relation_state_flow = [];
+var resource = [];
+var role = [];
+var state_detail = [];
 
+/**
+ * 获取某张表的所有数据，如果有数据就无须查询数据库直接返回服务器缓存字段。
+ * 如果没有数据，就去数据库查询
+ */
 let getAllDate = promise.promisify(async function (obj, cb) {
     try {
         let tName = obj.tName;
-        // let arr = getVar(tName);
-        // if (arr.length != 0) {
-        //     cb(null, arr);
-        // } else {
-        let ret = await client.lrange(tName, 0, -1);
-        arr = [];
-        for (let i = 0; i < ret.length; i++) {
-            const data = JSON.parse(ret[i]);
-            arr.push(data);
+        let arr = getVar(tName);
+        if (arr.length != 0) {
+            cb(null, arr);
+        } else {
+            let arr = await getData(tName);
+            cb(null, arr);
         }
-        setVar(arr, tName);
-        cb(null, arr);
-        // }
     } catch (err) {
         cb(err)
     }
@@ -61,6 +60,11 @@ let getAllDate = promise.promisify(async function (obj, cb) {
 get.multi = promise.promisify(async function (obj, cb) {
     try {
         let data = await client.multi(obj);
+        // 增删改事务完成后更新缓存
+        for (let i = 0; i < obj.length; i++) {
+            const val = obj[i];
+            await getData(val[1]);
+        }
         cb(null, data);
     } catch (err) {
         cb(err)
@@ -103,7 +107,6 @@ get.myData = promise.promisify(async function (condis, cb) {
 get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
     try {
         let arr = await getAllDate(tName);
-        let arr2 = [];  // 用于存储or规则下，复合条件的数据
         let and = rule.and;
         let or = rule.or;
         let id = "";
@@ -121,6 +124,7 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
                 }
             }
         }
+        let orArr = [];  // 用于存储or规则下，复合条件的数据
         if (or) {
             let keys = Object.keys(or);
             for (let i = 0; i < arr.length; i++) {
@@ -137,10 +141,11 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
                     }
                 }
                 if (flag) {
-                    arr2.push(arr[i]);
+                    orArr.push(arr[i]);
                 }
             }
         }
+        let andArr = [];
         if (and) {
             let keys = Object.keys(and);
             for (let i = 0; i < arr.length; i++) {
@@ -149,40 +154,44 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
                 let flag = true;
                 for (let j = 0; j < keys.length; j++) {
                     const k = keys[j];
-                    if (val[k] == and[k]) {
+                    if (val[k] != and[k]) {
                         flag = false;
                         break;
                     }
                 }
                 if (flag) {
-                    arr.splice(i, 1);
-                    i--;
+                    andArr.push(val);
                 }
             }
+        } else {
+            andArr = arr;
         }
+        let notArr = [];
         if (not) {
             let keys = Object.keys(not);
-            for (let i = 0; i < arr.length; i++) {
-                const val = arr[i]
+            for (let i = 0; i < andArr.length; i++) {
+                const val = andArr[i]
                 // 默认有与此条件相等的
                 let flag = true;
                 for (let j = 0; j < keys.length; j++) {
                     const k = keys[j];
-                    if (val[k] != not[k]) {
+                    if (val[k] == not[k]) {
                         flag = false;
                         break;
                     }
                 }
                 if (flag) {
-                    arr.splice(i, 1);
-                    i--;
+                    notArr.push(val);
                 }
             }
+        } else {
+            notArr = andArr;
         }
+        let bigEqualArr = [];
         if (bigEqual) {
             let keys = Object.keys(bigEqual);
-            for (let i = 0; i < arr.length; i++) {
-                const val = arr[i]
+            for (let i = 0; i < notArr.length; i++) {
+                const val = notArr[i]
                 // 默认有复合此条件的
                 let flag = true;
                 for (let j = 0; j < keys.length; j++) {
@@ -193,15 +202,17 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
                     }
                 }
                 if (flag) {
-                    arr.splice(i, 1);
-                    i--;
+                    bigEqualArr.push(val)
                 }
             }
+        } else {
+            bigEqualArr = notArr;
         }
+        let smallEqualArr = [];
         if (smallEqual) {
             let keys = Object.keys(smallEqual);
-            for (let i = 0; i < arr.length; i++) {
-                const val = arr[i]
+            for (let i = 0; i < bigEqualArr.length; i++) {
+                const val = bigEqualArr[i]
                 // 默认有与此条件相等的
                 let flag = true;
                 for (let j = 0; j < keys.length; j++) {
@@ -212,17 +223,23 @@ get.myDataAndOrNot = promise.promisify(async function (tName, rule, cb) {
                     }
                 }
                 if (flag) {
-                    arr.splice(i, 1);
-                    i--;
+                    smallEqualArr.push(val);
+                }
+            }
+        } else {
+            smallEqualArr = bigEqualArr;
+        }
+        arr = smallEqualArr.concat(orArr);
+        for (let i = 0; i < arr.length; i++) {
+            const val = JSON.stringify(arr[i]);
+            for (let j = i + 1; j < arr.length; j++) {
+                const val2 = JSON.stringify(arr[j]);
+                if (arr[i] == arr[j]) {
+                    arr.splice(j, 1);
+                    j--;
                 }
             }
         }
-        arr = arr.concat(arr2);
-        let hash = [];
-        arr = arr.reduce((preVal, curVal) => {
-            hash[curVal[id]] ? '' : hash[curVal[id]] = true && preVal.push(curVal);
-            return preVal
-        }, [])
         cb(null, arr);
     } catch (err) {
         console.log(err);
@@ -280,7 +297,7 @@ get.update = promise.promisify(async function (condis, update, cb) {
             data = JSON.stringify(data);
             result2.push(['lset', tName, row, data]);
             // 将更改好的源数据，通过索引修改回去
-            await client.lset(tName, row, data);
+            // await client.lset(tName, row, data);
         }
         cb(null, result2);
     } catch (err) {
@@ -337,13 +354,10 @@ get.insert = promise.promisify(async function (condis, cb) {
                 obj[key] = condis[key]
             }
         }
-        // let arr = getVar(tName);
-        // arr.push(obj);
         let result = [];
         obj = JSON.stringify(obj);
-        // await client.rpush(tName, obj);
         result.push(['rpush', tName, obj]);
-        cb(null, 'success');
+        cb(null, result);
     } catch (err) {
         cb(err);
     }
@@ -479,6 +493,22 @@ function getOrDate(condi, data) {
     }
     return arr;
 }
+
+// 获取某张表的所有数据
+let getData = promise.promisify(async function (tName, cb) {
+    try {
+        let ret = await client.lrange(tName, 0, -1);
+        arr = [];
+        for (let i = 0; i < ret.length; i++) {
+            const data = JSON.parse(ret[i]);
+            arr.push(data);
+        }
+        setVar(arr, tName);
+        cb(null, arr);
+    } catch (err) {
+        cb(err, null);
+    }
+})
 /**
  * not use
  * 获得与此表名相同的变量的值，返回其中储存的数据
@@ -509,6 +539,8 @@ function getVar(tName) {
             return flow;
         case 'flow_detail':
             return flow_detail;
+        case 'news':
+            return news;
         case 'order1':
             return order1;
         case 'order2':
@@ -577,6 +609,8 @@ function setVar(data, tName) {
             detail_file_type = data;
             break;
         case 'emp':
+            let errInfo = util.stackInfo();
+            console.log(errInfo);
             emp = data;
             break;
         case 'file_types_num':
@@ -587,6 +621,9 @@ function setVar(data, tName) {
             break;
         case 'flow_detail':
             flow_detail = data;
+            break;
+        case 'news':
+            news = data;;
             break;
         case 'order1':
             order1 = data;

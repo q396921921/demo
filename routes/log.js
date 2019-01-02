@@ -20,12 +20,17 @@ const log = {
     controlLog: async function (req, oth) {
         (async function () {
             try {
-                let username = req.session.username ? req.session.username : req.body.username;
-                let name = await require('./methodEmp').getEmp({ body: { username: username } });
-                if (name.length != 0) {
-                    name = name[0].name;
+                let name;
+                if (req.session && req.body) {
+                    let username = req.session.username ? req.session.username : req.body.username;
+                    name = await require('./methodEmp').getEmp({ body: { username: username } });
+                    if (name.length != 0) {
+                        name = name[0].name;
+                    } else {
+                        name = " ";
+                    }
                 } else {
-                    name = " ";
+                    name = "";
                 }
                 let val = { ip: req.ip, router: req.originalUrl, name: name, inData: req.body };
                 val.outData = oth.outData;
@@ -46,11 +51,17 @@ const log = {
         (async function () {
             try {
                 let errInfo = util.stackInfo();
-                let name = await require('./methodEmp').getEmp({ body: { username: req.session.username } });
-                if (name.length != 0) {
-                    name = name[0].name;
+                let name;
+                if (req.session && req.body) {
+                    let username = req.session.username ? req.session.username : req.body.username;
+                    name = await require('./methodEmp').getEmp({ body: { username: username } });
+                    if (name.length != 0) {
+                        name = name[0].name;
+                    } else {
+                        name = " ";
+                    }
                 } else {
-                    name = " ";
+                    name = "";
                 }
                 let val = JSON.stringify({ ip: req.ip, router: req.originalUrl, name: name, inData: req.body, path: errInfo.path, line: errInfo.line, file: errInfo.file });
                 log4js.getLogger('err').error(val)

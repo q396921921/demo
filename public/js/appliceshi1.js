@@ -538,6 +538,7 @@ function getState() {
         async: false,
         dataType: "text",
         success: function (result) {
+            console.log(text);
             text = result;
         }
     })

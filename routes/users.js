@@ -142,12 +142,6 @@ router.post('/getOrders', function (req, res, next) {
     }
   })()
 })
-// 获得当前人物权限所有未被处理的订单
-router.post('/getNoHandleOrders', function (req, res, next) {
-  mdOrder.getNoHandleOrders(req, (ret) => {
-    res.send(ret)
-  })
-})
 // use
 router.post('/getFlow_detail', function (req, res, next) {
   (async function () {
@@ -202,11 +196,7 @@ router.post('/getState', function (req, res, next) {
   (async function () {
     try {
       let data = await mdOrder.getOrder(req);
-      if (data[0].flowState) {
-        res.send(data[0].flowState);
-      } else {
-        res.send("");
-      }
+      res.send(data[0].flowState + "");
     } catch (err) {
       res.send('error');
     }

@@ -85,10 +85,14 @@ router.post('/getProductById', function (req, res, next) {
 router.post('/getOrders', function (req, res, next) {
     let body = req.body;
     body = JSON.parse(Object.keys(body));   // 手机端数据接收
-    mdOrder.getOrders({ body: body }, (ret) => {
-        getTime(ret, (rt) => {
-            res.send(rt);
-        })
+    mdOrder.getOrders({ body: body }, (err, ret) => {
+        if(ret[0].length != 0) {
+            getTime(ret[0], (rt) => {
+                res.send(rt);
+            })
+        }else {
+            res.send("")
+        }
     })
     // // 电脑端数据接收
     // getPostData(req, res, (body) => {
@@ -156,8 +160,7 @@ router.get('/getzizhiInfo', function (req, res, next) {
 
 // use
 // 订单的基本信息的
-function getTime(ret, cb) {
-    let data = JSON.parse(ret).result;
+function getTime(data, cb) {
     if (data && data != '') {
         for (let i = 0; i < data.length; i++) {
             let appliTime = data[i].appliTime;

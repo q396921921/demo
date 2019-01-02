@@ -1,9 +1,9 @@
 var db2 = require('redis');
 var option = {
     host: '47.92.215.175', // default 
-    // host: 'localhost', // default 
+    // host: 'localhost', // default
     port: 6379, //default 
-    auth_pass: 'chaiyang44554454554464',
+    auth_pass: 'chaiyang1234567890',
     max_clients: 30, // defalut 
     perform_checks: false, // checks for needed push/pop functionality 
     database: 0, // database number to use 

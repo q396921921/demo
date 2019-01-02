@@ -277,6 +277,56 @@ var client = db2.createClient(option);
 // };
 // get();
 // brpop();
-let arr = [];
-arr.push(123);
-console.log(arr);
+
+// let arr = [1, 2, 9, 5];
+
+// let promise = require('bluebird');
+// var SortCards = promise.promisify(function (array, cb) {
+//     array.sort(function (x, y) {
+//         return y - x;
+//     });
+//     cb(null, array)
+// })
+// async function aaa(arr) {
+//     console.log('我正常执行了');
+//     let data = await SortCards(arr);
+//     console.log(data);
+// }
+// aaa(arr);
+let promise = require('bluebird');
+
+let arr = [
+    { id: 1, value: [3, 3, 3, 4, 4, 4, 5, 5, 5] }, [6, 6],
+    { id: 1, value: [7, 7, 7, 8, 8, 8] }, [3]
+]
+function demo(arr) {
+    let js = [];
+    let ar = [];
+    for (let i = 0; i < arr.length; i++) {
+        const val = arr[i];
+        if (Array.isArray(val)) {
+            ar.push(val);
+        } else {
+            js.push(val);
+        }
+    }
+    let newArr = js.concat(ar);
+    let num = js.length;
+}
+demo(arr);
+
+
+
+// let arr = [
+//     { id: 1, value: [3, 3, 3, 4, 4, 4, 5, 5, 5] }, { id: 1, value: [7, 7, 7, 8, 8, 8] }, [6, 6], [3]
+// ]
+
+var time =[0,8,5,0,6,3,0,2,1,0]
+for (let i = 0; i < a.length; i++) {
+    const val = a[i];
+    if(val == 0) {
+        a.splice(i,1);
+        i--;
+    }
+}
+console.log(a);

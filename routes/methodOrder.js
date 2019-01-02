@@ -118,7 +118,7 @@ var md = {
       let data;
       if (order_type) {
         let condis = { tName: tName }
-        condis = util.spliceCode(condis, body);
+        condis = util.spliceCode(condis, body); 
         let ret = await get.myData(condis);
         data = util.getData(ret);
       } else {
@@ -825,12 +825,6 @@ var md = {
   getOrders: promise.promisify(async function (req, cb) {
     try {
       let body = req.body;
-      // let order_id = body.order_id;
-      // let appli_id = body.appli_id;
-      // let type = body.type;
-      // let channel_id = body.channel_id;
-      // let business_id = body.business_id;
-      // let office_id = body.office_id;
       let order_state = body.order_state;
       let limit = body.limit;
       // 通过order_type判断去查询哪种类型的订单表
@@ -1890,7 +1884,7 @@ var md = {
    */
   setCount: promise.promisify(async function (req, cb) {
     try {
-      let count = body.count;
+      let count = req.count;
       let data = await get.update({ tName: 'total_profit' }, { count: count });
       await get.multi(data);
       cb(null, "success");
@@ -2084,7 +2078,9 @@ let getPowerOrder = promise.promisify(async function (obj, cb) {
       }
     } else if (role_type == 5) {  // 业务
       jsBody.business_id = busoff_id;
+      console.log(jsBody);
       data = await md.getOrder({ body: jsBody });
+      console.log(data);
     }
     cb(null, data);
   } catch (err) {
