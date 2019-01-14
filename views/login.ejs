@@ -6,10 +6,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>借贷后台</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="data:;base64,=">
     <link rel="stylesheet" href="/css/login.css">
 </head>
 <script src="/js/jquery.min.js"></script>
 <script>
+    //防止页面后退
+    history.pushState(null, null, document.URL);
+    window.addEventListener('popstate', function () {
+        history.pushState(null, null, document.URL);
+    });
     $(function () {
         $(document).keypress(function (e) {
             var eCode = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
@@ -18,7 +24,7 @@
             }
         });
         if (window != top) {
-            parent.window.location.href = "/users/login";
+            parent.window.location.href = "/login";
             return;
         }
     })
@@ -32,7 +38,9 @@
         <h2 style="margin-left: 150px;margin-top: 20px;">账户登录</h2>
         <div id="c">
             <form action="log" method="post">
-                <h4 style="color:red"><%=mes %></h4>
+                <h4 style="color:red">
+                    <%=mes %>
+                </h4>
                 用户名:
                 <input id="username" type="text" name="username">
                 <br> 密&nbsp;&nbsp;码:

@@ -1,4 +1,8 @@
 
+let control = 'Control';
+let create = 'Create';
+let info = 'Info';
+
 let r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15, r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r28, r29, r30
     , r31;
 // r1=true, r2=true, r3=true, r4=true, r5=true, r6=true, r7=true, r8=true, r9=true, r10=true, r11=true, r12=true, r13=true, r14=true, r15=true, r16=true, r17=true, r18=true, r19=true, r20=true, r21=true, r22=true, r23=true, r24=true, r25=true, r26=true, r27=true, r28=true, r29=true, r30
@@ -8,10 +12,10 @@ let userdep_id;
 let busoff_id;
 let emp_id;
 
-
+// ok
 function getEmp() {
     $.ajax({
-        url: "/users/getUser",
+        url: "/user/getUser",
         type: "post",
         data: {
             "username": username,
@@ -34,11 +38,11 @@ function getEmp() {
         }
     })
 }
-
+// ok
 // 获得所有权限
 function getPowerResource(id, type) {
     $.ajax({
-        url: "/users/getResource",
+        url: "/user/getResource",
         type: "post",
         data: {
             id: id,
@@ -47,8 +51,8 @@ function getPowerResource(id, type) {
         async: false,
         dataType: "text",
         success: function (result) {
-            result = JSON.parse(result).data;
-            let resources = result[1];
+            result = JSON.parse(result);
+            let resources = result.check;
             if (resources.length != 0) {
                 // 遍历所有已经拥有的权限
                 for (let i = 0; i < resources.length; i++) {
@@ -159,15 +163,15 @@ function getPowerResource(id, type) {
     return false;
 }
 
-// 
+// 动态的显示账户管理模块的四个小模块
 function userExistHide() {
     if (r16) {
-        $('<li id="li1"><input type="button" value="创建" name="head1" onclick="jump(1)"></li>').appendTo($("#a ul"));
+        $('<li id="li1"><input type="button" value="创建" name="head1" onclick="jump(create)"></li>').appendTo($("#a ul"));
     }
     if (r22) {
-        $('<li id="li4"><input type="button" value="信息查看" name="head4" onclick="jump(4)"></li>').appendTo($("#a ul"));
+        $('<li id="li4"><input type="button" value="信息查看" name="head4" onclick="jump(info)"></li>').appendTo($("#a ul"));
     }
     if (r30) {
-        $('<li id="li2"><input type="button" value="管理" name="head2" onclick="jump(2)"></li>').appendTo($("#a ul"));
+        $('<li id="li2"><input type="button" value="管理" name="head2" onclick="jump(control)"></li>').appendTo($("#a ul"));
     }
 }

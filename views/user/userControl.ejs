@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>测试4页面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/userControl.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/userControl.js"></script>
+    <script src="/js/public.js"></script>
+    <script src="/js/powers.js"></script>
+    <script src="/js/splitPage.js"></script>
+    <script>
+        
+        var username = "<%=username%>";
+        var menu = "<%=menu%>";
+        $(function () {
+            getEmp();
+            userExistHide();
+
+            getRoles();
+            getRole(username);
+
+            bindEvents()
+            if (menu == 'Control') {
+                $("#li2").children().css("background", "#97C65E");
+                $("#b span").attr('style', "display:none")
+            }
+            // 通过角色是否为全部，改变恢复所有角色当前对应权限按钮的显示与隐藏。以及修改按钮是否可以点击
+            $("#roles").click(function () {
+                var val = $(this).val()
+                if (val == "" || !val) {
+                    $("#resources").attr('disabled', true);
+                } else {
+                    $("#resources").removeAttr('disabled');
+                }
+            })
+        })
+    </script>
+
+<body>
+    <div id="a">
+        <ul>
+            <li id="li3">
+                <input type="button" value="修改信息" name="head3" onclick="jump('Update')">
+            </li>
+        </ul>
+    </div>
+    <div id="bigger">
+        <div id="c">
+            选择筛选:
+            <select id="roles" style="margin-top: 20px;width: 500px;margin-left:20px;margin-right: 20px;">
+                <option value="">全部</option>
+            </select>
+            <select id="update">
+                <option value="0">全部</option>
+                <option value="1">未单独修改权限</option>
+                <option value="2">已单独修改权限</option>
+            </select>
+            <!-- 这个确认是筛选按钮 -->
+            <input type="button" value="确认" onclick="selectUsers(this)">
+        </div>
+        <div id="b">
+            <table id='table' width="50%" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="5%" height="23px"></td>
+                    <td width="27%">账户</td>
+                    <td width="20%">姓名</td>
+                    <td width="20%">推荐码</td>
+                    <td width="33%">操作</td>
+                </tr>
+            </table>
+        </div>
+        <input type="button" class="canButton" value="导出" onclick="output()" style="right: 20px;bottom: 50%;width: 130px;">
+        <input type="button" id="resources" class="canButton" value="修改" onclick="update()" disabled style="right: 20px;bottom: 55%;width: 130px;">
+        <input type="button" id="allResources" class="canButton" value="恢复所有权限" onclick="recoverAllreource()" hidden
+            style="right: 20px;bottom: 45%;width: 130px;">
+        <!-- 分页 -->
+        <%- include("./../splitPage.ejs") %>
+    </div>
+    <div id="small" style="display: none;">
+        <div class="gun">
+            <table id="t1" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="20%"></td>
+                    <td>订单功能</td>
+                </tr>
+            </table>
+        </div>
+        <div class="gun">
+            <table id="t2" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="20%"></td>
+                    <td>帐号功能</td>
+                </tr>
+            </table>
+        </div>
+        <div class="gun">
+            <table id="t3" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="20%"></td>
+                    <td>其他功能</td>
+                </tr>
+            </table>
+        </div>
+        <input type="button" onclick="reUpdate()" class="canButton" value="确认修改" style="right: 20px; bottom: 50px;">
+    </div>
+</body>
+
+</html>

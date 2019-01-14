@@ -7,12 +7,13 @@ const queryData = require('./../db/../mysql/queryData');
 const pool = require('../mysql/pool');
 const promise = require('bluebird');
 // redis
-const mo = require('./../../routes/methodOrder');
-const me = require('./../../routes/methodEmp');
-const md = require('./../../routes/methodData');
-const ms = require('./../../routes/methodSS');
+const mo = require('./../../control/methodOrder');
+const me = require('./../../control/methodEmp');
+const md = require('./../../control/methodData');
+const ms = require('./../../control/methodSS');
 
 const async = require('async');
+const util = require('../../control/util');
 const client = dbRedis.client;
 const sync = {};
 sync.product = async function (cb) {
@@ -89,7 +90,7 @@ sync.detail_file_type = async function (cb) {
 }
 sync.emp = async function (cb) {
     try {
-        let mysql = await queryEmp.getEmp(obj);
+        let mysql = await queryEmp.getEmp({ arr: [], data: {} });
         let redis = await me.getEmp("");
         await syncData(mysql, redis, 'emp_id', 'emp');
     } catch (err) {
@@ -138,7 +139,7 @@ sync.news = async function (cb) {
         let redis = await md.getNews("");
         await syncData(mysql, redis, 'new_id', 'news');
     } catch (err) {
-        cb('error'); 
+        cb('error');
     }
 }
 // xxxxxxxxxxxxx
@@ -275,13 +276,24 @@ var syncData = promise.promisify(async function (mysql, redis, IdName, tName, cb
     try {
         if (redis) {
             let count = 0;
+            let count2 = 0;
             async.eachSeries(redis, function (rds, cb2) {
                 (async function () {
-                    count = await judge(mysql, rds, count, IdName, tName);
+                    let arr = await judge(mysql, rds, count, count2, IdName, tName);
+                    count = arr[0];
+                    count2 = arr[1];
                     cb2();
                 })()
             }, function (err) {
-                cb(null, 'success');
+                (async function () {
+                    if (mysql.length - count2 > redis.length) {
+                        let sql = "delete from " + tName + ' where ' + IdName + '>=?';
+                        let ret = await db(sql, [mysql[mysql.length - count2 - 1][IdName]]);
+                        cb(null, 'success');
+                    } else {
+                        cb(null, 'success');
+                    }
+                })()
             })
         } else {
             cb(null, 'success');
@@ -291,7 +303,7 @@ var syncData = promise.promisify(async function (mysql, redis, IdName, tName, cb
     }
 })
 // repet this function
-var judge = promise.promisify(async function (mysql, rds, count, IdName, tName, cb) {
+var judge = promise.promisify(async function (mysql, rds, count, count2, IdName, tName, cb) {
     try {
         let Id1 = rds[IdName];
         let keys = Object.keys(rds);
@@ -301,11 +313,10 @@ var judge = promise.promisify(async function (mysql, rds, count, IdName, tName, 
             let Id2 = mysql[count][IdName];
             if (Id1 === Id2) {
                 if (JSON.stringify(rds) === JSON.stringify(mysql[count])) {
-                    cb(null, ++count);
-
+                    cb(null, [++count, count2]);
                 } else {
-                    let ret = await update(keys, vals, IdName, tName);
-                    cb(null, ++count);
+                    let ret = await update(keys, vals, IdName, tName, Id1);
+                    cb(null, [++count, count2]);
                 }
             } else {
                 // delete this mysql mysql and insert
@@ -314,26 +325,30 @@ var judge = promise.promisify(async function (mysql, rds, count, IdName, tName, 
                     let sql = "delete from " + tName + ' where ' + IdName + '=?';
                     let ret = await db(sql, arr);
                     count++;
-                    judge(mysql, rds, count, IdName, tName, cb);
+                    count2++;
+                    judge(mysql, rds, count, count2, IdName, tName, cb);
                 } else {
                     let ret = await insert(keys, vals, tName);
-                    cb(null, count);
+                    cb(null, [count, count2]);
                 }
             }
         } else {
             // insert
             let ret = await insert(keys, vals, tName);
-            cb(null, ++count);
+            cb(null, [++count, count2]);
         }
     } catch (err) {
         cb('error');
     }
 })
-var update = promise.promisify(async function (keys, vals, IdName, tName, cb) {
+var update = promise.promisify(async function (keys, vals, IdName, tName, Id1, cb) {
     try {
         let set = "";
         for (let i = 0; i < keys.length; i++) {
             const k = keys[i];
+            if (k == 'registTime' || k == 'logTime' || k == 'submitTime' || k == 'state_time' || k == 'flow_time' || k == 'mes_time') {
+                vals[i] = util.dataToString(vals[i]);
+            }
             if (i != keys.length - 1) {
                 set += ' ' + k + '=?,';
             } else {
@@ -354,6 +369,9 @@ var insert = promise.promisify(async function (keys, vals, tName, cb) {
         let circle2 = "";
         for (let i = 0; i < keys.length; i++) {
             const k = keys[i];
+            if (k == 'registTime' || k == 'logTime' || k == 'submitTime' || k == 'state_time' || k == 'flow_time' || k == 'mes_time') {
+                vals[i] = util.dataToString(vals[i]);
+            }
             if (i != keys.length - 1) {
                 circle1 += k + ',';
                 circle2 += '?,';

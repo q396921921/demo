@@ -4,9 +4,11 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Page Title</title>
+    <title>借贷后台</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/css/main.css">
+    <!-- 禁用这个可恶的icon -->
+    <link rel="icon" href="data:;base64,=">
     <script src="/js/jquery.min.js"></script>
     <script src="/js/powers.js"></script>
     <link href="/toastr/toastr.css" rel="stylesheet" />
@@ -15,6 +17,9 @@
         var username = "<%=username%>";
         var noOrder1;
         var noOrder2;
+        var product, screen = "product"; "Screen";
+        var other = "other";
+        var dep = "dep";
         $(function () {
             // 获取cookie中的用户名，然后赋值到隐藏标签中
             getUsername(username)
@@ -27,15 +32,16 @@
 
             }
             if (r23) {
-                let str = '<tr><td><input type="button" class="canButton" value="商品管理" onclick="jump(5,1)"></td></tr>'
-                    + '<tr><td><input type="button" class="canButton" value="其他管理" onclick="jump(1,1)"></td></tr>'
-                    + '<tr><td><input type="button" class="canButton" value="部门管理" onclick="jump(6,1)"></td></tr>';
+                let str = '<tr><td><input type="button" class="canButton" value="商品管理" onclick="jump(product,screen)"></td></tr>'
+                    + '<tr><td><input type="button" class="canButton" value="其他管理" onclick="jump(other,control)"></td></tr>'
+                    + '<tr><td><input type="button" class="canButton" value="部门管理" onclick="jump(dep,create)"></td></tr>';
                 $(str).appendTo($("#b tbody"));
             }
+            // top.location.href = location.href;
         })
         function getUsername(username) {
             $.ajax({
-                url: "/users/getUser",
+                url: "/user/getUser",
                 type: "post",
                 data: {
                     username: username,
@@ -118,7 +124,7 @@
         function getNoHandleOrder(order_type) {
             let num = "";
             $.ajax({
-                url: "/users/getOrders",
+                url: "/order/getOrders",
                 type: "post",
                 data: {
                     order_type: order_type,
@@ -138,11 +144,11 @@
         }
         // 注销用户
         function outUser() {
-            window.location.href = "/users/outUser"
+            window.location.href = "/outUser"
         }
         // state为左边的大菜单，menu为大菜单进入后的小菜单
         function jump(state, menu) {
-            window.location.href = '/users/main?state=' + state + '&menu=' + menu;
+            window.location.href = '/main?state=' + state + '&menu=' + menu;
         }
 
 
@@ -172,6 +178,7 @@
         function removeGround(t) {
             $(t).css('background', '')
         }
+
     </script>
 
 <body>
@@ -191,12 +198,12 @@
                 <tbody>
                     <tr>
                         <td>
-                            <input type="button" class="canButton" value="申请管理" onclick="jump(4,1)">
+                            <input type="button" class="canButton" value="申请管理" onclick="jump('order','Appli')">
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="button" class="canButton" value="账户管理" onclick="jump(2,3)">
+                            <input type="button" class="canButton" value="账户管理" onclick="jump('user','Update')">
                         </td>
                     </tr>
                 </tbody>

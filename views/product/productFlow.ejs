@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>筛选统计页面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/productceshi3.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-form.js"></script>
+    <script src="/js/productFlow.js"></script>
+    <script src="/js/public.js"></script>
+    <script>
+        
+        var username = "<%=username%>";
+        var menu = "<%=menu%>";
+        $(function () {
+            bindEvents();
+            if (menu == 'Flow') {
+                $("#li3").children().css("background", "#97C65E");
+            }
+        })
+
+    </script>
+
+<body>
+    <div id="a">
+        <ul>
+            <li id="li1">
+                <input type="button" value="筛选/统计" class="canButton" name="head1" onclick="jump('Screen')">
+            </li>
+            <li id="li2">
+                <input type="button" value="创建商品" class="canButton" name="head2" onclick="jump('Create')">
+            </li>
+            <li id="li3">
+                <input type="button" value="流程" class="canButton" name="head3" onclick="jump('Flow')">
+            </li>
+            <li id="li4">
+                <input type="button" value="申请材料" class="canButton" name="head4" onclick="jump('Appli')">
+            </li>
+            <li id="li5">
+                <input type="button" value="分配产品" class="canButton" name="head5" onclick="jump('Allot')">
+            </li>
+        </ul>
+    </div>
+    <div id="caozuo">
+        <input type="button" value="创建" class="canButton" onclick="showCreate()">
+        <input type="button" value="删除" class="canButton" onclick="showDelete()">
+    </div>
+    <div id="create">
+        <form action="./../createFlow" method="POST" style="height: 100%;">
+            <div id="formLeft" style="width: 35%;height: 100%;float: left;">
+                <table id="flow" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td colspan="2">创建流程</td>
+                    </tr>
+                    <tr>
+                        <td>流程名:</td>
+                        <td>
+                            <input type="text" name="flow_name">
+                        </td>
+                    </tr>
+                </table>
+                <table id="createFlow" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            <input type="button" value="添加一行" onclick="insertFlow()">
+                        </td>
+                        <td colspan="2">创建具体流程</td>
+                        <td>
+                            <input type="button" value="删除一行" onclick="deleteDetailFlow()">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>具体流程名:</td>
+                        <td>
+                            <input type="text" name="detail_flow_name" onfocus="setLeavlNum(this)">
+                        </td>
+                        <td>级别</td>
+                        <td>
+                            <input type="text" name="flow_leavl" readonly>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="formRight" style="width: 64%;height:100%;float: right;">
+                <table class="createState" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            <input type="button" value="添加一行" onclick="insertState(this)">
+                        </td>
+                        <td colspan="2">创建具体状态</td>
+                        <td>
+                            <input type="button" value="删除一行" onclick="deleteState(this)">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>具体状态名:</td>
+                        <td>
+                            <input type="text" name="detail_state_name" onfocus="setLeavlNum(this)">
+                        </td>
+                        <td>级别</td>
+                        <td>
+                            <input type="text" name="state_leavl" readonly>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </form>
+        <input type="submit" value="确认创建" class="canButton" id="reUpdate" onclick="submitForm(this)">
+    </div>
+    <div id="delete" hidden>
+        <table id="allFlows" style="width: 99%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td width="30%">流程id</td>
+                <td width="40%">流程名字</td>
+                <td width="30%">操作</td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>
+<script>
+
+</script>

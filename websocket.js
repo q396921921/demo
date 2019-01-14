@@ -1,14 +1,14 @@
 const websocket = {};
 const WebSocketServer = require('ws').Server;
 const fs = require('fs')
-const mdOrder = require('./routes/methodOrder');
+const mdOrder = require('./control/methodOrder');
 const request = require('request');
 const async = require('async');
 const pathUrl = require('path');
 const UUID = require('uuid');
 const debug = require('debug')('app:server');
 const log4js = require('log4js');
-const log = require('./routes/log');
+const log = require('./control/log');
 
 const public = require("./public/public");
 const symbol = public.symbol;

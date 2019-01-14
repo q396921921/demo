@@ -4,6 +4,7 @@ function getOrderById() {
     $("#table tr:gt(0)").empty();
     getOrders(val, $("#table"))
 }
+// ok
 function getEmpName(emp_id) {
     let text = "";
     if (emp_id && emp_id != "") {
@@ -23,6 +24,7 @@ function getEmpName(emp_id) {
     }
     return text;
 }
+// ok
 function getAllProducts() {
     let text;
     $.ajax({
@@ -179,24 +181,6 @@ function getOrderState(num) {
     }
     return text;
 }
-// // 通过id，获得具体的商品信息
-// function getProduct(product_id) {
-//     let text = "";
-//     $.ajax({
-//         url: "/users/getProduct",
-//         type: "post",
-//         data: {
-//             product_id: product_id
-//         },
-//         async: false,
-//         dataType: "text",
-//         success: function (result) {
-//             result = JSON.parse(result).data[0];
-//             text = result.name;
-//         }
-//     })
-//     return text;
-// }
 function getOneOrder(t) {
     $(".tb").hide()
     $("#table2").show()

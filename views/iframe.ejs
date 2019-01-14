@@ -13,18 +13,16 @@
         var state = "<%=state%>";
         var menu = "<%=menu%>";
         $(function () {
-            if (state == 4) {
-                window.location.href = "/users/appli/ceshi" + menu + '?menu=' + menu;
-            } else if (state == 3) {
-
-            } else if (state == 2) {
-                window.location.href = "/users/user/ceshi" + menu + '?menu=' + menu;
-            } else if (state == 1) {
-                window.location.href = "/users/other/ceshi" + menu + '?menu=' + menu;
-            } else if (state == 5) {
-                window.location.href = "/users/product/ceshi" + menu + '?menu=' + menu;
-            } else if (state == 6) {
-                window.location.href = "/users/dep/ceshi" + menu + '?menu=' + menu;
+            if (state == 'order') {
+                window.location.href = "/order/order" + menu + '?menu=' + menu;
+            } else if (state == 'user') {
+                window.location.href = "/user/user" + menu + '?menu=' + menu;
+            } else if (state == 'other') {
+                window.location.href = "/other/other" + menu + '?menu=' + menu;
+            } else if (state == 'product') {
+                window.location.href = "/product/product" + menu + '?menu=' + menu;
+            } else if (state == 'dep') {
+                window.location.href = "/dep/dep" + menu + '?menu=' + menu;
             }
         });
 

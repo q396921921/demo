@@ -57,6 +57,7 @@ function getType(type) {
     }
     return text;
 }
+// ok
 // 从数据库中取得当前所有的产品类型，并记录到当前网页
 function getTypes() {
     var text = "";
@@ -314,6 +315,7 @@ function getSplitScreenOrders() {
         }
     })
 }
+// ok
 // 获取到相应的部门信息     
 function getDep(dep_id) {
     var text = "";

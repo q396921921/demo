@@ -2,19 +2,13 @@
 
 var express = require('express');
 var router = express.Router();
-var fs = require('fs');
-var url = require('url')
-var qs = require('querystring');
-var async = require('async')
-var path1 = require('path');
-var momoent = require('moment');
 
 
 
 // 这是封装之后的模块
-var mdOrder = require('./methodOrder');
-var mdEmp = require('./methodEmp');
-var mdData = require('./methodData');
+var mdOrder = require('../control/methodOrder');
+var mdEmp = require('../control/methodEmp');
+var mdData = require('../control/methodData');
 
 // use
 // 创建一个订单
@@ -86,11 +80,11 @@ router.post('/getOrders', function (req, res, next) {
     let body = req.body;
     body = JSON.parse(Object.keys(body));   // 手机端数据接收
     mdOrder.getOrders({ body: body }, (err, ret) => {
-        if(ret[0].length != 0) {
+        if (ret[0].length != 0) {
             getTime(ret[0], (rt) => {
                 res.send(rt);
             })
-        }else {
+        } else {
             res.send("")
         }
     })

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>筛选统计页面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/productceshi1.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-form.js"></script>
+    <script src="/js/productScreen.js"></script>
+    <script src="/js/public.js"></script>
+    <script src="/js/splitPage.js"></script>
+    <script>
+
+        var username = "<%=username%>";
+        var menu = "<%=menu%>";
+        $(function () {
+            bindEvents()
+            if (menu == 'Screen') {
+                $("#li1").children().css("background", "#97C65E");
+            }
+            getTypes();
+        })
+    </script>
+
+<body>
+    <input type="hidden" id="data">
+    <div id="a">
+        <ul>
+            <li id="li1">
+                <input type="button" value="筛选/统计" class="canButton" name="head1" onclick="jump('Screen')">
+            </li>
+            <li id="li2">
+                <input type="button" value="创建商品" class="canButton" name="head2" onclick="jump('Create')">
+            </li>
+            <li id="li3">
+                <input type="button" value="流程" class="canButton" name="head3" onclick="jump('Flow')">
+            </li>
+            <li id="li4">
+                <input type="button" value="申请材料" class="canButton" name="head4" onclick="jump('Appli')">
+            </li>
+            <li id="li5">
+                <input type="button" value="分配产品" class="canButton" name="head5" onclick="jump('Allot')">
+            </li>
+        </ul>
+        <input id="orderSelect" type="button" onclick="deleteTb()" class="canButton" value="商品ID查询">
+        <input id="aid" type="text">
+    </div>
+    <div id="b">
+        <!-- 筛选条件表 -->
+        <table id="c" cellpadding="0" cellspacing="0" style="width: 50%">
+            <tr>
+                <td width="10%">产品类型</td>
+                <td width="30%">
+                    <select id="types"></select>
+                </td>
+                <td width="20%">
+                    <input class="canButton" type="button" value="筛选" onclick="getScreenProduct()" style="width: 90%">
+                </td>
+            </tr>
+        </table>
+        <!-- 统计之后输出出来的表格 -->
+        <div id="divd">
+            <a href="" id="head"></a>
+            <table id='table' cellpadding="0" cellspacing="0" style="top: 0;">
+                <thead>
+                    <tr>
+                        <th width="10%">商品id</th>
+                        <th width="20%">商品名</th>
+                        <th width="40%">商品详情</th>
+                        <th width="15%">上架状态</th>
+                        <th width="15%">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+        <!-- 分页 -->
+        <%- include("./../splitPage.ejs") %>
+    </div>
+    <div id="detail" hidden>
+        <div id="infoFrame" style="width: 49%;height: 60%;float: left;">
+            <form action="./../updateProductInfo" method="post" enctype="multipart/form-data">
+                <table cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>商品id</td>
+                        <td>
+                            <input type="text" name="product_id" readonly>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>商品名字</td>
+                        <td>
+                            <input type="text" name="name" readonly>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>商品特色</td>
+                        <td>
+                            <input type="text" name='threeText' id="threeText">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>是否询值产品</td>
+                        <td>
+                            <select disabled>
+                                <option value="0" onclick="setData(this)">否</option>
+                                <option value="1" onclick="setData(this)">是</option>
+                            </select>
+                            <input hidden type="text" name='isNum' id="isNum">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>是否交易所</td>
+                        <td>
+                            <select disabled>
+                                <option value="0" onclick="setData(this)">否</option>
+                                <option value="1" onclick="setData(this)">是</option>
+                            </select>
+                            <input hidden type="text" name='isBourse' id="isBourse">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>上架状态</td>
+                        <td>
+                            <select disabled>
+                                <option value="0" onclick="setData(this)">否</option>
+                                <option value="1" onclick="setData(this)">是</option>
+                            </select>
+                            <input hidden type="text" name='putaway' id="putaway">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>商品利率</td>
+                        <td>
+                            <input type="text" name="product_intro" hidden readonly>
+                            <textarea cols="30" rows="3" style="font-size: 15px;width: 100%;resize:none" readonly></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>商品详细</td>
+                        <td>
+                            <input type="text" name="product_detail" hidden readonly>
+                            <textarea cols="30" rows="5" style="font-size: 15px;width: 100%;resize:none" readonly></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>商品流程</td>
+                        <td>
+                            <input type="text" name="flow_id" readonly>
+                            <select id="flow_id2" onchange="getSortFlowState(this)" hidden></select>
+                        </td>
+                    </tr hidden>
+                    <tr hidden>
+                        <td>商品简图</td>
+                        <td>
+                            <input type="hidden" name="exist" value="0">
+                            <input type="file" onchange="change(this)" name="file" hidden>
+                            <input type="hidden" name="imgDemo1">
+                        </td>
+
+                    </tr>
+                    <tr hidden>
+                        <td>商品详图</td>
+                        <td>
+                            <input type="hidden" name="exist" value="0">
+                            <input type="file" onchange="change(this)" name="file" hidden>
+                            <input type="hidden" name="imgDemo2">
+                        </td>
+
+                    </tr>
+                    <tr hidden>
+                        <td>商品详图2</td>
+                        <td>
+                            <input type="hidden" name="exist" value="0">
+                            <input type="file" onchange="change(this)" name="file" hidden>
+                            <input type="hidden" name="imgDemo3">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>申请材料</td>
+                        <td>
+                            <input type="text" name="file_type_id" readonly>
+                            <select id="file_type_id2" onchange="getDetailFile_types(this)" hidden></select>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div id="imgFrame" style="width: 47%;height: 57%;text-align: center; float: left;">
+            <img id="imgDemo1" style="width: 49%;height: 45%">
+            <br>
+            <img id="imgDemo2" style="width: 49%;height: 45%">
+            <img id="imgDemo3" style="width: 49%;height: 45%">
+        </div>
+        <div id="flowFrame" style="width: 48%;height: 45%;">
+            <table cellpadding="0" cellspacing="0" style="width: 100%;" id="flow_state">
+                <tr>
+                    <td colspan="2">商品流程</td>
+                </tr>
+            </table>
+        </div>
+        <div id="fileFrame" style="width: 48%;height: 49%;float: right;margin-right: 3%;margin-top: 22px;">
+            <table cellpadding="0" cellspacing="0" style="width: 100%;" id="file_type">
+                <tr>
+                    <td colspan="2">申请材料</td>
+                </tr>
+            </table>
+        </div>
+        <input type="submit" value="确认修改" class="canButton" id="reUpdate" onclick="submitForm()" hidden>
+    </div>
+</body>
+
+</html>

@@ -1,5 +1,5 @@
 const promise = require('bluebird');
-let util = require('../../routes/util')
+let util = require('../../control/util')
 const get = {};
 const client = require('./async_redis');
 
@@ -610,7 +610,6 @@ function setVar(data, tName) {
             break;
         case 'emp':
             let errInfo = util.stackInfo();
-            console.log(errInfo);
             emp = data;
             break;
         case 'file_types_num':

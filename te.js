@@ -260,7 +260,6 @@ var option = {
 //     console.log(time + ": " + args); // 1458910076.446514:['set', 'foo', 'bar']
 // });
 
-var client = db2.createClient(option);
 // var clientBlocking = client.duplicate();
 
 // var get = function() {
@@ -293,27 +292,6 @@ var client = db2.createClient(option);
 //     console.log(data);
 // }
 // aaa(arr);
-let promise = require('bluebird');
-
-let arr = [
-    { id: 1, value: [3, 3, 3, 4, 4, 4, 5, 5, 5] }, [6, 6],
-    { id: 1, value: [7, 7, 7, 8, 8, 8] }, [3]
-]
-function demo(arr) {
-    let js = [];
-    let ar = [];
-    for (let i = 0; i < arr.length; i++) {
-        const val = arr[i];
-        if (Array.isArray(val)) {
-            ar.push(val);
-        } else {
-            js.push(val);
-        }
-    }
-    let newArr = js.concat(ar);
-    let num = js.length;
-}
-demo(arr);
 
 
 
@@ -321,12 +299,12 @@ demo(arr);
 //     { id: 1, value: [3, 3, 3, 4, 4, 4, 5, 5, 5] }, { id: 1, value: [7, 7, 7, 8, 8, 8] }, [6, 6], [3]
 // ]
 
-var time =[0,8,5,0,6,3,0,2,1,0]
-for (let i = 0; i < a.length; i++) {
-    const val = a[i];
-    if(val == 0) {
-        a.splice(i,1);
-        i--;
+var util = require('./control/util')
+var sync = require('./db/redis/syncDB');
+(async function () {
+    try {
+        await sync.product_type();
+    } catch (err) {
+        console.log(err);
     }
-}
-console.log(a);
+})()

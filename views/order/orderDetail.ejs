@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>全部页面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <!-- <META HTTP-EQUIV="Refresh" CONTENT="600"> -->
+    <link rel="stylesheet" href="/css/appliceshi1.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/public.js"></script>
+    <script src="/js/orderDetail.js"></script>
+    <script src="/js/powers.js"></script>
+    <script src="/js/splitPage.js"></script>
+    <script>
+        var username = "<%=username%>";
+        var menu = "<%=menu%>";
+        $(function () {
+            bindEvents()
+            getEmp();
+            getAllEmpName("", "", "");
+            getAllProducts();
+            getFlows();
+            getDepUserIdName();
+            if (menu == 'Detail') {
+                $("#li1").children().css("background", "#97C65E");
+                $("#c").attr('style', "display:none")
+            }
+            // 设置总利润值
+            getProfit();
+            $("#pageNo").val(1);
+            getSplitPage("", $("#table"))
+            getOneOrders()
+            if (r24) {
+                $("#profitButton").show();
+                $("#profit").show();
+                $("#profit").next().show();
+            }
+        })
+    </script>
+
+<body>
+    <div id="a">
+        <ul>
+            <li id="li1">
+                <input type="button" value="申请订单" class="canButton" name="head1" onclick="jump('Appli')">
+            </li>
+            <li id="li2">
+                <input type="button" value="筛选/统计" class="canButton" name="head2" onclick="jump('Screen')">
+            </li>
+            <li id="li3">
+                <input type="button" value="询值订单" class="canButton" name="head3" onclick="jump('Call')">
+            </li>
+            <li id="li4">
+                <input type="button" value="推荐订单" class="canButton" name="head5" onclick="jump('Comd')">
+            </li>
+        </ul>
+    </div>
+    <div id="b">
+        <div>
+            <table id="table2" width="98%" cellpadding="0" cellspacing="0" style="display: none;">
+                <tr>
+                    <td width="8%">订单编号</td>
+                    <td width="17%">
+                        <input type="text" name="appli_id">
+                    </td>
+                    <td width="8%">渠道姓名</td>
+                    <td width="17%">
+                        <select disabled id="channel_name" style="width:98%;text-align: center"></select>
+                        <input hidden type="text" name="channel_id">
+                    </td>
+                    <td width="8%">业务姓名</td>
+                    <td width="17%">
+                        <select disabled id="business_name" onchange="" style="width:98%;text-align: center"></select>
+                        <input hidden type="text" name="business_id">
+                    </td>
+                    <td width="8%">内勤姓名</td>
+                    <td width="17%">
+                        <select disabled id="office_name" style="width:98%;text-align: center"></select>
+                        <input hidden type="text" name="office_id">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="8%">商品</td>
+                    <td width="17%">
+                        <input type="text" name="product_id">
+                    </td>
+                    <td width="8%">产品类型</td>
+                    <td width="17%">
+                        <select disabled id="types" style="width:98%;text-align: center"></select>
+                        <input type="text" name="type" hidden>
+                    </td>
+                    <td width="8%">申请金额</td>
+                    <td width="17%">
+                        <input type="text" name="inmoney">
+                    </td>
+                    <td width="8%">放款金额</td>
+                    <td width="17%">
+                        <input type="text" name="money">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="8%">申请时间</td>
+                    <td>
+                        <input type="text" name="appliTime">
+                    </td>
+                    <td width="8%">下户时间(短信)</td>
+                    <td>
+                        <input type="text" name="seeTime">
+                    </td>
+                    <td width="8%">放款时间</td>
+                    <td>
+                        <input type="text" name="loanTime">
+                    </td>
+                    <td width="8%">订单状态</td>
+                    <td>
+                        <select hidden id="states" style="width:98%;text-align: center">
+                            <option value="">----请选择----</option>
+                            <option value="1" onclick="setOrder_state(this.value)">申请中</option>
+                            <option value="2" onclick="setOrder_state(this.value)">审核中</option>
+                            <option value="3" onclick="setOrder_state(this.value)">通过</option>
+                            <option value="4" onclick="setOrder_state(this.value)">失败</option>
+                        </select>
+                        <input type="text" name="order_state">
+                    </td>
+                </tr>
+
+                <tr>
+                    <td width="8%">银行名字</td>
+                    <td>
+                        <input type="text" name="bank_name">
+                    </td>
+                    <td width="8%">银行卡号</td>
+                    <td width="8%">
+                        <input type="text" name="bank_id">
+                    </td>
+                    <td width="8%">收款人</td>
+                    <td>
+                        <input type="text" name="card_name">
+                    </td>
+                    <td width="8%">提前还款</td>
+                    <td>
+                        <select hidden id="refunds" style="width:98%;text-align: center">
+                            <option value="">----请选择----</option>
+                            <option value="0" onclick="setRefund_state(this.value)">否</option>
+                            <option value="1" onclick="setRefund_state(this.value)">是</option>
+                        </select>
+                        <input style="width:99%;" type="text" name="refund">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="8%">订单文件</td>
+                    <td colspan="7">
+                        <input style="width:100%;" type="text" name="orderFile">
+                    </td>
+                </tr>
+                <tr height="50px;">
+                    <td width="8%">用户备注</td>
+                    <td colspan="7">
+                        <input style="width:99%;height: 49px;" type="text" name="userComment" hidden>
+                        <textarea cols="170" rows="2" style="resize:none" readonly onblur="getText(this)"></textarea>
+                    </td>
+                </tr>
+                <tr height="50px;">
+                    <td width="8%">员工备注</td>
+                    <td colspan="7">
+                        <input style="width:99%;height: 49px;" type="text" name="empComment" hidden>
+                        <textarea cols="170" rows="2" style="resize:none" readonly onblur="getText(this)"></textarea>
+                    </td>
+                </tr>
+            </table>
+            <table id="table3" style="position: relative;margin-top: 30px;"></table>
+            <table id="table4" style="position: relative;"></table>
+            <table id="table5" style="position: relative;"></table>
+        </div>
+    </div>
+    <div id="down">
+        <!-- 点击之后，可以将对于所有的流程的圆圈有了点击事件，点击之后出现xxxxx -->
+        <input class="canButton" type="button" value="详情" style="right: 160px" onclick="text()">
+        <input class="canButton" type="button" value="编辑" style="right: 50px" onclick="text2()">
+    </div>
+    </div>
+</body>
+
+</html>

@@ -9,9 +9,8 @@
             "type": "node",
             "request": "launch",
             "name": "启动程序",
-            // "program": "${workspaceFolder}\\bin\\www"
-            // "program": "${workspaceFolder}\\bin\\www"
             "program": "${workspaceFolder}\\bin\\www"
+            // "program": "${workspaceFolder}\\te"
         }
     ]
 }

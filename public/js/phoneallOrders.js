@@ -28,6 +28,7 @@ function getOrders(num, tableId) {
         }
     })
 }
+// ok
 function getEmpName(emp_id) {
     let text = "";
     if (emp_id && emp_id != "") {
@@ -47,6 +48,7 @@ function getEmpName(emp_id) {
     }
     return text;
 }
+// ok
 function getAllProducts() {
     let text;
     $.ajax({
@@ -477,6 +479,7 @@ function getStates(state_id) {
     }
     return text
 }
+// ok
 // 通过id，获得具体的商品信息
 function getProduct(product_id) {
     let text = "";
@@ -513,6 +516,7 @@ function getAny(data) {
     }
     return data;
 }
+// ok
 // 从数据库中取得当前所有的产品类型，并记录到当前网页   ✔
 function getTypes() {
     var text = "";

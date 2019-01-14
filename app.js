@@ -7,8 +7,13 @@ var session = require('express-session')
 var ejs = require('ejs');
 
 // import routers file
-var usersRouter = require('./routes/users');
+var mainRouter = require('./routes/main');
+var depRouter = require('./routes/dep');
 var headRouter = require('./routes/head');
+var orderRouter = require('./routes/order');
+var otherRouter = require('./routes/other');
+var productRouter = require('./routes/product');
+var userRouter = require('./routes/user');
 
 // create frame
 var app = express();
@@ -48,8 +53,14 @@ app.use(session({
 app.use('/', express.static(path.join(__dirname, 'public')));
 
 // insert router
-app.use('/users', usersRouter);
+app.use('/', mainRouter);
+app.use('/dep', depRouter);
 app.use('/head', headRouter);
+app.use('/order', orderRouter);
+app.use('/other', otherRouter);
+app.use('/product', productRouter);
+app.use('/user', userRouter);
+
 
 // capture 404 error
 app.use(function (req, res, next) {
